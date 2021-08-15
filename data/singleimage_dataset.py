@@ -43,9 +43,7 @@ class SingleImageDataset(BaseDataset):
         A_img = Image.open(self.A_paths[0]).convert('RGB')
         B_img = Image.open(self.B_paths[0]).convert('RGB')
         print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
-        # print("Resizing to (480, 480)")
-        # A_img = transforms.Resize((480, 480))(A_img)
-        # B_img = transforms.Resize((480, 480))(B_img)
+
         self.A_img = A_img
         self.B_img = B_img
 
