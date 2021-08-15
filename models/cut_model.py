@@ -49,7 +49,6 @@ class CUTModel(BaseModel):
         # The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
-        self.nce_layers = [int(i) for i in self.opt.nce_layers.split(',')]
 
         if self.isTrain:
             self.model_names = ['G', 'D']
