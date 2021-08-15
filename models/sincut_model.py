@@ -14,24 +14,22 @@ class SinCUTModel(CUTModel):
         parser = CUTModel.modify_commandline_options(parser, is_train)
         parser.add_argument('--lambda_R1', type=float, default=1.0,
                             help='weight for the R1 gradient penalty')
-        parser.add_argument('--lambda_identity', type=float, default=1.0,
-                            help='the "identity preservation loss"')
 
-        parser.set_defaults(nce_includes_all_negatives_from_minibatch=True,
-                            dataset_mode="singleimage",
-                            netG="stylegan2",
-                            stylegan2_G_num_downsampling=1,
-                            netD="stylegan2",
-                            gan_mode="nonsaturating",
-                            num_patches=1,
-                            ngf=10,
-                            ndf=8,
-                            lr=0.002,
-                            beta1=0.0,
-                            beta2=0.99,
-                            load_size=1024,
-                            crop_size=64,
-                            preprocess="zoom_and_patch",
+        parser.set_defaults(
+            dataset_mode="singleimage",
+            netG="stylegan2",
+            stylegan2_G_num_downsampling=1,
+            netD="stylegan2",
+            gan_mode="nonsaturating",
+            num_patches=1,
+            ngf=10,
+            ndf=8,
+            lr=0.002,
+            beta1=0.0,
+            beta2=0.99,
+            load_size=1024,
+            crop_size=64,
+            preprocess="zoom_and_patch",
         )
 
         if is_train:
@@ -41,14 +39,13 @@ class SinCUTModel(CUTModel):
                                 save_latest_freq=20000,
                                 n_epochs=8,
                                 n_epochs_decay=8,
-
-            )
+                                )
         else:
             parser.set_defaults(preprocess="none",  # load the whole image as it is
                                 batch_size=1,
                                 num_test=1,
-            )
-            
+                                )
+
         return parser
 
     def __init__(self, opt):

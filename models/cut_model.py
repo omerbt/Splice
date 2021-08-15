@@ -3,6 +3,7 @@ import torch
 from .base_model import BaseModel
 from . import networks
 import util.util as util
+from .extractor import VitExtractor
 
 
 class CUTModel(BaseModel):
@@ -71,7 +72,6 @@ class CUTModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
 
-            from .extractor import VitExtractor
             self.extractor = VitExtractor(model_name='dino_vitb8', device='cuda')
 
     def data_dependent_initialize(self, data):
@@ -160,7 +160,7 @@ class CUTModel(BaseModel):
 
         # self similarity loss between real_A and fake_B
         dino_loss = 0.0
-        for i in range(self.real_A.shape[0]):
+        for i in range(self.real_A.shape[0]):  # avoid memory limitations
             target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(self.real_A[i].unsqueeze(0),
                                                                                layer_num=11).detach()
             keys_ssim = self.extractor.get_keys_self_sim_from_input(self.fake_B[i].unsqueeze(0), layer_num=11)
