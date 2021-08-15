@@ -21,7 +21,8 @@ class CUTModel(BaseModel):
         """  Configures options specific for CUT model
         """
         parser.add_argument('--CUT_mode', type=str, default="CUT", choices='(CUT, cut, FastCUT, fastcut)')
-
+        parser.add_argument('--nce_idt', type=util.str2bool, nargs='?', const=True, default=False,
+                            help='use NCE loss for identity mapping: NCE(G(Y), Y))')
         parser.add_argument('--lambda_GAN', type=float, default=1.0, help='weight for GAN loss：GAN(G(X))')
         parser.add_argument('--num_patches', type=int, default=256, help='number of patches per layer')
         parser.add_argument('--flip_equivariance',
@@ -34,9 +35,10 @@ class CUTModel(BaseModel):
 
         # Set default parameters for CUT and FastCUT
         if opt.CUT_mode.lower() == "cut":
-            parser.set_defaults(nce_idt=True, lambda_NCE=1.0)
+            parser.set_defaults(nce_idt=True)  # set lambda_dino to 1
         elif opt.CUT_mode.lower() == "fastcut":
-            parser.set_defaults(flip_equivariance=True, n_epochs=150, n_epochs_decay=50)
+            # set lambda_dino to 10
+            parser.set_defaults(nce_idt=False, flip_equivariance=True, n_epochs=150, n_epochs_decay=50)
         else:
             raise ValueError(opt.CUT_mode)
 
@@ -49,6 +51,9 @@ class CUTModel(BaseModel):
         # The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
+
+        if opt.nce_idt and self.isTrain:
+            self.visual_names += ['idt_B']
 
         if self.isTrain:
             self.model_names = ['G', 'D']

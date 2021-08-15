@@ -14,7 +14,8 @@ class SinCUTModel(CUTModel):
         parser = CUTModel.modify_commandline_options(parser, is_train)
         parser.add_argument('--lambda_R1', type=float, default=1.0,
                             help='weight for the R1 gradient penalty')
-
+        parser.add_argument('--lambda_identity', type=float, default=1.0,
+                            help='the "identity preservation loss"')
         parser.set_defaults(
             dataset_mode="singleimage",
             netG="stylegan2",
