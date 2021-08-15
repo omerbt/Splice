@@ -32,7 +32,8 @@ class BaseModel(ABC):
         self.opt = opt
         self.gpu_ids = opt.gpu_ids
         self.isTrain = opt.isTrain
-        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')  # get device name: CPU or GPU
+        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device(
+            'cpu')  # get device name: CPU or GPU
         self.save_dir = os.path.join(opt.checkpoints_dir, opt.name)  # save all the checkpoints to save_dir
         if opt.preprocess != 'scale_width':  # with [scale_width], input images might have different sizes, which hurts the performance of cudnn.benchmark.
             torch.backends.cudnn.benchmark = True
@@ -51,7 +52,9 @@ class BaseModel(ABC):
             def grad_hook(grad):
                 saved_vals = add_func(grad)
                 saved_dict[name] = saved_vals
+
             return grad_hook
+
         return hook_gen, saved_dict
 
     @staticmethod
@@ -158,7 +161,8 @@ class BaseModel(ABC):
         errors_ret = OrderedDict()
         for name in self.loss_names:
             if isinstance(name, str):
-                errors_ret[name] = float(getattr(self, 'loss_' + name))  # float(...) works for both scalar tensor and float number
+                errors_ret[name] = float(
+                    getattr(self, 'loss_' + name))  # float(...) works for both scalar tensor and float number
         return errors_ret
 
     def save_networks(self, epoch):
@@ -188,7 +192,7 @@ class BaseModel(ABC):
                 if getattr(module, key) is None:
                     state_dict.pop('.'.join(keys))
             if module.__class__.__name__.startswith('InstanceNorm') and \
-               (key == 'num_batches_tracked'):
+                    (key == 'num_batches_tracked'):
                 state_dict.pop('.'.join(keys))
         else:
             self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
