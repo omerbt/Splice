@@ -53,7 +53,7 @@ class CUTModel(BaseModel):
         self.visual_names = ['real_A', 'fake_B', 'real_B']
 
         if opt.nce_idt and self.isTrain:
-            self.visual_names += ['idt_B']
+            self.loss_names += ['idt_B']
 
         if self.isTrain:
             self.model_names = ['G', 'D']
