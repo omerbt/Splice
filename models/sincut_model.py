@@ -64,8 +64,8 @@ class SinCUTModel(CUTModel):
 
     def compute_G_loss(self):
         CUT_loss_G = super().compute_G_loss()
-        self.loss_idt = torch.nn.functional.l1_loss(self.idt_B, self.real_B) * self.opt.lambda_identity
-        return CUT_loss_G + self.loss_idt
+        self.loss_idt_B = torch.nn.functional.l1_loss(self.idt_B, self.real_B) * self.opt.lambda_identity
+        return CUT_loss_G + self.loss_idt_B
 
     def R1_loss(self, real_pred, real_img):
         grad_real, = torch.autograd.grad(outputs=real_pred.sum(), inputs=real_img, create_graph=True, retain_graph=True)
