@@ -115,7 +115,14 @@ class SingleImageDataset(BaseDataset):
 
         # crops to use for global class feature
         if self.opt.use_cls and self.opt.phase == "train":
-            A_global = B_global = None
+            global_transform = transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.RandomCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            ])
+            A_global = global_transform(A_img)
+            B_global = global_transform(B_img)
             return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}
 
