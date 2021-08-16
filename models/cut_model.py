@@ -49,7 +49,7 @@ class CUTModel(BaseModel):
 
         # specify the training losses you want to print out.
         # The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G']
+        self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G', 'patch_ssim']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
 
         if opt.nce_idt and self.isTrain:
@@ -163,12 +163,17 @@ class CUTModel(BaseModel):
             self.loss_G_GAN = 0.0
 
         # self similarity loss between real_A and fake_B
-        dino_loss = 0.0
+        self.loss_patch_ssim = self.calculate_patch_ssim_loss()
+
+        self.loss_G = self.loss_G_GAN + self.loss_patch_ssim
+        return self.loss_G
+
+    def calculate_patch_ssim_loss(self):
+        # self similarity loss between real_A and fake_B
+        ssim_loss = 0.0
         for i in range(self.real_A.shape[0]):  # avoid memory limitations
             target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(self.real_A[i].unsqueeze(0),
                                                                                layer_num=11).detach()
             keys_ssim = self.extractor.get_keys_self_sim_from_input(self.fake_B[i].unsqueeze(0), layer_num=11)
-            dino_loss += torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
-
-        self.loss_G = self.loss_G_GAN
-        return self.loss_G + dino_loss
+            ssim_loss += torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
+        return ssim_loss
