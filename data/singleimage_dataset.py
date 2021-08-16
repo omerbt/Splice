@@ -116,10 +116,10 @@ class SingleImageDataset(BaseDataset):
         # crops to use for global class feature
         if self.opt.use_cls and self.opt.phase == "train":
             A_global = B_global = None
-            return {'A_patches': A, 'B_patches': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
+            return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}
 
-        return {'A_patches': A, 'B_patches': B, 'A_paths': A_path, 'B_paths': B_path}
+        return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
 
     def __len__(self):
         """ Let's pretend the single image contains 100,000 crops for convenience.

@@ -124,8 +124,8 @@ class CUTModel(BaseModel):
         The option 'direction' can be used to swap domain A and domain B.
         """
         AtoB = self.opt.direction == 'AtoB'
-        self.real_A = input['A_patches' if AtoB else 'B_patches'].to(self.device)
-        self.real_B = input['B_patches' if AtoB else 'A_patches'].to(self.device)
+        self.real_A = input['A' if AtoB else 'B'].to(self.device)
+        self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
     def forward(self):
