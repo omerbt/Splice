@@ -129,8 +129,8 @@ class CUTModel(BaseModel):
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
         if self.isTrain and self.opt.use_cls:
-            self.global_A = input['A_global'][0]
-            self.global_B = input['B_global'][0]
+            self.global_A = input['A_global'][0].to(self.device)
+            self.global_B = input['B_global'][0].to(self.device)
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
