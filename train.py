@@ -3,8 +3,8 @@ import torch
 from options.train_options import TrainOptions
 from data import create_dataset
 from models.sincut_model import SinCUTModel
+from util.util import tensor2im
 from util.visualizer import Visualizer
-from . import util
 import wandb
 
 if __name__ == '__main__':
@@ -63,7 +63,7 @@ if __name__ == '__main__':
                 img_A = dataset.dataset.get_one_image()
                 with torch.no_grad():
                     fake_img = model.netG(img_A)
-                image_numpy = util.tensor2im(fake_img)
+                image_numpy = tensor2im(fake_img)
                 wandb.log({"img": [wandb.Image(image_numpy)]})
                 model.netG.train()
 
