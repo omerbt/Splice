@@ -127,6 +127,9 @@ class CUTModel(BaseModel):
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        if self.isTrain and self.opt.use_cls:
+            self.global_A = input['A_global']
+            self.global_B = input['B_global']
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -141,6 +144,8 @@ class CUTModel(BaseModel):
         self.fake_B = self.fake[:self.real_A.size(0)]
         if self.opt.nce_idt:
             self.idt_B = self.fake[self.real_A.size(0):]
+        if self.isTrain and self.opt.use_cls:
+            self.global_fake = self.netG(self.global_A)
 
     def compute_D_loss(self):
         """Calculate GAN loss for the discriminator"""
@@ -171,6 +176,11 @@ class CUTModel(BaseModel):
         self.loss_patch_ssim = self.calculate_patch_ssim_loss()
 
         self.loss_G = self.loss_G_GAN + self.loss_patch_ssim
+
+        if self.opt.use_cls:
+            # global class loss between B and fake
+            self.loss_cls = self.calculate_cls_loss()
+            self.loss_G += self.loss_cls
         return self.loss_G
 
     def calculate_patch_ssim_loss(self):
@@ -182,3 +192,10 @@ class CUTModel(BaseModel):
             keys_ssim = self.extractor.get_keys_self_sim_from_input(self.fake_B[i].unsqueeze(0), layer_num=11)
             ssim_loss += torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
         return ssim_loss
+
+    def calculate_cls_loss(self):
+        # class token similarity between real_B and fake_B
+        target_cls_token = self.extractor.get_feature_from_input(self.global_B)[-1][0, 0, :].detach()
+        cls_token = self.extractor.get_feature_from_input(self.global_fake)[-1][0, 0, :]
+        cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
+        return cls_loss
