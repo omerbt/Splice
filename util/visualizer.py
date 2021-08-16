@@ -129,8 +129,6 @@ class Visualizer():
                 idx = 0
                 for label, image in visuals.items():
                     image_numpy = util.tensor2im(image)
-                    if label == 'fake_B':
-                        wandb.log({"img": [wandb.Image(image_numpy)]})
                     label_html_row += '<td>%s</td>' % label
                     images.append(image_numpy.transpose([2, 0, 1]))
                     idx += 1

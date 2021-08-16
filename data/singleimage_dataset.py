@@ -67,6 +67,15 @@ class SingleImageDataset(BaseDataset):
         self.patch_indices_B = list(range(len(self)))
         random.shuffle(self.patch_indices_B)
 
+    def get_one_image(self):
+        A_img = self.A_img
+        preprocess = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+        A = preprocess(A_img).unsqueeze(0)
+        return A
+
     def __getitem__(self, index):
         """Return a data point and its metadata information.
 

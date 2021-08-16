@@ -4,6 +4,7 @@ from options.train_options import TrainOptions
 from data import create_dataset
 from models.sincut_model import SinCUTModel
 from util.visualizer import Visualizer
+from . import util
 import wandb
 
 if __name__ == '__main__':
@@ -57,6 +58,15 @@ if __name__ == '__main__':
                 model.compute_visuals()
                 visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
 
+            if total_iters % opt.log_images_freq == 0:  # log current generated entire image to wandb
+                model.netG.eval()
+                img_A = dataset.dataset.get_one_image()
+                with torch.no_grad():
+                    fake_img = model.netG(img_A)
+                image_numpy = util.tensor2im(fake_img)
+                wandb.log({"img": [wandb.Image(image_numpy)]})
+                model.netG.train()
+
             if total_iters % opt.print_freq == 0:  # print training losses and save logging information to the disk
                 losses = model.get_current_losses()
                 visualizer.print_current_losses(epoch, epoch_iter, losses, optimize_time, t_data)
@@ -77,5 +87,5 @@ if __name__ == '__main__':
             model.save_networks(epoch)
 
         print('End of epoch %d / %d \t Time Taken: %d sec' % (
-        epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
+            epoch, opt.n_epochs + opt.n_epochs_decay, time.time() - epoch_start_time))
         model.update_learning_rate()  # update learning rates at the end of every epoch.
