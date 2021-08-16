@@ -21,6 +21,8 @@ class CUTModel(BaseModel):
         """  Configures options specific for CUT model
         """
         parser.add_argument('--CUT_mode', type=str, default="CUT", choices='(CUT, cut, FastCUT, fastcut)')
+        parser.add_argument('--use_cls', type=bool, default=False, choices='whether to use class descriptor loss')
+        parser.add_argument('--cls_lambda', type=float, default=1.0, choices='weight for class descriptor loss')
         parser.add_argument('--nce_idt', type=util.str2bool, nargs='?', const=True, default=False,
                             help='use NCE loss for identity mapping: NCE(G(Y), Y))')
         parser.add_argument('--lambda_GAN', type=float, default=1.0, help='weight for GAN loss：GAN(G(X))')
@@ -51,6 +53,9 @@ class CUTModel(BaseModel):
         # The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G', 'patch_ssim']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
+
+        if opt.use_cls and self.isTrain:
+            self.loss_names += ['cls']
 
         if opt.nce_idt and self.isTrain:
             self.loss_names += ['idt_B']
@@ -119,8 +124,8 @@ class CUTModel(BaseModel):
         The option 'direction' can be used to swap domain A and domain B.
         """
         AtoB = self.opt.direction == 'AtoB'
-        self.real_A = input['A' if AtoB else 'B'].to(self.device)
-        self.real_B = input['B' if AtoB else 'A'].to(self.device)
+        self.real_A = input['A_patches' if AtoB else 'B_patches'].to(self.device)
+        self.real_B = input['B_patches' if AtoB else 'A_patches'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
 
     def forward(self):

@@ -68,12 +68,13 @@ class SingleImageDataset(BaseDataset):
         random.shuffle(self.patch_indices_B)
 
     def get_one_image(self):
-        A_img = self.A_img
+        AtoB = self.opt.direction == 'AtoB'
+        img = self.A_img if AtoB else self.B_img
         preprocess = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
-        A = preprocess(A_img).unsqueeze(0)
+        A = preprocess(img).unsqueeze(0)
         return A
 
     def __getitem__(self, index):
@@ -112,7 +113,7 @@ class SingleImageDataset(BaseDataset):
             A = transform(A_img)
             B = transform(B_img)
 
-        return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
+        return {'A_patches': A, 'B_patches': B, 'A_paths': A_path, 'B_paths': B_path}
 
     def __len__(self):
         """ Let's pretend the single image contains 100,000 crops for convenience.
