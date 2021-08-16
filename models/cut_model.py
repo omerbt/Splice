@@ -21,7 +21,8 @@ class CUTModel(BaseModel):
         """  Configures options specific for CUT model
         """
         parser.add_argument('--CUT_mode', type=str, default="CUT", choices='(CUT, cut, FastCUT, fastcut)')
-        parser.add_argument('--use_cls', type=bool, default=False, choices='whether to use class descriptor loss')
+        parser.add_argument('--use_cls', type=util.str2bool, nargs='?', const=True, default=False,
+                            help='whether to use class descriptor loss')
         parser.add_argument('--cls_lambda', type=float, default=1.0, choices='weight for class descriptor loss')
         parser.add_argument('--nce_idt', type=util.str2bool, nargs='?', const=True, default=False,
                             help='use NCE loss for identity mapping: NCE(G(Y), Y))')
