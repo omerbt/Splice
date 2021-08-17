@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from data import base_dataset
+import data
 from .base_model import BaseModel
 from . import networks
 import util.util as util
@@ -198,8 +198,8 @@ class CUTModel(BaseModel):
 
     def calculate_cls_loss(self):
         # class token similarity between real_B and fake_B
-        fake = base_dataset.__scale_width(self.global_fake, 224, 224)
-        B = base_dataset.__scale_width(self.global_B, 224, 224)
+        fake = data.__scale_width(self.global_fake, 224, 224)
+        B = data.__scale_width(self.global_B, 224, 224)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
         cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
