@@ -90,22 +90,6 @@ class CUTModel(BaseModel):
 
             self.extractor = VitExtractor(model_name='dino_vitb8', device='cuda')
 
-    def data_dependent_initialize(self, data):
-        """
-        The feature network netF is defined in terms of the shape of the intermediate, extracted
-        features of the encoder portion of netG. Because of this, the weights of netF are
-        initialized at the first feedforward pass with some input images.
-        Please also see PatchSampleF.create_mlp(), which is called at the first forward() call.
-        """
-        self.set_input(data)
-        bs_per_gpu = self.real_A.size(0) // max(len(self.opt.gpu_ids), 1)
-        self.real_A = self.real_A[:bs_per_gpu]
-        self.real_B = self.real_B[:bs_per_gpu]
-        self.forward()  # compute fake images: G(A)
-        if self.opt.isTrain:
-            self.compute_D_loss().backward()  # calculate gradients for D
-            self.compute_G_loss().backward()  # calculate graidents for G
-
     def optimize_parameters(self):
         # forward
         self.forward()

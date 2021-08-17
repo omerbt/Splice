@@ -53,7 +53,6 @@ if __name__ == '__main__':
 
     for i, data in enumerate(dataset):
         if i == 0:
-            model.data_dependent_initialize(data)
             model.setup(opt)               # regular setup: load and print networks; create schedulers
             model.parallelize()
             if opt.eval:
