@@ -24,6 +24,7 @@ class CUTModel(BaseModel):
         parser.add_argument('--use_cls', type=util.str2bool, nargs='?', const=True, default=False,
                             help='whether to use class descriptor loss')
         parser.add_argument('--cls_lambda', type=float, default=1.0, choices='weight for class descriptor loss')
+        parser.add_argument('--lambda_patch_ssim', type=float, default=1.0, choices='weight for patch ssim loss')
         parser.add_argument('--nce_idt', type=util.str2bool, nargs='?', const=True, default=False,
                             help='use NCE loss for identity mapping: NCE(G(Y), Y))')
         parser.add_argument('--lambda_GAN', type=float, default=1.0, help='weight for GAN loss：GAN(G(X))')
@@ -176,7 +177,7 @@ class CUTModel(BaseModel):
         # self similarity loss between real_A and fake_B
         self.loss_patch_ssim = self.calculate_patch_ssim_loss()
 
-        self.loss_G = self.loss_G_GAN + self.loss_patch_ssim
+        self.loss_G = self.loss_G_GAN + self.loss_patch_ssim * self.opt.lambda_patch_ssim
 
         if self.opt.use_cls:
             # global class loss between B and fake
