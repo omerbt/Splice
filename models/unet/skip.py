@@ -97,7 +97,6 @@ def skip(
         model_tmp = deeper_main
 
     model.add(conv(num_channels_up[0], num_output_channels, 1, bias=need_bias, pad=pad))
-    # if need_sigmoid:
-    #     model.add(nn.Sigmoid())
-    model.add(nn.Tanh())
+    if need_sigmoid:
+        model.add(nn.Sigmoid())
     return model
