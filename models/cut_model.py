@@ -25,6 +25,7 @@ class CUTModel(BaseModel):
         parser.add_argument('--use_cls', type=util.str2bool, nargs='?', const=True, default=False,
                             help='whether to use class descriptor loss')
         parser.add_argument('--cls_lambda', type=float, default=1.0, help='weight for class descriptor loss')
+        parser.add_argument('--lambda_global_ssim', type=float, default=0.0, help='weight for global ssim loss')
         parser.add_argument('--lambda_patch_ssim', type=float, default=1.0, help='weight for patch ssim loss')
         parser.add_argument('--nce_idt', type=util.str2bool, nargs='?', const=True, default=False,
                             help='use NCE loss for identity mapping: NCE(G(Y), Y))')
@@ -56,6 +57,9 @@ class CUTModel(BaseModel):
         # The training/test scripts will call <BaseModel.get_current_losses>
         self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G', 'patch_ssim']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
+
+        if opt.lambda_global_ssim > 0 and self.isTrain:
+            self.loss_names += ['global_ssim']
 
         if opt.use_cls and self.isTrain:
             self.loss_names += ['cls']
@@ -130,7 +134,7 @@ class CUTModel(BaseModel):
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
-        if self.isTrain and self.opt.use_cls:
+        if self.isTrain and (self.opt.use_cls or self.opt.lambda_global_ssim > 0):
             self.global_A = input['A_global'][0].to(self.device)
             self.global_B = input['B_global'][0].to(self.device)
 
@@ -147,7 +151,7 @@ class CUTModel(BaseModel):
         self.fake_B = self.fake[:self.real_A.size(0)]
         if self.opt.nce_idt:
             self.idt_B = self.fake[self.real_A.size(0):]
-        if self.isTrain and self.opt.use_cls:
+        if self.isTrain and (self.opt.use_cls or self.opt.lambda_global_ssim > 0):
             self.global_fake = self.netG(self.global_A)
 
     def compute_D_loss(self):
@@ -184,6 +188,10 @@ class CUTModel(BaseModel):
             # global class loss between B and fake
             self.loss_cls = self.calculate_cls_loss()
             self.loss_G += self.loss_cls
+        if self.opt.lambda_global_ssim > 0:
+            # global ssim loss
+            self.loss_global_ssim = self.calculate_global_ssim()
+            self.loss_G += self.loss_global_ssim * self.opt.lambda_global_ssim
         return self.loss_G
 
     def calculate_patch_ssim_loss(self):
@@ -205,3 +213,12 @@ class CUTModel(BaseModel):
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
         cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
         return cls_loss
+
+    def calculate_global_ssim(self):
+        resize_transform = Resize(224, max_size=480)
+        fake = resize_transform(self.global_fake)
+        A = resize_transform(self.global_A)
+        target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(A, layer_num=11).detach()
+        keys_ssim = self.extractor.get_keys_self_sim_from_input(fake, layer_num=11)
+        ssim_loss = torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
+        return ssim_loss
