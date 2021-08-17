@@ -1,10 +1,10 @@
 import numpy as np
 import torch
-import data
 from .base_model import BaseModel
 from . import networks
 import util.util as util
 from .extractor import VitExtractor
+from PIL import Image
 
 
 class CUTModel(BaseModel):
@@ -197,9 +197,17 @@ class CUTModel(BaseModel):
         return ssim_loss
 
     def calculate_cls_loss(self):
+        def __scale_width(img, target_width, crop_width, method=Image.BICUBIC):
+            ow, oh = img.size
+            if ow == target_width and oh >= crop_width:
+                return img
+            w = target_width
+            h = int(max(target_width * oh / ow, crop_width))
+            return img.resize((w, h), method)
+
         # class token similarity between real_B and fake_B
-        fake = data.__scale_width(self.global_fake, 224, 224)
-        B = data.__scale_width(self.global_B, 224, 224)
+        fake = __scale_width(self.global_fake, 224, 224)
+        B = __scale_width(self.global_B, 224, 224)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
         cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
