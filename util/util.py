@@ -36,9 +36,34 @@ def find_class_in_module(target_cls_name, module):
         if name.lower() == target_cls_name:
             cls = clsobj
 
-    assert cls is not None, "In %s, there should be a class whose name matches %s in lowercase without underscore(_)" % (module, target_cls_name)
+    assert cls is not None, "In %s, there should be a class whose name matches %s in lowercase without underscore(_)" % (
+        module, target_cls_name)
 
     return cls
+
+
+def calc_size(img, size, max_size):
+    b, c = img.shape[0], img.shape[1]
+    w, h = img.shape[-1], img.shape[-2]
+    short, long = (w, h) if w <= h else (h, w)
+    requested_new_short = size if isinstance(size, int) else size[0]
+
+    if short == requested_new_short:
+        return img
+
+    new_short, new_long = requested_new_short, int(requested_new_short * long / short)
+
+    if max_size is not None:
+        if max_size <= requested_new_short:
+            raise ValueError(
+                f"max_size = {max_size} must be strictly greater than the requested "
+                f"size for the smaller edge size = {size}"
+            )
+        if new_long > max_size:
+            new_short, new_long = int(max_size * new_short / new_long), max_size
+
+    new_w, new_h = (new_short, new_long) if w <= h else (new_long, new_short)
+    return (b, c, new_h, new_w)
 
 
 def tensor2im(input_image, imtype=np.uint8):
