@@ -5,6 +5,7 @@ from . import networks
 import util.util as util
 from .extractor import VitExtractor
 from torchvision.transforms import Resize
+from torchvision import transforms
 
 
 class CUTModel(BaseModel):
@@ -190,9 +191,18 @@ class CUTModel(BaseModel):
 
     def calculate_cls_loss(self):
         # class token similarity between real_B and fake_B
-        resize_transform = Resize(224, max_size=480)
-        fake = resize_transform(self.global_fake)
-        B = resize_transform(self.global_B)
+        fake_transform = transforms.Compose([
+            Resize(224, max_size=480),
+            transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+        ])
+        B_transform = transforms.Compose([
+            Resize(224, max_size=480),
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+        ])
+        #
+        fake = fake_transform(self.global_fake)
+        B = B_transform(self.global_B)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
         cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
