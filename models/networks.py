@@ -275,7 +275,12 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = G_Resnet(input_nc, output_nc, opt.nz, num_downs=2, n_res=n_blocks - 4, ngf=ngf, norm='inst',
                        nl_layer='relu')
     elif netG == 'skip':
-        net = skip(input_nc, output_nc)
+        need_tanh = need_sigmoid = False
+        if opt.skip_activation == 'tanh':
+            need_tanh = True
+        elif opt.skip_activation == 'sigmoid':
+            need_sigmoid = True
+        net = skip(input_nc, output_nc, need_sigmoid=need_sigmoid, need_tanh=need_tanh)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     return init_net(net, init_type, init_gain, gpu_ids, initialize_weights=('stylegan2' not in netG))
