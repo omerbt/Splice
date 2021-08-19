@@ -200,7 +200,6 @@ class CUTModel(BaseModel):
             Resize(224, max_size=480),
             transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
         ])
-        #
         fake = fake_transform(self.global_fake)
         B = B_transform(self.global_B)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
@@ -209,9 +208,17 @@ class CUTModel(BaseModel):
         return cls_loss
 
     def calculate_global_ssim(self):
-        resize_transform = Resize(224, max_size=480)
-        fake = resize_transform(self.global_fake)
-        A = resize_transform(self.global_A)
+        fake_transform = transforms.Compose([
+            Resize(224, max_size=480),
+            transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+        ])
+        A_transform = transforms.Compose([
+            Resize(224, max_size=480),
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+        ])
+        fake = fake_transform(self.global_fake)
+        A = A_transform(self.global_A)
         target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(A, layer_num=11).detach()
         keys_ssim = self.extractor.get_keys_self_sim_from_input(fake, layer_num=11)
         ssim_loss = torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
