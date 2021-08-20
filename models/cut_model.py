@@ -106,7 +106,7 @@ class CUTModel(BaseModel):
                 resize_transform,
                 imagenet_norm
             ])
-            self.patch_transform = transforms.Compose([
+            self.local_real_transform = self.local_fake_transform = transforms.Compose([
                 transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                 imagenet_norm
             ])
@@ -213,8 +213,8 @@ class CUTModel(BaseModel):
         # self similarity loss between real_A and fake_B
         ssim_loss = 0.0
         for i in range(self.real_A.shape[0]):  # avoid memory limitations
-            A = self.patch_transform(self.real_A[i])
-            fake = self.patch_transform(self.fake_B[i])
+            A = self.local_real_transform(self.real_A[i])
+            fake = self.local_fake_transform(self.fake_B[i])
             target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(A.unsqueeze(0),
                                                                                layer_num=11).detach()
             keys_ssim = self.extractor.get_keys_self_sim_from_input(fake.unsqueeze(0), layer_num=11)
