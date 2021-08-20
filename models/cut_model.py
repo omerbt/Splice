@@ -109,6 +109,10 @@ class CUTModel(BaseModel):
                 resize_transform,
                 imagenet_norm
             ])
+            self.patch_transform = transforms.Compose([
+                transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                imagenet_norm
+            ])
             # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
             # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
 
@@ -208,9 +212,11 @@ class CUTModel(BaseModel):
         # self similarity loss between real_A and fake_B
         ssim_loss = 0.0
         for i in range(self.real_A.shape[0]):  # avoid memory limitations
-            target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(self.real_A[i].unsqueeze(0),
+            A = self.patch_transform(self.real_A[i])
+            fake = self.patch_transform(self.fake_B[i])
+            target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(A.unsqueeze(0),
                                                                                layer_num=11).detach()
-            keys_ssim = self.extractor.get_keys_self_sim_from_input(self.fake_B[i].unsqueeze(0), layer_num=11)
+            keys_ssim = self.extractor.get_keys_self_sim_from_input(fake.unsqueeze(0), layer_num=11)
             ssim_loss += torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
         return ssim_loss
 
