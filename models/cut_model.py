@@ -58,8 +58,14 @@ class CUTModel(BaseModel):
 
         # specify the training losses you want to print out.
         # The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['G_GAN', 'D_real', 'D_fake', 'G', 'patch_ssim']
+        self.loss_names = ['D_real', 'D_fake', 'G']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
+
+        if opt.lambda_patch_ssim > 0 and self.isTrain:
+            self.loss_names += ['patch_ssim']
+
+        if opt.lambda_GAN > 0 and self.isTrain:
+            self.loss_names += ['G_GAN']
 
         if opt.lambda_global_ssim > 0 and self.isTrain:
             self.loss_names += ['global_ssim']
@@ -170,27 +176,31 @@ class CUTModel(BaseModel):
 
     def compute_G_loss(self):
         """Calculate GAN and NCE loss for the generator"""
+
         fake = self.fake_B
-        # First, G(A) should fake the discriminator
+        self.loss_G = 0
+
         if self.opt.lambda_GAN > 0.0:
+            # G(A) should fake the discriminator
             pred_fake = self.netD(fake)
-            self.loss_G_GAN = self.criterionGAN(pred_fake, True).mean() * self.opt.lambda_GAN
-        else:
-            self.loss_G_GAN = 0.0
+            self.loss_G_GAN = self.criterionGAN(pred_fake, True).mean()
+            self.loss_G += self.loss_G_GAN * self.opt.lambda_GAN
 
-        # self similarity loss between real_A and fake_B
-        self.loss_patch_ssim = self.calculate_patch_ssim_loss()
+        if self.opt.lambda_patch_ssim > 0:
+            # self similarity loss between real_A and fake_B
+            self.loss_patch_ssim = self.calculate_patch_ssim_loss()
+            self.loss_G += self.loss_patch_ssim * self.opt.lambda_patch_ssim
 
-        self.loss_G = self.loss_G_GAN + self.loss_patch_ssim * self.opt.lambda_patch_ssim
+        if self.opt.lambda_global_ssim > 0:
+            # global ssim loss
+            self.loss_global_ssim = self.calculate_global_ssim()
+            self.loss_G += self.loss_global_ssim * self.opt.lambda_global_ssim
 
         if self.opt.use_cls:
             # global class loss between B and fake
             self.loss_cls = self.calculate_cls_loss()
             self.loss_G += self.loss_cls * self.opt.cls_lambda
-        if self.opt.lambda_global_ssim > 0:
-            # global ssim loss
-            self.loss_global_ssim = self.calculate_global_ssim()
-            self.loss_G += self.loss_global_ssim * self.opt.lambda_global_ssim
+
         return self.loss_G
 
     def calculate_patch_ssim_loss(self):
