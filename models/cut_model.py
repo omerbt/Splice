@@ -92,6 +92,18 @@ class CUTModel(BaseModel):
             self.optimizers.append(self.optimizer_D)
 
             self.extractor = VitExtractor(model_name='dino_vitb8', device='cuda')
+            imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+            self.global_fake_transform = transforms.Compose([
+                Resize(224, max_size=480),
+                transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                imagenet_norm
+            ])
+            self.global_real_transform = transforms.Compose([
+                Resize(224, max_size=480),
+                imagenet_norm
+            ])
+            # fake_new_size = util.calc_size(self.global_fake, 224, max_size=480)
+            # fake_resized = resize_right.resize(self.global_fake, out_shape=fake_new_size)
 
     def optimize_parameters(self):
         # forward
@@ -174,7 +186,7 @@ class CUTModel(BaseModel):
         if self.opt.use_cls:
             # global class loss between B and fake
             self.loss_cls = self.calculate_cls_loss()
-            self.loss_G += self.loss_cls
+            self.loss_G += self.loss_cls * self.opt.cls_lambda
         if self.opt.lambda_global_ssim > 0:
             # global ssim loss
             self.loss_global_ssim = self.calculate_global_ssim()
@@ -193,45 +205,16 @@ class CUTModel(BaseModel):
 
     def calculate_cls_loss(self):
         # class token similarity between real_B and fake_B
-        # fake_new_size = util.calc_size(self.global_fake, 224, max_size=480)
-        # fake_resized = resize_right.resize(self.global_fake, out_shape=fake_new_size)
-        # B_new_size = util.calc_size(self.global_B, 224, max_size=480)
-        # B_resized = resize_right.resize(self.global_B, out_shape=B_new_size)
-
-        fake_transform = transforms.Compose([
-            Resize(224, max_size=480),
-            transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
-            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
-        ])
-        B_transform = transforms.Compose([
-            Resize(224, max_size=480),
-            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
-        ])
-        fake = fake_transform(self.global_fake)
-        B = B_transform(self.global_B)
-        # fake = fake_transform(fake_resized)
-        # B = B_transform(B_resized)
+        fake = self.global_fake_transform(self.global_fake)
+        B = self.global_real_transform(self.global_B)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
         cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
         return cls_loss
 
     def calculate_global_ssim(self):
-        # resize_layer = resize_right.ResizeLayer(in_shape, out_shape=None,
-        #                                          interp_method=interp_methods.cubic, support_sz=None,
-        #                                          antialiasing=True)
-
-        fake_transform = transforms.Compose([
-            Resize(224, max_size=480),
-            transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
-            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
-        ])
-        A_transform = transforms.Compose([
-            Resize(224, max_size=480),
-            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
-        ])
-        fake = fake_transform(self.global_fake)
-        A = A_transform(self.global_A)
+        fake = self.global_fake_transform(self.global_fake)
+        A = self.global_real_transform(self.global_A)
         target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(A, layer_num=11).detach()
         keys_ssim = self.extractor.get_keys_self_sim_from_input(fake, layer_num=11)
         ssim_loss = torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
