@@ -41,6 +41,6 @@ class TrainOptions(BaseOptions):
         parser.add_argument('--lr_policy', type=str, default='linear', help='learning rate policy. [linear | step | plateau | cosine]')
         parser.add_argument('--lr_decay_iters', type=int, default=50, help='multiply by a gamma every lr_decay_iters iterations')
         parser.add_argument('--global_patch_size', type=int, default=224, help='patch size to be used for global ssim and class loss')
-
+        parser.add_argument('--dino_model_name', type=str, default='dino_vitb8', help='dino model for features extraction')
         self.isTrain = True
         return parser

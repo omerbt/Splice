@@ -97,7 +97,7 @@ class CUTModel(BaseModel):
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
 
-            self.extractor = VitExtractor(model_name='dino_vitb8', device='cuda')
+            self.extractor = VitExtractor(model_name=opt.dino_model_name, device='cuda')
             imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
             resize_transform = Resize(opt.global_patch_size, max_size=480)
             self.global_fake_transform = transforms.Compose([
