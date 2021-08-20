@@ -114,7 +114,7 @@ class SingleImageDataset(BaseDataset):
             B = transform(B_img)
 
         # crops to use for global class feature
-        if (self.opt.use_cls or self.opt.lambda_global_ssim > 0) and self.opt.phase == "train":
+        if (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0) and self.opt.phase == "train":
             global_transform = transforms.Compose([
                 transforms.ToTensor(),
             ])

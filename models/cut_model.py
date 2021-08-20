@@ -25,13 +25,9 @@ class CUTModel(BaseModel):
         """  Configures options specific for CUT model
         """
         parser.add_argument('--CUT_mode', type=str, default="CUT", choices='(CUT, cut, FastCUT, fastcut)')
-        parser.add_argument('--use_cls', type=util.str2bool, nargs='?', const=True, default=False,
-                            help='whether to use class descriptor loss')
         parser.add_argument('--cls_lambda', type=float, default=1.0, help='weight for class descriptor loss')
         parser.add_argument('--lambda_global_ssim', type=float, default=0.0, help='weight for global ssim loss')
         parser.add_argument('--lambda_patch_ssim', type=float, default=1.0, help='weight for patch ssim loss')
-        parser.add_argument('--nce_idt', type=util.str2bool, nargs='?', const=True, default=False,
-                            help='use NCE loss for identity mapping: NCE(G(Y), Y))')
         parser.add_argument('--lambda_GAN', type=float, default=1.0, help='weight for GAN loss：GAN(G(X))')
         parser.add_argument('--num_patches', type=int, default=256, help='number of patches per layer')
         parser.add_argument('--flip_equivariance',
@@ -44,10 +40,11 @@ class CUTModel(BaseModel):
 
         # Set default parameters for CUT and FastCUT
         if opt.CUT_mode.lower() == "cut":
-            parser.set_defaults(nce_idt=True)  # set lambda_dino to 1
+            # set lambda_dino to 1
+            parser.set_defaults(lambda_identity=1)
         elif opt.CUT_mode.lower() == "fastcut":
             # set lambda_dino to 10
-            parser.set_defaults(nce_idt=False, flip_equivariance=True, n_epochs=150, n_epochs_decay=50)
+            parser.set_defaults(lambda_identity=0, flip_equivariance=True, n_epochs=150, n_epochs_decay=50)
         else:
             raise ValueError(opt.CUT_mode)
 
@@ -70,10 +67,10 @@ class CUTModel(BaseModel):
         if opt.lambda_global_ssim > 0 and self.isTrain:
             self.loss_names += ['global_ssim']
 
-        if opt.use_cls and self.isTrain:
+        if opt.cls_lambda > 0 and self.isTrain:
             self.loss_names += ['cls']
 
-        if opt.nce_idt and self.isTrain:
+        if opt.lambda_identity > 0 and self.isTrain:
             self.loss_names += ['idt_B']
 
         if self.isTrain:
@@ -144,7 +141,7 @@ class CUTModel(BaseModel):
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
-        if self.isTrain and (self.opt.use_cls or self.opt.lambda_global_ssim > 0):
+        if self.isTrain and (self.opt.cls_lambda > 0 or self.opt.lambda_global_ssim > 0):
             self.global_A = input['A_global'][0].to(self.device)
             self.global_B = input['B_global'][0].to(self.device)
 
@@ -159,9 +156,9 @@ class CUTModel(BaseModel):
 
         self.fake = self.netG(self.real)
         self.fake_B = self.fake[:self.real_A.size(0)]
-        if self.opt.nce_idt:
+        if self.opt.lambda_identity > 0:
             self.idt_B = self.fake[self.real_A.size(0):]
-        if self.isTrain and (self.opt.use_cls or self.opt.lambda_global_ssim > 0):
+        if self.isTrain and (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0):
             self.global_fake = self.netG(self.global_A)
 
     def compute_D_loss(self):
@@ -201,10 +198,14 @@ class CUTModel(BaseModel):
             self.loss_global_ssim = self.calculate_global_ssim()
             self.loss_G += self.loss_global_ssim * self.opt.lambda_global_ssim
 
-        if self.opt.use_cls:
+        if self.opt.cls_lambda > 0:
             # global class loss between B and fake
             self.loss_cls = self.calculate_cls_loss()
             self.loss_G += self.loss_cls * self.opt.cls_lambda
+
+        if self.opt.lambda_identity > 0:
+            self.loss_idt_B = torch.nn.functional.l1_loss(self.idt_B, self.real_B)
+            self.loss_G += self.loss_idt_B * self.opt.lambda_identity
 
         return self.loss_G
 
