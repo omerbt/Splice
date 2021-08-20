@@ -42,14 +42,14 @@ def find_class_in_module(target_cls_name, module):
     return cls
 
 
-def calc_size(img, size, max_size):
-    b, c = img.shape[0], img.shape[1]
-    w, h = img.shape[-1], img.shape[-2]
+def calc_size(input_shape, target_size, max_size):
+    b, c = input_shape[0], input_shape[1]
+    w, h = input_shape[-1], input_shape[-2]
     short, long = (w, h) if w <= h else (h, w)
-    requested_new_short = size if isinstance(size, int) else size[0]
+    requested_new_short = target_size if isinstance(target_size, int) else target_size[0]
 
     if short == requested_new_short:
-        return img
+        return input_shape
 
     new_short, new_long = requested_new_short, int(requested_new_short * long / short)
 
@@ -57,7 +57,7 @@ def calc_size(img, size, max_size):
         if max_size <= requested_new_short:
             raise ValueError(
                 f"max_size = {max_size} must be strictly greater than the requested "
-                f"size for the smaller edge size = {size}"
+                f"size for the smaller edge size = {target_size}"
             )
         if new_long > max_size:
             new_short, new_long = int(max_size * new_short / new_long), max_size

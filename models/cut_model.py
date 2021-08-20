@@ -99,17 +99,18 @@ class CUTModel(BaseModel):
 
             self.extractor = VitExtractor(model_name='dino_vitb8', device='cuda')
             imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+            resize_transform = Resize(opt.global_patch_size, max_size=480)
             self.global_fake_transform = transforms.Compose([
-                Resize(224, max_size=480),
+                resize_transform,
                 transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                 imagenet_norm
             ])
             self.global_real_transform = transforms.Compose([
-                Resize(224, max_size=480),
+                resize_transform,
                 imagenet_norm
             ])
-            # fake_new_size = util.calc_size(self.global_fake, 224, max_size=480)
-            # fake_resized = resize_right.resize(self.global_fake, out_shape=fake_new_size)
+            # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
+            # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
 
     def optimize_parameters(self):
         # forward
@@ -223,6 +224,7 @@ class CUTModel(BaseModel):
         return cls_loss
 
     def calculate_global_ssim(self):
+        # keys self similarity between real_A and fake_B
         fake = self.global_fake_transform(self.global_fake)
         A = self.global_real_transform(self.global_A)
         target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(A, layer_num=11).detach()
