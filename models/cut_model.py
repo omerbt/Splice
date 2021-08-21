@@ -113,6 +113,14 @@ class CUTModel(BaseModel):
             # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
             # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
 
+    def warmup(self, img_A):
+        for _ in range(100):
+            self.optimizer_G.zero_grad()
+            out = self.netG(img_A)
+            recon = torch.nn.MSELoss()(out, img_A)
+            recon.backward()
+            self.optimizer_G.step()
+
     def optimize_parameters(self):
         # forward
         self.forward()
@@ -204,6 +212,7 @@ class CUTModel(BaseModel):
             self.loss_G += self.loss_cls * self.opt.cls_lambda
 
         if self.opt.lambda_identity > 0:
+            # |G(I)-I| for I crop from B
             self.loss_idt_B = torch.nn.functional.l1_loss(self.idt_B, self.real_B)
             self.loss_G += self.loss_idt_B * self.opt.lambda_identity
 
