@@ -33,8 +33,6 @@ class CUTModel(BaseModel):
         parser.add_argument('--flip_equivariance',
                             type=util.str2bool, nargs='?', const=True, default=False,
                             help="Enforce flip-equivariance as additional regularization. It's used by FastCUT, but not CUT")
-        parser.add_argument('--equal_cls', type=util.str2bool, nargs='?', const=True, default=True,
-                            help="Whether to not use class attention for global cls loss")
         parser.set_defaults(pool_size=0)  # no image pooling
 
         opt, _ = parser.parse_known_args()
@@ -239,12 +237,7 @@ class CUTModel(BaseModel):
         A = self.global_real_transform(self.global_A)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
-        if self.opt.equal_cls:
-            cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
-        else:
-            cls_loss = torch.nn.MSELoss(reduction='none')(cls_token, target_cls_token)
-            weights = self.extractor.get_cls_attn_signal(A)
-            cls_loss = (cls_loss * weights).mean()
+        cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
         return cls_loss
 
     def calculate_global_ssim(self):
