@@ -114,6 +114,7 @@ class CUTModel(BaseModel):
             # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
 
     def warmup(self, img_A):
+        img_A = img_A.to(self.device)
         for _ in range(100):
             self.optimizer_G.zero_grad()
             out = self.netG(img_A)
