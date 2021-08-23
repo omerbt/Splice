@@ -248,6 +248,10 @@ class CUTModel(BaseModel):
             cls_keys = self.extractor.get_keys_from_input(fake, 11)[head_idx]
             # get concatenated features
             h, t, d = target_cls_keys.shape
+            print(fake.shape)
+            print(B.shape)
+            print(target_cls_keys.shape)
+            print(cls_keys.shape)
             target_cls_keys = target_cls_keys.transpose(0, 1).reshape(t, h * d)
             cls_keys = cls_keys.transpose(0, 1).reshape(t, h * d)
             cls_loss = torch.nn.MSELoss()(cls_keys, target_cls_keys)
