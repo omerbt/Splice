@@ -159,8 +159,8 @@ class VitExtractor:
 
     def get_keys_self_sim_from_input(self, input_img, layer_num):
         keys = self.get_keys_from_input(input_img, layer_num=layer_num)
-        h, n, d = keys.shape
-        concatenated_keys = keys.transpose(0, 1).reshape(n, h * d)
+        h, t, d = keys.shape
+        concatenated_keys = keys.transpose(0, 1).reshape(t, h * d)
         ssim_map = attn_cosine_sim(concatenated_keys[None, None, ...], concatenated_keys[None, None, ...])
         return ssim_map
 

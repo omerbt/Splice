@@ -33,6 +33,8 @@ class CUTModel(BaseModel):
         parser.add_argument('--flip_equivariance',
                             type=util.str2bool, nargs='?', const=True, default=False,
                             help="Enforce flip-equivariance as additional regularization. It's used by FastCUT, but not CUT")
+        parser.add_argument('--use_class_token', type=util.str2bool, nargs='?', const=True, default=True,
+                            help="Whether to use class token as the descriptor (or keys)")
         parser.set_defaults(pool_size=0)  # no image pooling
 
         opt, _ = parser.parse_known_args()
@@ -234,9 +236,21 @@ class CUTModel(BaseModel):
         # class token similarity between real_B and fake_B
         fake = self.global_fake_transform(self.global_fake)
         B = self.global_real_transform(self.global_B)
-        target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
-        cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
-        cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
+        if self.opt.use_class_token:
+            target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
+            cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
+            cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
+        else:
+            # use class keys
+            assert self.opt.dino_model_name == 'dino_vits8'
+            head_idx = [0, 2, 4, 5]  # relevant for dino_vits8
+            target_cls_keys = self.extractor.get_keys_from_input(B, 11).detach()[head_idx]
+            cls_keys = self.extractor.get_keys_from_input(fake, 11)[head_idx]
+            # get concatenated features
+            h, t, d = target_cls_keys.shape
+            target_cls_keys = target_cls_keys.transpose(0, 1).reshape(t, h * d)
+            cls_keys = cls_keys.transpose(0, 1).reshape(t, h * d)
+            cls_loss = torch.nn.MSELoss()(cls_keys, target_cls_keys)
         return cls_loss
 
     def calculate_global_ssim(self):
