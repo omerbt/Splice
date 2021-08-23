@@ -234,7 +234,6 @@ class CUTModel(BaseModel):
         # class token similarity between real_B and fake_B
         fake = self.global_fake_transform(self.global_fake)
         B = self.global_real_transform(self.global_B)
-        A = self.global_real_transform(self.global_A)
         target_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
         cls_token = self.extractor.get_feature_from_input(fake)[-1][0, 0, :]
         cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
