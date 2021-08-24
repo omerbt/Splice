@@ -244,7 +244,7 @@ class CUTModel(BaseModel):
             # use class keys
             assert self.opt.dino_model_name == 'dino_vits8'
             # head_idx = [0, 2, 4, 5]  # relevant for dino_vits8
-            head_idx = [0, 1, 2, 3, 4, 5]  # relevant for dino_vits8
+            head_idx = [1]  # relevant for dino_vits8
             target_cls_keys = self.extractor.get_keys_from_input(B, 11).detach()[head_idx]
             cls_keys = self.extractor.get_keys_from_input(fake, 11)[head_idx]
             # get concatenated features
