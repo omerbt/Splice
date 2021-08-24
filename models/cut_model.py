@@ -262,3 +262,7 @@ class CUTModel(BaseModel):
         keys_ssim = self.extractor.get_keys_self_sim_from_input(fake, layer_num=11)
         ssim_loss = torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
         return ssim_loss
+
+    def calculate_global_identity(self):
+        fake = self.global_fake_transform(self.global_fake)
+        A = self.global_real_transform(self.global_A)
