@@ -56,14 +56,14 @@ class CUTModel(BaseModel):
 
         # specify the training losses you want to print out.
         # The training/test scripts will call <BaseModel.get_current_losses>
-        self.loss_names = ['D_real', 'D_fake', 'G']
+        self.loss_names = ['G']
         self.visual_names = ['real_A', 'fake_B', 'real_B']
 
         if opt.lambda_patch_ssim > 0 and self.isTrain:
             self.loss_names += ['patch_ssim']
 
         if opt.lambda_GAN > 0 and self.isTrain:
-            self.loss_names += ['G_GAN']
+            self.loss_names += ['G_GAN', 'D_real', 'D_fake']
 
         if opt.lambda_global_ssim > 0 and self.isTrain:
             self.loss_names += ['global_ssim']
@@ -74,9 +74,9 @@ class CUTModel(BaseModel):
         if opt.lambda_identity > 0 and self.isTrain:
             self.loss_names += ['idt_B']
 
-        if self.isTrain:
+        if self.isTrain and self.opt.lambda_GAN > 0:
             self.model_names = ['G', 'D']
-        else:  # during test time, only load G
+        else:
             self.model_names = ['G']
 
         # define networks (both generator and discriminator)
@@ -85,15 +85,17 @@ class CUTModel(BaseModel):
                                       opt)
 
         if self.isTrain:
-            self.netD = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.normD, opt.init_type,
-                                          opt.init_gain, opt.no_antialias, self.gpu_ids, opt)
+            if self.opt.lambda_GAN > 0:
+                self.netD = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.normD, opt.init_type,
+                                              opt.init_gain, opt.no_antialias, self.gpu_ids, opt)
 
-            # define loss functions
-            self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
+                # define loss functions
+                self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
+                self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
+                self.optimizers.append(self.optimizer_D)
+
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
-            self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
             self.optimizers.append(self.optimizer_G)
-            self.optimizers.append(self.optimizer_D)
 
             self.extractor = VitExtractor(model_name=opt.dino_model_name, device='cuda')
             imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
@@ -126,16 +128,17 @@ class CUTModel(BaseModel):
     def optimize_parameters(self):
         # forward
         self.forward()
+        if self.opt.lambda_GAN > 0:
+            # update D
+            self.set_requires_grad(self.netD, True)
+            self.optimizer_D.zero_grad()
+            self.loss_D = self.compute_D_loss()
+            self.loss_D.backward()
+            self.optimizer_D.step()
 
-        # update D
-        self.set_requires_grad(self.netD, True)
-        self.optimizer_D.zero_grad()
-        self.loss_D = self.compute_D_loss()
-        self.loss_D.backward()
-        self.optimizer_D.step()
+            # update G
+            self.set_requires_grad(self.netD, False)
 
-        # update G
-        self.set_requires_grad(self.netD, False)
         self.optimizer_G.zero_grad()
         self.loss_G = self.compute_G_loss()
         self.loss_G.backward()
