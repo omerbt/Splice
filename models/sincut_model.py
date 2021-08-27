@@ -52,7 +52,7 @@ class SinCUTModel(CUTModel):
     def __init__(self, opt):
         super().__init__(opt)
         if self.isTrain:
-            if opt.lambda_R1 > 0.0:
+            if opt.lambda_R1 > 0.0 and opt.lambda_GAN > 0.0:
                 self.loss_names += ['D_R1']
 
     def compute_D_loss(self):
