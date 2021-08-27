@@ -2,7 +2,7 @@ import time
 import torch
 from options.train_options import TrainOptions
 from data import create_dataset
-from models.cut_model import CUTModel
+from models.model import Model
 from util.util import tensor2im
 from util.visualizer import Visualizer
 import wandb
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)  # get the number of images in the dataset.
 
-    model = CUTModel(opt)  # create a model given opt.model and other options
+    model = Model(opt)  # create a model given opt.model and other options
     print('The number of training images = %d' % dataset_size)
 
     wandb.init(project='texture-mapping', entity='omerbt', config=opt)
@@ -58,7 +58,6 @@ if __name__ == '__main__':
 
             if total_iters % opt.display_freq == 0:  # display images on visdom and save images to a HTML file
                 save_result = total_iters % opt.update_html_freq == 0
-                model.compute_visuals()
                 visualizer.display_current_results(model.get_current_visuals(), epoch, save_result)
 
             if total_iters % opt.log_images_freq == 0:  # log current generated entire image to wandb

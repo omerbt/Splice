@@ -27,6 +27,7 @@ See training and test tips at: https://github.com/junyanz/pytorch-CycleGAN-and-p
 See frequently asked questions at: https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/blob/master/docs/qa.md
 """
 import os
+import torch
 from options.test_options import TestOptions
 from data import create_dataset
 from models import create_model
@@ -60,7 +61,9 @@ if __name__ == '__main__':
         if i >= opt.num_test:  # only apply our model to opt.num_test images.
             break
         model.set_input(data)  # unpack data from data loader
-        model.test()           # run inference
+        # run inference
+        with torch.no_grad():
+            model.forward()
         visuals = model.get_current_visuals()  # get image results
         img_path = model.get_image_paths()     # get image paths
         if i % 5 == 0:  # save images to an HTML file
