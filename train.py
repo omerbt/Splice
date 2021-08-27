@@ -2,7 +2,7 @@ import time
 import torch
 from options.train_options import TrainOptions
 from data import create_dataset
-from models.sincut_model import SinCUTModel
+from models.cut_model import CUTModel
 from util.util import tensor2im
 from util.visualizer import Visualizer
 import wandb
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)  # get the number of images in the dataset.
 
-    model = SinCUTModel(opt)  # create a model given opt.model and other options
+    model = CUTModel(opt)  # create a model given opt.model and other options
     print('The number of training images = %d' % dataset_size)
 
     wandb.init(project='texture-mapping', entity='omerbt', config=opt)
