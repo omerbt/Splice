@@ -46,6 +46,12 @@ class SingleImageDataset(BaseDataset):
 
         self.A_img = A_img
         self.B_img = B_img
+        #FIXEME
+        import torch
+        z = torch.empty(*A_img.shape)
+        z.normal_()
+        A_global = z.unsqueeze()
+        self.A_img = A_global
 
         # In single-image translation, we augment the data loader by applying
         # random scaling. Still, we design the data loader such that the
@@ -120,14 +126,9 @@ class SingleImageDataset(BaseDataset):
             global_transform = transforms.Compose([
                 transforms.ToTensor(),
             ])
-            A_global = global_transform(A_img)
-            A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
-            # FIXME
-            import torch
-            z = torch.empty(*A_global.shape)
-            z.normal_()
-            A_global = z
-            self.A_img = A_global
+            # A_global = global_transform(A_img)
+            # A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
+            A_global = A_img
             B_global = global_transform(B_img).unsqueeze(0)
             return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}
