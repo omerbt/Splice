@@ -48,6 +48,7 @@ class SingleImageDataset(BaseDataset):
         self.B_img = B_img
         #FIXEME
         import torch
+        A_img = transforms.ToTensor()(A_img)
         z = torch.empty(*A_img.shape)
         z.normal_()
         A_global = z.unsqueeze()
