@@ -5,7 +5,7 @@ from ..stylegan_networks import FusedLeakyReLU
 
 
 def skip(
-        num_input_channels=2, num_output_channels=3,
+        num_input_channels=3, num_output_channels=3,
         num_channels_down=[16, 32, 64, 128, 128], num_channels_up=[16, 32, 64, 128, 128],
         num_channels_skip=[4, 4, 4, 4, 4],
         filter_size_down=3, filter_size_up=3, filter_skip_size=1,
