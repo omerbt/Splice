@@ -46,12 +46,6 @@ class SingleImageDataset(BaseDataset):
 
         self.A_img = A_img
         self.B_img = B_img
-        #FIXEME
-        import torch
-        z = torch.empty(1, 3, 1139, 627)
-        z.normal_()
-        A_global = z
-        self.A_img = A_global
 
         # In single-image translation, we augment the data loader by applying
         # random scaling. Still, we design the data loader such that the
@@ -76,13 +70,11 @@ class SingleImageDataset(BaseDataset):
     def get_one_image(self):
         AtoB = self.opt.direction == 'AtoB'
         img = self.A_img if AtoB else self.B_img
-        # preprocess = transforms.Compose([
-        #     transforms.ToTensor(),
-        #     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        # ])
-        # A = preprocess(img).unsqueeze(0)
-        # FIXME uncomment the above
-        A = img
+        preprocess = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
+        A = preprocess(img).unsqueeze(0)
         return A
 
     def __getitem__(self, index):
@@ -109,8 +101,7 @@ class SingleImageDataset(BaseDataset):
                      'flip': random.random() > 0.5}
 
             transform_A = get_transform(self.opt, params=param, method=Image.BILINEAR)
-            # A = transform_A(A_img)
-            A = A_img
+            A = transform_A(A_img)
             param = {'scale_factor': self.zoom_levels_B[index],
                      'patch_index': self.patch_indices_B[index],
                      'flip': random.random() > 0.5}
@@ -126,9 +117,8 @@ class SingleImageDataset(BaseDataset):
             global_transform = transforms.Compose([
                 transforms.ToTensor(),
             ])
-            # A_global = global_transform(A_img)
-            # A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
-            A_global = A_img
+            A_global = global_transform(A_img)
+            A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
             B_global = global_transform(B_img).unsqueeze(0)
             return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}
