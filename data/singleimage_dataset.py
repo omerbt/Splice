@@ -70,11 +70,13 @@ class SingleImageDataset(BaseDataset):
     def get_one_image(self):
         AtoB = self.opt.direction == 'AtoB'
         img = self.A_img if AtoB else self.B_img
-        preprocess = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
-        A = preprocess(img).unsqueeze(0)
+        # preprocess = transforms.Compose([
+        #     transforms.ToTensor(),
+        #     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        # ])
+        # A = preprocess(img).unsqueeze(0)
+        # FIXME uncomment the above
+        A = img
         return A
 
     def __getitem__(self, index):
@@ -125,6 +127,7 @@ class SingleImageDataset(BaseDataset):
             z = torch.empty(*A_global.shape)
             z.normal_()
             A_global = z
+            self.A_img = A_global
             B_global = global_transform(B_img).unsqueeze(0)
             return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}
