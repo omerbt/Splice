@@ -121,7 +121,10 @@ class SingleImageDataset(BaseDataset):
             A_global = global_transform(A_img)
             A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
             # FIXME
-            A_global.normal_()
+            import torch
+            z = torch.empty(*A_global.shape)
+            z.normal_()
+            A_global = z
             B_global = global_transform(B_img).unsqueeze(0)
             return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}
