@@ -48,10 +48,9 @@ class SingleImageDataset(BaseDataset):
         self.B_img = B_img
         #FIXEME
         import torch
-        A_img = transforms.ToTensor()(A_img)
-        z = torch.empty(*A_img.shape)
+        z = torch.empty(1, 3, 1139, 627)
         z.normal_()
-        A_global = z.unsqueeze(0)
+        A_global = z
         self.A_img = A_global
 
         # In single-image translation, we augment the data loader by applying
