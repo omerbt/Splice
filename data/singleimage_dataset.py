@@ -51,7 +51,7 @@ class SingleImageDataset(BaseDataset):
         A_img = transforms.ToTensor()(A_img)
         z = torch.empty(*A_img.shape)
         z.normal_()
-        A_global = z.unsqueeze()
+        A_global = z.unsqueeze(0)
         self.A_img = A_global
 
         # In single-image translation, we augment the data loader by applying
