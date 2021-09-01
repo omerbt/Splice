@@ -92,7 +92,8 @@ class BaseOptions():
         parser.add_argument('--stylegan2_G_num_downsampling',
                             default=1, type=int,
                             help='Number of downsampling layers used by StyleGAN2Generator')
-
+        parser.add_argument('--seed', type=int, default=-1,
+                            help='random seed, -1 for generating a random seed')
         self.initialized = True
         return parser
 

@@ -13,12 +13,13 @@ if __name__ == '__main__':
     opt = TrainOptions().parse()  # get training options
 
     # for reproducibility
-    seed = np.random.randint(2 ** 32 - 1)
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    opt.seed = seed
-    print('reproducible run, seed %d' % seed)
+    if opt.seed == -1:
+        opt.seed = np.random.randint(2 ** 32 - 1)
+
+    random.seed(opt.seed)
+    np.random.seed(opt.seed)
+    torch.manual_seed(opt.seed)
+    print('reproducible run, seed %d' % opt.seed)
 
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)  # get the number of images in the dataset.
