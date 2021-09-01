@@ -30,7 +30,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 from options.test_options import TestOptions
-from data import singleimage_dataset
+from data.singleimage_dataset import SingleImageDataset
 from models import create_model
 from util.visualizer import save_images
 from util import html
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     opt.no_flip = True  # no flip; comment this line if results on flipped images are needed.
     opt.display_id = -1  # no visdom display; the test code saves the results to a HTML file.
 
-    dataset = singleimage_dataset(opt)
+    dataset = SingleImageDataset(opt)
     data_loader = DataLoader(
         dataset,
         batch_size=opt.batch_size,
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         drop_last=True if opt.isTrain else False,
     )
 
-    train_dataset = singleimage_dataset(util.copyconf(opt, phase="train"))
+    train_dataset = SingleImageDataset(util.copyconf(opt, phase="train"))
     data_loader = DataLoader(
         train_dataset,
         batch_size=opt.batch_size,

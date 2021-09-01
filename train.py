@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from options.train_options import TrainOptions
-from data import singleimage_dataset
+from data.singleimage_dataset import SingleImageDataset
 from models.mapper import Mapper
 from util.util import tensor2im
 from util.visualizer import Visualizer
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     torch.manual_seed(seed)
     opt.seed = seed
 
-    dataset = singleimage_dataset(opt)
+    dataset = SingleImageDataset(opt)
     data_loader = DataLoader(
         dataset,
         batch_size=opt.batch_size,
