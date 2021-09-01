@@ -28,7 +28,7 @@ class Mapper(BaseModel):
         parser.add_argument('--cls_lambda', type=float, default=1.0, help='weight for class descriptor loss')
         parser.add_argument('--lambda_global_ssim', type=float, default=0.0, help='weight for global ssim loss')
         parser.add_argument('--lambda_patch_ssim', type=float, default=1.0, help='weight for patch ssim loss')
-        parser.add_argument('--lambda_GAN', type=float, default=1.0, help='weight for GAN loss：GAN(G(X))')
+        parser.add_argument('--lambda_GAN', type=float, default=0.0, help='weight for GAN loss：GAN(G(X))')
         parser.add_argument('--num_patches', type=int, default=256, help='number of patches per layer')
         parser.add_argument('--flip_equivariance',
                             type=util.str2bool, nargs='?', const=True, default=False,
