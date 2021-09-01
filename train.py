@@ -14,7 +14,7 @@ if __name__ == '__main__':
     opt = TrainOptions().parse()  # get training options
 
     # for reproducibility
-    seed = np.random.randint(1e10)
+    seed = np.random.randint(2 ** 32 -1)
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
