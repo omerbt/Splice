@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
             if total_iters % opt.log_images_freq == 0:  # log current generated entire image to wandb
                 model.netG.eval()
-                img_A = dataset.dataset.get_one_image()
+                img_A = dataset.get_one_image()
                 with torch.no_grad():
                     fake_img = model.netG(img_A)
                 image_numpy = tensor2im(fake_img)
