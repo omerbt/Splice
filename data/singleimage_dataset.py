@@ -67,11 +67,11 @@ class SingleImageDataset(BaseDataset):
         random.shuffle(self.patch_indices_B)
 
         if opt.input_noise:
-            self.A_img = torch.empty(1, 3, *A_img.size).normal_()
+            self.A_img = torch.empty(3, *A_img.size).normal_()
 
     def get_one_image(self):
         if self.opt.input_noise:
-            return self.A_img
+            return self.A_img.unsqueeze(0)
         AtoB = self.opt.direction == 'AtoB'
         img = self.A_img if AtoB else self.B_img
         preprocess = transforms.Compose([
