@@ -2,7 +2,7 @@ import time
 import torch
 from options.train_options import TrainOptions
 from data import create_dataset
-from models.model import Model
+from models.model import Mapper
 from util.util import tensor2im
 from util.visualizer import Visualizer
 import wandb
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
     dataset_size = len(dataset)  # get the number of images in the dataset.
 
-    model = Model(opt)  # create a model given opt.model and other options
+    model = Mapper(opt)  # create a model given opt.model and other options
     print('The number of training images = %d' % dataset_size)
 
     wandb.init(project='texture-mapping', entity='omerbt', config=opt)
@@ -32,9 +32,6 @@ if __name__ == '__main__':
         visualizer.reset()  # reset the visualizer: make sure it saves the results to HTML at least once every epoch
 
         dataset.set_epoch(epoch)
-        # if epoch == 1:  # warmup
-        #     img_A = dataset.dataset.get_one_image()
-        #     model.warmup(img_A)
 
         for i, data in enumerate(dataset):  # inner loop within one epoch
             iter_start_time = time.time()  # timer for computation per iteration

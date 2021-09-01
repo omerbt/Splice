@@ -10,12 +10,8 @@ from torchvision.transforms import Resize
 from torchvision import transforms
 
 
-class Model(BaseModel):
-    """ This class implements CUT and FastCUT model, described in the paper
-    Contrastive Learning for Unpaired Image-to-Image Translation
-    Taesung Park, Alexei A. Efros, Richard Zhang, Jun-Yan Zhu
-    ECCV, 2020
-
+class Mapper(BaseModel):
+    """
     The code borrows heavily from the PyTorch implementation of CycleGAN
     https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
     """

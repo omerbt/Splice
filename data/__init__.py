@@ -13,6 +13,7 @@ See our template dataset class 'template_dataset.py' for more details.
 import importlib
 import torch.utils.data
 from data.base_dataset import BaseDataset
+from data.singleimage_dataset import SingleImageDataset
 
 
 def find_dataset_using_name(dataset_name):
@@ -35,7 +36,7 @@ def find_dataset_using_name(dataset_name):
     if dataset is None:
         raise NotImplementedError(
             "In %s.py, there should be a subclass of BaseDataset with class name that matches %s in lowercase." % (
-            dataset_filename, target_dataset_name))
+                dataset_filename, target_dataset_name))
 
     return dataset
 
@@ -71,8 +72,8 @@ class CustomDatasetDataLoader():
         Step 2: create a multi-threaded data loader.
         """
         self.opt = opt
-        dataset_class = find_dataset_using_name(opt.dataset_mode)
-        self.dataset = dataset_class(opt)
+
+        self.dataset = SingleImageDataset(opt)
         print("dataset [%s] was created" % type(self.dataset).__name__)
         self.dataloader = torch.utils.data.DataLoader(
             self.dataset,
