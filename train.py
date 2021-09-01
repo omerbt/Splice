@@ -1,4 +1,6 @@
 import time
+import random
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from options.train_options import TrainOptions
@@ -10,6 +12,13 @@ import wandb
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()  # get training options
+
+    # for reproducibility
+    seed = np.random.randint(1e10)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    opt.seed = seed
 
     dataset = singleimage_dataset(opt)
     data_loader = DataLoader(

@@ -296,11 +296,8 @@ class Mapper(BaseModel):
             cls_loss = torch.nn.MSELoss()(cls_token, target_cls_token)
         else:
             # use class keys
-            assert self.opt.dino_model_name == 'dino_vits8'
-            # head_idx = [0, 2, 4, 5]  # relevant for dino_vits8
-            head_idx = [4]  # relevant for dino_vits8
-            target_cls_keys = self.extractor.get_keys_from_input(B, 11).detach()[head_idx]
-            cls_keys = self.extractor.get_keys_from_input(fake, 11)[head_idx]
+            target_cls_keys = self.extractor.get_keys_from_input(B, 11).detach()
+            cls_keys = self.extractor.get_keys_from_input(fake, 11)
             # get concatenated features
             h, t, d = target_cls_keys.shape
             target_cls_keys = target_cls_keys.transpose(0, 1).reshape(-1, h * d)[0]
