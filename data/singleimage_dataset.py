@@ -128,7 +128,7 @@ class SingleImageDataset(BaseDataset):
                 transforms.ToTensor(),
             ])
             if not self.opt.input_noise:
-                A_global = global_transform(A_img)
+                A_global = global_transform(A_img).unsqueeze(0)
                 A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
             else:
                 A_global = A_img
