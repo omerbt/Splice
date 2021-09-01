@@ -67,7 +67,8 @@ class SingleImageDataset(BaseDataset):
         random.shuffle(self.patch_indices_B)
 
         if opt.input_noise:
-            self.A_img = torch.empty(3, *A_img.size).normal_()
+            w, h = A_img.size
+            self.A_img = torch.empty(3, h, w).normal_()
 
     def get_one_image(self):
         if self.opt.input_noise:
