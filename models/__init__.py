@@ -20,7 +20,7 @@ See our template model class 'template_model.py' for more details.
 
 import importlib
 from models.base_model import BaseModel
-from models.model import Model
+from models.model import Mapper
 
 
 def find_model_using_name(model_name):
@@ -49,7 +49,7 @@ def find_model_using_name(model_name):
 
 def get_option_setter(model_name):
     """Return the static method <modify_commandline_options> of the model class."""
-    model_class = Model
+    model_class = Mapper
     return model_class.modify_commandline_options
 
 

@@ -35,7 +35,7 @@ def find_dataset_using_name(dataset_name):
     if dataset is None:
         raise NotImplementedError(
             "In %s.py, there should be a subclass of BaseDataset with class name that matches %s in lowercase." % (
-            dataset_filename, target_dataset_name))
+                dataset_filename, target_dataset_name))
 
     return dataset
 
@@ -44,21 +44,6 @@ def get_option_setter(dataset_name):
     """Return the static method <modify_commandline_options> of the dataset class."""
     dataset_class = find_dataset_using_name(dataset_name)
     return dataset_class.modify_commandline_options
-
-
-def create_dataset(opt):
-    """Create a dataset given the option.
-
-    This function wraps the class CustomDatasetDataLoader.
-        This is the main interface between this package and 'train.py'/'test.py'
-
-    Example:
-        >>> from data import create_dataset
-        >>> dataset = create_dataset(opt)
-    """
-    data_loader = CustomDatasetDataLoader(opt)
-    dataset = data_loader.load_data()
-    return dataset
 
 
 class CustomDatasetDataLoader():

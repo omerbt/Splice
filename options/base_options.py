@@ -23,6 +23,8 @@ class BaseOptions():
     def initialize(self, parser):
         """Define the common options that are used in both training and test."""
         # basic parameters
+        parser.add_argument('--input_noise', type=util.str2bool, nargs='?', const=True, default=False,
+                            help='whether to use noise as input to the generator')
         parser.add_argument('--dataroot', default='placeholder',
                             help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
         parser.add_argument('--name', type=str, default='experiment_name',
