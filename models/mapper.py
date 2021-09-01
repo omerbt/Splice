@@ -136,8 +136,8 @@ class Mapper(BaseModel):
 
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
             self.optimizers.append(self.optimizer_G)
-
-            self.extractor = VitExtractor(model_name=opt.dino_model_name, device='cuda')
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            self.extractor = VitExtractor(model_name=opt.dino_model_name, device=device)
             imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
             resize_transform = Resize(opt.global_patch_size, max_size=480)
             self.global_fake_transform = transforms.Compose([
@@ -207,8 +207,9 @@ class Mapper(BaseModel):
             if self.flipped_for_equivariance:
                 self.real = torch.flip(self.real, [3])
 
-        self.fake = self.netG(self.real)
-        self.fake_B = self.fake[:self.real_A.size(0)]
+        if self.opt.lambda_patch_ssim + self.opt.lambda_GAN > 0:
+            self.fake = self.netG(self.real)
+            self.fake_B = self.fake[:self.real_A.size(0)]
         if self.opt.lambda_identity > 0:
             self.idt_B = self.fake[self.real_A.size(0):]
         if self.isTrain and (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0):
@@ -243,12 +244,11 @@ class Mapper(BaseModel):
     def compute_G_loss(self):
         """Calculate GAN and NCE loss for the generator"""
 
-        fake = self.fake_B
         self.loss_G = 0
 
         if self.opt.lambda_GAN > 0.0:
             # G(A) should fake the discriminator
-            pred_fake = self.netD(fake)
+            pred_fake = self.netD(self.fake_B)
             self.loss_G_GAN = self.criterionGAN(pred_fake, True).mean()
             self.loss_G += self.loss_G_GAN * self.opt.lambda_GAN
 

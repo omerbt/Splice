@@ -56,7 +56,7 @@ if __name__ == '__main__':
             batch_size = data["A"].size(0)
             total_iters += batch_size
             epoch_iter += batch_size
-            if len(opt.gpu_ids) > 0:
+            if len(opt.gpu_ids) > 0 and torch.cuda.is_available():
                 torch.cuda.synchronize()
             optimize_start_time = time.time()
             if epoch == opt.epoch_count and i == 0:
@@ -64,7 +64,7 @@ if __name__ == '__main__':
                 model.parallelize()
             model.set_input(data)  # unpack data from dataset and apply preprocessing
             model.optimize_parameters()  # calculate loss functions, get gradients, update network weights
-            if len(opt.gpu_ids) > 0:
+            if len(opt.gpu_ids) > 0 and torch.cuda.is_available():
                 torch.cuda.synchronize()
             optimize_time = (time.time() - optimize_start_time) / batch_size * 0.005 + 0.995 * optimize_time
 
