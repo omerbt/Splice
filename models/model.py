@@ -10,7 +10,7 @@ from torchvision.transforms import Resize
 from torchvision import transforms
 
 
-class CUTModel(BaseModel):
+class Model(BaseModel):
     """ This class implements CUT and FastCUT model, described in the paper
     Contrastive Learning for Unpaired Image-to-Image Translation
     Taesung Park, Alexei A. Efros, Richard Zhang, Jun-Yan Zhu
@@ -49,6 +49,42 @@ class CUTModel(BaseModel):
         else:
             raise ValueError(opt.CUT_mode)
 
+        parser.add_argument('--lambda_R1', type=float, default=1.0,
+                            help='weight for the R1 gradient penalty')
+        parser.add_argument('--lambda_identity', type=float, default=1.0,
+                            help='the "identity preservation loss"')
+
+        parser.set_defaults(
+            dataset_mode="singleimage",
+            netG="stylegan2",
+            stylegan2_G_num_downsampling=1,
+            netD="stylegan2",
+            gan_mode="nonsaturating",
+            num_patches=1,
+            ngf=10,
+            ndf=8,
+            lr=0.002,
+            beta1=0.0,
+            beta2=0.99,
+            load_size=1024,
+            crop_size=64,
+            preprocess="zoom_and_patch",
+        )
+
+        if is_train:
+            parser.set_defaults(preprocess="zoom_and_patch",
+                                batch_size=16,
+                                save_epoch_freq=1,
+                                save_latest_freq=20000,
+                                n_epochs=8,
+                                n_epochs_decay=8,
+                                )
+        else:
+            parser.set_defaults(preprocess="none",  # load the whole image as it is
+                                batch_size=1,
+                                num_test=1,
+                                )
+
         return parser
 
     def __init__(self, opt):
@@ -74,10 +110,13 @@ class CUTModel(BaseModel):
         if opt.lambda_identity > 0 and self.isTrain:
             self.loss_names += ['idt_B']
 
-        if self.isTrain and self.opt.lambda_GAN > 0:
+        if opt.lambda_GAN > 0 and self.isTrain:
             self.model_names = ['G', 'D']
         else:
             self.model_names = ['G']
+
+        if opt.lambda_R1 > 0.0 and opt.lambda_GAN > 0.0 and self.isTrain:
+            self.loss_names += ['D_R1']
 
         # define networks (both generator and discriminator)
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.normG, not opt.no_dropout,
@@ -86,7 +125,8 @@ class CUTModel(BaseModel):
 
         if self.isTrain:
             if self.opt.lambda_GAN > 0:
-                self.netD = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.normD, opt.init_type,
+                self.netD = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.normD,
+                                              opt.init_type,
                                               opt.init_gain, opt.no_antialias, self.gpu_ids, opt)
 
                 # define loss functions
@@ -176,6 +216,8 @@ class CUTModel(BaseModel):
 
     def compute_D_loss(self):
         """Calculate GAN loss for the discriminator"""
+        self.real_B.requires_grad_()
+
         fake = self.fake_B.detach()
         # Fake; stop backprop to the generator by detaching fake_B
         pred_fake = self.netD(fake)
@@ -187,7 +229,16 @@ class CUTModel(BaseModel):
 
         # combine loss and calculate gradients
         self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
+
+        self.loss_D_R1 = self.R1_loss(self.pred_real, self.real_B)
+        self.loss_D += self.loss_D_R1
+
         return self.loss_D
+
+    def R1_loss(self, real_pred, real_img):
+        grad_real, = torch.autograd.grad(outputs=real_pred.sum(), inputs=real_img, create_graph=True, retain_graph=True)
+        grad_penalty = grad_real.pow(2).view(grad_real.shape[0], -1).sum(1).mean()
+        return grad_penalty * (self.opt.lambda_R1 * 0.5)
 
     def compute_G_loss(self):
         """Calculate GAN and NCE loss for the generator"""

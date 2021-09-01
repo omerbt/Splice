@@ -102,7 +102,6 @@ class SingleImageDataset(BaseDataset):
 
             transform_A = get_transform(self.opt, params=param, method=Image.BILINEAR)
             A = transform_A(A_img)
-
             param = {'scale_factor': self.zoom_levels_B[index],
                      'patch_index': self.patch_indices_B[index],
                      'flip': random.random() > 0.5}

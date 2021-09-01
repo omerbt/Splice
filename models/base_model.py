@@ -1,7 +1,7 @@
 import os
 import torch
 from collections import OrderedDict
-from abc import ABC, abstractmethod
+from abc import ABC
 from . import networks
 
 
@@ -57,38 +57,6 @@ class BaseModel(ABC):
 
         return hook_gen, saved_dict
 
-    @staticmethod
-    def modify_commandline_options(parser, is_train):
-        """Add new model-specific options, and rewrite default values for existing options.
-
-        Parameters:
-            parser          -- original option parser
-            is_train (bool) -- whether training phase or test phase. You can use this flag to add training-specific or test-specific options.
-
-        Returns:
-            the modified parser.
-        """
-        return parser
-
-    @abstractmethod
-    def set_input(self, input):
-        """Unpack input data from the dataloader and perform necessary pre-processing steps.
-
-        Parameters:
-            input (dict): includes the data itself and its metadata information.
-        """
-        pass
-
-    @abstractmethod
-    def forward(self):
-        """Run forward pass; called by both functions <optimize_parameters> and <test>."""
-        pass
-
-    @abstractmethod
-    def optimize_parameters(self):
-        """Calculate losses, gradients, and update network weights; called in every training iteration"""
-        pass
-
     def setup(self, opt):
         """Load and print networks; create schedulers
 
@@ -115,20 +83,6 @@ class BaseModel(ABC):
             if isinstance(name, str):
                 net = getattr(self, 'net' + name)
                 net.eval()
-
-    def test(self):
-        """Forward function used in test time.
-
-        This function wraps <forward> function in no_grad() so we don't save intermediate steps for backprop
-        It also calls <compute_visuals> to produce additional visualization results
-        """
-        with torch.no_grad():
-            self.forward()
-            self.compute_visuals()
-
-    def compute_visuals(self):
-        """Calculate additional output images for visdom and HTML visualization"""
-        pass
 
     def get_image_paths(self):
         """ Return image paths that are used to load current data"""
@@ -254,6 +208,3 @@ class BaseModel(ABC):
             if net is not None:
                 for param in net.parameters():
                     param.requires_grad = requires_grad
-
-    def generate_visuals_for_evaluation(self, data, mode):
-        return {}
