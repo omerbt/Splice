@@ -5,7 +5,7 @@ from data.image_folder import make_dataset
 from PIL import Image
 import random
 from torchvision import transforms
-
+import torch
 
 class SingleImageDataset(BaseDataset):
     """
@@ -66,7 +66,12 @@ class SingleImageDataset(BaseDataset):
         self.patch_indices_B = list(range(len(self)))
         random.shuffle(self.patch_indices_B)
 
+        if opt.input_noise:
+            self.A_img = torch.empty(1, 3, *A_img.size).normal_()
+
     def get_one_image(self):
+        if self.opt.input_noise:
+            return self.A_img
         AtoB = self.opt.direction == 'AtoB'
         img = self.A_img if AtoB else self.B_img
         preprocess = transforms.Compose([
@@ -99,8 +104,9 @@ class SingleImageDataset(BaseDataset):
                      'patch_index': self.patch_indices_A[index],
                      'flip': random.random() > 0.5}
 
-            transform_A = get_transform(self.opt, params=param, method=Image.BILINEAR)
-            A = transform_A(A_img)
+            if not self.opt.input_noise:
+                transform_A = get_transform(self.opt, params=param, method=Image.BILINEAR)
+                A = transform_A(A_img)
             param = {'scale_factor': self.zoom_levels_B[index],
                      'patch_index': self.patch_indices_B[index],
                      'flip': random.random() > 0.5}
@@ -108,7 +114,8 @@ class SingleImageDataset(BaseDataset):
             B = transform_B(B_img)
         else:
             transform = get_transform(self.opt, method=Image.BILINEAR)
-            A = transform(A_img)
+            if self.opt.phase == "train":
+                A = transform(A_img)
             B = transform(B_img)
 
         # crops to use for global class feature
@@ -116,8 +123,11 @@ class SingleImageDataset(BaseDataset):
             global_transform = transforms.Compose([
                 transforms.ToTensor(),
             ])
-            A_global = global_transform(A_img)
-            A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
+            if not self.opt.input_noise:
+                A_global = global_transform(A_img)
+                A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
+            else:
+                A_global = A_img
             B_global = global_transform(B_img).unsqueeze(0)
             return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
                     'B_global': B_global}

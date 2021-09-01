@@ -28,11 +28,9 @@ if __name__ == '__main__':
         num_workers=int(opt.num_threads),
         drop_last=True if opt.isTrain else False,
     )
+    model = Mapper(opt)
 
-    dataset_size = len(dataset)  # get the number of images in the dataset.
-
-    model = Mapper(opt)  # create a model given opt.model and other options
-    print('The number of training images = %d' % dataset_size)
+    print('The number of training images = %d' % len(dataset))
 
     wandb.init(project='texture-mapping', entity='omerbt', config=opt)
 
@@ -87,7 +85,7 @@ if __name__ == '__main__':
                 losses = model.get_current_losses()
                 visualizer.print_current_losses(epoch, epoch_iter, losses, optimize_time, t_data)
                 if opt.display_id is None or opt.display_id > 0:
-                    visualizer.plot_current_losses(epoch, float(epoch_iter) / dataset_size, losses)
+                    visualizer.plot_current_losses(epoch, float(epoch_iter) / len(dataset), losses)
 
             if total_iters % opt.save_latest_freq == 0:  # cache our latest model every <save_latest_freq> iterations
                 print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
