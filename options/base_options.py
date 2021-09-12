@@ -4,6 +4,8 @@ from util import util
 import torch
 import models
 import data
+import numpy as np
+import random
 
 
 class BaseOptions():
@@ -37,6 +39,7 @@ class BaseOptions():
                             help='# of input image channels: 3 for RGB and 1 for grayscale')
         parser.add_argument('--output_nc', type=int, default=3,
                             help='# of output image channels: 3 for RGB and 1 for grayscale')
+        parser.add_argument('--seed', type=int, default=-1, help='random seed to use, -1 for generating a random seed')
         parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in the last conv layer')
         parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in the first conv layer')
         parser.add_argument('--netD', type=str, default='basic',
@@ -184,6 +187,14 @@ class BaseOptions():
                 opt.gpu_ids.append(id)
         if len(opt.gpu_ids) > 0:
             torch.cuda.set_device(opt.gpu_ids[0])
+
+        # set seed
+        if opt.seed == -1:
+            seed = np.random.randint(2 ** 32)
+            opt.seed = seed
+        random.seed(opt.seed)
+        np.random.seed(opt.seed)
+        torch.manual_seed(opt.seed)
 
         self.opt = opt
         return self.opt
