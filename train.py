@@ -15,7 +15,8 @@ if __name__ == '__main__':
     model = Model(opt)  # create a model given opt.model and other options
     print('The number of training images = %d' % dataset_size)
 
-    wandb.init(project=opt.project, entity='omerbt', config=opt)
+    # wandb.init(project=opt.project, entity='omerbt', config=opt)
+    wandb.init(project=opt.project, entity='vit-vis', config=opt)
 
     visualizer = Visualizer(opt)  # create a visualizer that display/save images and plots
     opt.visualizer = visualizer
