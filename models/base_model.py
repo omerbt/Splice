@@ -44,19 +44,6 @@ class BaseModel(ABC):
         self.image_paths = []
         self.metric = 0  # used for learning rate policy 'plateau'
 
-    @staticmethod
-    def dict_grad_hook_factory(add_func=lambda x: x):
-        saved_dict = dict()
-
-        def hook_gen(name):
-            def grad_hook(grad):
-                saved_vals = add_func(grad)
-                saved_dict[name] = saved_vals
-
-            return grad_hook
-
-        return hook_gen, saved_dict
-
     def setup(self, opt):
         """Load and print networks; create schedulers
 
@@ -70,12 +57,6 @@ class BaseModel(ABC):
             self.load_networks(load_suffix)
 
         self.print_networks(opt.verbose)
-
-    def parallelize(self):
-        for name in self.model_names:
-            if isinstance(name, str):
-                net = getattr(self, 'net' + name)
-                setattr(self, 'net' + name, torch.nn.DataParallel(net, self.opt.gpu_ids))
 
     def eval(self):
         """Make models eval mode during test time"""
@@ -134,20 +115,6 @@ class BaseModel(ABC):
                 else:
                     torch.save(net.cpu().state_dict(), save_path)
 
-    def __patch_instance_norm_state_dict(self, state_dict, module, keys, i=0):
-        """Fix InstanceNorm checkpoints incompatibility (prior to 0.4)"""
-        key = keys[i]
-        if i + 1 == len(keys):  # at the end, pointing to a parameter/buffer
-            if module.__class__.__name__.startswith('InstanceNorm') and \
-                    (key == 'running_mean' or key == 'running_var'):
-                if getattr(module, key) is None:
-                    state_dict.pop('.'.join(keys))
-            if module.__class__.__name__.startswith('InstanceNorm') and \
-                    (key == 'num_batches_tracked'):
-                state_dict.pop('.'.join(keys))
-        else:
-            self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
-
     def load_networks(self, epoch):
         """Load all the networks from the disk.
 
@@ -195,16 +162,3 @@ class BaseModel(ABC):
                     print(net)
                 print('[Network %s] Total number of parameters : %.3f M' % (name, num_params / 1e6))
         print('-----------------------------------------------')
-
-    def set_requires_grad(self, nets, requires_grad=False):
-        """Set requies_grad=Fasle for all the networks to avoid unnecessary computations
-        Parameters:
-            nets (network list)   -- a list of networks
-            requires_grad (bool)  -- whether the networks require gradients or not
-        """
-        if not isinstance(nets, list):
-            nets = [nets]
-        for net in nets:
-            if net is not None:
-                for param in net.parameters():
-                    param.requires_grad = requires_grad

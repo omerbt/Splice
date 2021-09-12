@@ -28,7 +28,6 @@ class Model(BaseModel):
         parser.add_argument('--cls_lambda', type=float, default=1.0, help='weight for class descriptor loss')
         parser.add_argument('--lambda_global_ssim', type=float, default=0.0, help='weight for global ssim loss')
         parser.add_argument('--lambda_patch_ssim', type=float, default=1.0, help='weight for patch ssim loss')
-        parser.add_argument('--lambda_GAN', type=float, default=1.0, help='weight for GAN loss：GAN(G(X))')
         parser.add_argument('--num_patches', type=int, default=256, help='number of patches per layer')
         parser.add_argument('--flip_equivariance',
                             type=util.str2bool, nargs='?', const=True, default=False,
@@ -49,8 +48,6 @@ class Model(BaseModel):
         else:
             raise ValueError(opt.CUT_mode)
 
-        parser.add_argument('--lambda_R1', type=float, default=1.0,
-                            help='weight for the R1 gradient penalty')
         parser.add_argument('--lambda_identity', type=float, default=1.0,
                             help='the "identity preservation loss"')
 
@@ -98,9 +95,6 @@ class Model(BaseModel):
         if opt.lambda_patch_ssim > 0 and self.isTrain:
             self.loss_names += ['patch_ssim']
 
-        if opt.lambda_GAN > 0 and self.isTrain:
-            self.loss_names += ['G_GAN', 'D_real', 'D_fake']
-
         if opt.lambda_global_ssim > 0 and self.isTrain:
             self.loss_names += ['global_ssim']
 
@@ -110,13 +104,7 @@ class Model(BaseModel):
         if opt.lambda_identity > 0 and self.isTrain:
             self.loss_names += ['idt_B']
 
-        if opt.lambda_GAN > 0 and self.isTrain:
-            self.model_names = ['G', 'D']
-        else:
-            self.model_names = ['G']
-
-        if opt.lambda_R1 > 0.0 and opt.lambda_GAN > 0.0 and self.isTrain:
-            self.loss_names += ['D_R1']
+        self.model_names = ['G']
 
         # define networks (both generator and discriminator)
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.normG, not opt.no_dropout,
@@ -124,16 +112,6 @@ class Model(BaseModel):
                                       opt)
 
         if self.isTrain:
-            if self.opt.lambda_GAN > 0:
-                self.netD = networks.define_D(opt.output_nc, opt.ndf, opt.netD, opt.n_layers_D, opt.normD,
-                                              opt.init_type,
-                                              opt.init_gain, opt.no_antialias, self.gpu_ids, opt)
-
-                # define loss functions
-                self.criterionGAN = networks.GANLoss(opt.gan_mode).to(self.device)
-                self.optimizer_D = torch.optim.Adam(self.netD.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
-                self.optimizers.append(self.optimizer_D)
-
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
             self.optimizers.append(self.optimizer_G)
 
@@ -156,28 +134,9 @@ class Model(BaseModel):
             # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
             # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
 
-    def warmup(self, img_A):
-        img_A = img_A.to(self.device)
-        for _ in range(100):
-            self.optimizer_G.zero_grad()
-            out = self.netG(img_A)
-            recon = torch.nn.MSELoss()(out, img_A)
-            recon.backward()
-            self.optimizer_G.step()
-
     def optimize_parameters(self):
         # forward
         self.forward()
-        if self.opt.lambda_GAN > 0:
-            # update D
-            self.set_requires_grad(self.netD, True)
-            self.optimizer_D.zero_grad()
-            self.loss_D = self.compute_D_loss()
-            self.loss_D.backward()
-            self.optimizer_D.step()
-
-            # update G
-            self.set_requires_grad(self.netD, False)
 
         self.optimizer_G.zero_grad()
         self.loss_G = self.compute_G_loss()
@@ -214,43 +173,10 @@ class Model(BaseModel):
         if self.isTrain and (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0):
             self.global_fake = self.netG(self.global_A)
 
-    def compute_D_loss(self):
-        """Calculate GAN loss for the discriminator"""
-        self.real_B.requires_grad_()
-
-        fake = self.fake_B.detach()
-        # Fake; stop backprop to the generator by detaching fake_B
-        pred_fake = self.netD(fake)
-        self.loss_D_fake = self.criterionGAN(pred_fake, False).mean()
-        # Real
-        self.pred_real = self.netD(self.real_B)
-        loss_D_real = self.criterionGAN(self.pred_real, True)
-        self.loss_D_real = loss_D_real.mean()
-
-        # combine loss and calculate gradients
-        self.loss_D = (self.loss_D_fake + self.loss_D_real) * 0.5
-
-        self.loss_D_R1 = self.R1_loss(self.pred_real, self.real_B)
-        self.loss_D += self.loss_D_R1
-
-        return self.loss_D
-
-    def R1_loss(self, real_pred, real_img):
-        grad_real, = torch.autograd.grad(outputs=real_pred.sum(), inputs=real_img, create_graph=True, retain_graph=True)
-        grad_penalty = grad_real.pow(2).view(grad_real.shape[0], -1).sum(1).mean()
-        return grad_penalty * (self.opt.lambda_R1 * 0.5)
-
     def compute_G_loss(self):
         """Calculate GAN and NCE loss for the generator"""
 
-        fake = self.fake_B
         self.loss_G = 0
-
-        if self.opt.lambda_GAN > 0.0:
-            # G(A) should fake the discriminator
-            pred_fake = self.netD(fake)
-            self.loss_G_GAN = self.criterionGAN(pred_fake, True).mean()
-            self.loss_G += self.loss_G_GAN * self.opt.lambda_GAN
 
         if self.opt.lambda_patch_ssim > 0:
             # self similarity loss between real_A and fake_B
