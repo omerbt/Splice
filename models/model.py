@@ -140,17 +140,26 @@ class Model(BaseModel):
             self.extractor = VitExtractor(model_name=opt.dino_model_name, device='cuda')
             imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
             resize_transform = Resize(opt.global_patch_size, max_size=480)
-            self.global_fake_transform = transforms.Compose([
-                resize_transform,
-                transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
-                imagenet_norm
-            ])
+            if self.opt.skip_activation == 'tanh':
+                self.global_fake_transform = transforms.Compose([
+                    resize_transform,
+                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                    imagenet_norm
+                ])
+                self.local_real_transform = self.local_fake_transform = transforms.Compose([
+                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                    imagenet_norm
+                ])
+            else:
+                self.global_fake_transform = transforms.Compose([
+                    resize_transform,
+                    imagenet_norm
+                ])
+                self.local_real_transform = self.local_fake_transform = transforms.Compose([
+                    imagenet_norm
+                ])
             self.global_real_transform = transforms.Compose([
                 resize_transform,
-                imagenet_norm
-            ])
-            self.local_real_transform = self.local_fake_transform = transforms.Compose([
-                transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                 imagenet_norm
             ])
             # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
