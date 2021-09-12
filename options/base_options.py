@@ -25,6 +25,10 @@ class BaseOptions():
         # basic parameters
         parser.add_argument('--dataroot', default='placeholder',
                             help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
+        parser.add_argument('--texture', default='placeholder',
+                            help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
+        parser.add_argument('--structure', default='placeholder',
+                            help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
         parser.add_argument('--name', type=str, default='experiment_name',
                             help='name of the experiment. It decides where to store samples and models')
         parser.add_argument('--easy_label', type=str, default='experiment_name', help='Interpretable name')

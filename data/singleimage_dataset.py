@@ -1,7 +1,6 @@
 import numpy as np
 import os.path
 from data.base_dataset import BaseDataset, get_transform
-from data.image_folder import make_dataset
 from PIL import Image
 import random
 import util.util as util
@@ -9,16 +8,6 @@ from torchvision import transforms
 
 
 class SingleImageDataset(BaseDataset):
-    """
-    This dataset class can load unaligned/unpaired datasets.
-
-    It requires two directories to host training images from domain A '/path/to/data/trainA'
-    and from domain B '/path/to/data/trainB' respectively.
-    You can train the model with the dataset flag '--dataroot /path/to/data'.
-    Similarly, you need to prepare two directories:
-    '/path/to/data/testA' and '/path/to/data/testB' during test time.
-    """
-
     def __init__(self, opt):
         """Initialize this dataset class.
 
@@ -27,21 +16,12 @@ class SingleImageDataset(BaseDataset):
         """
         BaseDataset.__init__(self, opt)
 
-        self.dir_A = os.path.join(opt.dataroot, 'trainA')  # create a path '/path/to/data/trainA'
-        self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
+        A_path = os.path.join(opt.dataroot, opt.texture)
+        B_path = os.path.join(opt.dataroot, opt.structure)
 
-        if os.path.exists(self.dir_A) and os.path.exists(self.dir_B):
-            self.A_paths = sorted(
-                make_dataset(self.dir_A, opt.max_dataset_size))  # load images from '/path/to/data/trainA'
-            self.B_paths = sorted(
-                make_dataset(self.dir_B, opt.max_dataset_size))  # load images from '/path/to/data/trainB'
-        self.A_size = len(self.A_paths)  # get the size of dataset A
-        self.B_size = len(self.B_paths)  # get the size of dataset B
+        A_img = Image.open(A_path).convert('RGB')
+        B_img = Image.open(B_path).convert('RGB')
 
-        assert len(self.A_paths) == 1 and len(self.B_paths) == 1, \
-            "SingleImageDataset class should be used with one image in each domain"
-        A_img = Image.open(self.A_paths[0]).convert('RGB')
-        B_img = Image.open(self.B_paths[0]).convert('RGB')
         print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
 
         self.A_img = A_img
@@ -68,8 +48,7 @@ class SingleImageDataset(BaseDataset):
         random.shuffle(self.patch_indices_B)
 
     def get_one_image(self):
-        AtoB = self.opt.direction == 'AtoB'
-        img = self.A_img if AtoB else self.B_img
+        img = self.A_img
         preprocess = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
@@ -89,8 +68,8 @@ class SingleImageDataset(BaseDataset):
             A_paths (str)    -- image paths
             B_paths (str)    -- image paths
         """
-        A_path = self.A_paths[0]
-        B_path = self.B_paths[0]
+        A_path = self.opt.texture
+        B_path = self.opt.structure
         A_img = self.A_img
         B_img = self.B_img
 
@@ -128,4 +107,4 @@ class SingleImageDataset(BaseDataset):
     def __len__(self):
         """ Let's pretend the single image contains 100,000 crops for convenience.
         """
-        return 100000
+        return 100000  # TODO why? this affects scheduler
