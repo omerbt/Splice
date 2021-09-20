@@ -1,7 +1,7 @@
 import time
 import torch
 from options.train_options import TrainOptions
-from data import create_dataset
+from data import CustomDataset
 from models.model import Model
 from util.util import tensor2im
 from util.visualizer import Visualizer
@@ -9,17 +9,19 @@ import wandb
 
 if __name__ == '__main__':
     opt = TrainOptions().parse()  # get training options
-    dataset = create_dataset(opt)  # create a dataset given opt.dataset_mode and other options
-    dataset_size = len(dataset)  # get the number of images in the dataset.
-
+    dataset = CustomDataset(opt)  # create a dataset given opt.dataset_mode and other options
+    dataloader = torch.utils.data.DataLoader(dataset,
+                                             batch_size=opt.batch_size,
+                                             shuffle=not opt.serial_batches,
+                                             num_workers=int(opt.num_threads),
+                                             drop_last=True if opt.isTrain else False,
+                                             )
     model = Model(opt)  # create a model given opt.model and other options
-    print('The number of training images = %d' % dataset_size)
 
     # wandb.init(project=opt.project, entity='omerbt', config=opt)
     wandb.init(project=opt.project, entity='vit-vis', config=opt)
 
-    visualizer = Visualizer(opt)  # create a visualizer that display/save images and plots
-    opt.visualizer = visualizer
+
     total_iters = 0  # the total number of training iterations
 
     optimize_time = 0.1
