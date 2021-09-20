@@ -12,6 +12,7 @@ from torchvision import transforms
 
 class Model(BaseModel):
     """ This class implements CUT and FastCUT model, described in the paper
+
     Contrastive Learning for Unpaired Image-to-Image Translation
     Taesung Park, Alexei A. Efros, Richard Zhang, Jun-Yan Zhu
     ECCV, 2020
