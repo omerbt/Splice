@@ -1,23 +1,35 @@
 import numpy as np
 import os.path
-from data.base_dataset import BaseDataset, get_transform
-from data.image_folder import make_dataset
+from data.base_dataset import get_transform
+from torch.utils.data import Dataset
 from PIL import Image
 import random
-import util.util as util
 from torchvision import transforms
+import os
+import os.path
+
+IMG_EXTENSIONS = [
+    '.jpg', '.JPG', '.jpeg', '.JPEG',
+    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
+    '.tif', '.TIF', '.tiff', '.TIFF',
+]
 
 
-class SingleImageDataset(BaseDataset):
-    """
-    This dataset class can load unaligned/unpaired datasets.
+def is_image_file(filename):
+    return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
 
-    It requires two directories to host training images from domain A '/path/to/data/trainA'
-    and from domain B '/path/to/data/trainB' respectively.
-    You can train the model with the dataset flag '--dataroot /path/to/data'.
-    Similarly, you need to prepare two directories:
-    '/path/to/data/testA' and '/path/to/data/testB' during test time.
-    """
+
+def make_dataset(dir):
+    assert os.path.isdir(dir) or os.path.islink(dir), '%s is not a valid directory' % dir
+
+    for root, _, fnames in sorted(os.walk(dir, followlinks=True)):
+        for fname in fnames:
+            if is_image_file(fname):
+                path = os.path.join(root, fname)
+                return path
+
+
+class CustomDataset(Dataset):
 
     def __init__(self, opt):
         """Initialize this dataset class.
@@ -25,23 +37,16 @@ class SingleImageDataset(BaseDataset):
         Parameters:
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
-        BaseDataset.__init__(self, opt)
 
-        self.dir_A = os.path.join(opt.dataroot, 'trainA')  # create a path '/path/to/data/trainA'
-        self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
+        self.dir_A = os.path.join(opt.dataroot, 'trainA')
+        self.dir_B = os.path.join(opt.dataroot, 'trainB')
 
         if os.path.exists(self.dir_A) and os.path.exists(self.dir_B):
-            self.A_paths = sorted(
-                make_dataset(self.dir_A, opt.max_dataset_size))  # load images from '/path/to/data/trainA'
-            self.B_paths = sorted(
-                make_dataset(self.dir_B, opt.max_dataset_size))  # load images from '/path/to/data/trainB'
-        self.A_size = len(self.A_paths)  # get the size of dataset A
-        self.B_size = len(self.B_paths)  # get the size of dataset B
+            self.A_path = make_dataset(self.dir_A)  # load images from '/path/to/data/trainA'
+            self.B_path = make_dataset(self.dir_B)  # load images from '/path/to/data/trainA'
 
-        assert len(self.A_paths) == 1 and len(self.B_paths) == 1, \
-            "SingleImageDataset class should be used with one image in each domain"
-        A_img = Image.open(self.A_paths[0]).convert('RGB')
-        B_img = Image.open(self.B_paths[0]).convert('RGB')
+        A_img = Image.open(self.A_path[0]).convert('RGB')
+        B_img = Image.open(self.B_path[0]).convert('RGB')
         print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
 
         self.A_img = A_img
@@ -89,8 +94,8 @@ class SingleImageDataset(BaseDataset):
             A_paths (str)    -- image paths
             B_paths (str)    -- image paths
         """
-        A_path = self.A_paths[0]
-        B_path = self.B_paths[0]
+        A_path = self.A_path
+        B_path = self.B_path
         A_img = self.A_img
         B_img = self.B_img
 

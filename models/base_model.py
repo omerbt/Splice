@@ -1,6 +1,5 @@
 import os
 import torch
-from collections import OrderedDict
 from abc import ABC
 from . import networks
 
@@ -44,18 +43,6 @@ class BaseModel(ABC):
         self.image_paths = []
         self.metric = 0  # used for learning rate policy 'plateau'
 
-    @staticmethod
-    def dict_grad_hook_factory(add_func=lambda x: x):
-        saved_dict = dict()
-
-        def hook_gen(name):
-            def grad_hook(grad):
-                saved_vals = add_func(grad)
-                saved_dict[name] = saved_vals
-
-            return grad_hook
-
-        return hook_gen, saved_dict
 
     def setup(self, opt):
         """Load and print networks; create schedulers
@@ -70,12 +57,6 @@ class BaseModel(ABC):
             self.load_networks(load_suffix)
 
         self.print_networks(opt.verbose)
-
-    def parallelize(self):
-        for name in self.model_names:
-            if isinstance(name, str):
-                net = getattr(self, 'net' + name)
-                setattr(self, 'net' + name, torch.nn.DataParallel(net, self.opt.gpu_ids))
 
     def eval(self):
         """Make models eval mode during test time"""
@@ -99,22 +80,6 @@ class BaseModel(ABC):
         lr = self.optimizers[0].param_groups[0]['lr']
         print('learning rate = %.7f' % lr)
 
-    def get_current_visuals(self):
-        """Return visualization images. train.py will display these images with visdom, and save the images to a HTML"""
-        visual_ret = OrderedDict()
-        for name in self.visual_names:
-            if isinstance(name, str):
-                visual_ret[name] = getattr(self, name)
-        return visual_ret
-
-    def get_current_losses(self):
-        """Return traning losses / errors. train.py will print out these errors on console, and save them to a file"""
-        errors_ret = OrderedDict()
-        for name in self.loss_names:
-            if isinstance(name, str):
-                errors_ret[name] = float(
-                    getattr(self, 'loss_' + name))  # float(...) works for both scalar tensor and float number
-        return errors_ret
 
     def save_networks(self, epoch):
         """Save all the networks to the disk.
@@ -133,20 +98,6 @@ class BaseModel(ABC):
                     net.cuda(self.gpu_ids[0])
                 else:
                     torch.save(net.cpu().state_dict(), save_path)
-
-    def __patch_instance_norm_state_dict(self, state_dict, module, keys, i=0):
-        """Fix InstanceNorm checkpoints incompatibility (prior to 0.4)"""
-        key = keys[i]
-        if i + 1 == len(keys):  # at the end, pointing to a parameter/buffer
-            if module.__class__.__name__.startswith('InstanceNorm') and \
-                    (key == 'running_mean' or key == 'running_var'):
-                if getattr(module, key) is None:
-                    state_dict.pop('.'.join(keys))
-            if module.__class__.__name__.startswith('InstanceNorm') and \
-                    (key == 'num_batches_tracked'):
-                state_dict.pop('.'.join(keys))
-        else:
-            self.__patch_instance_norm_state_dict(state_dict, getattr(module, key), keys, i + 1)
 
     def load_networks(self, epoch):
         """Load all the networks from the disk.
