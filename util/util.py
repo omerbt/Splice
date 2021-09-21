@@ -4,10 +4,46 @@ import torch
 import numpy as np
 from PIL import Image
 import os
-import importlib
 import argparse
 from argparse import Namespace
-import torchvision
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn import init
+from torch.optim import lr_scheduler
+import numpy as np
+from models.unet.skip import skip
+
+
+def get_scheduler(optimizer, opt):
+    """Return a learning rate scheduler
+
+    Parameters:
+        optimizer          -- the optimizer of the network
+        opt (option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions．　
+                              opt.lr_policy is the name of learning rate policy: linear | step | plateau | cosine
+
+    For 'linear', we keep the same learning rate for the first <opt.n_epochs> epochs
+    and linearly decay the rate to zero over the next <opt.n_epochs_decay> epochs.
+    For other schedulers (step, plateau, and cosine), we use the default PyTorch schedulers.
+    See https://pytorch.org/docs/stable/optim.html for more details.
+    """
+    if opt.lr_policy == 'linear':
+        def lambda_rule(epoch):
+            lr_l = 1.0 - max(0, epoch + opt.epoch_count - opt.n_epochs) / float(opt.n_epochs_decay + 1)
+            return lr_l
+
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
+    elif opt.lr_policy == 'step':
+        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
+    elif opt.lr_policy == 'plateau':
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
+    elif opt.lr_policy == 'cosine':
+        scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=opt.n_epochs, eta_min=0)
+    else:
+        return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
+    return scheduler
 
 
 def str2bool(v):
@@ -26,20 +62,6 @@ def copyconf(default_opt, **kwargs):
     for key in kwargs:
         setattr(conf, key, kwargs[key])
     return conf
-
-
-def find_class_in_module(target_cls_name, module):
-    target_cls_name = target_cls_name.replace('_', '').lower()
-    clslib = importlib.import_module(module)
-    cls = None
-    for name, clsobj in clslib.__dict__.items():
-        if name.lower() == target_cls_name:
-            cls = clsobj
-
-    assert cls is not None, "In %s, there should be a class whose name matches %s in lowercase without underscore(_)" % (
-        module, target_cls_name)
-
-    return cls
 
 
 def calc_size(input_shape, target_size, max_size):
@@ -87,25 +109,6 @@ def tensor2im(input_image, imtype=np.uint8):
     return image_numpy.astype(imtype)
 
 
-def diagnose_network(net, name='network'):
-    """Calculate and print the mean of average absolute(gradients)
-
-    Parameters:
-        net (torch network) -- Torch network
-        name (str) -- the name of the network
-    """
-    mean = 0.0
-    count = 0
-    for param in net.parameters():
-        if param.grad is not None:
-            mean += torch.mean(torch.abs(param.grad.data))
-            count += 1
-    if count > 0:
-        mean = mean / count
-    print(name)
-    print(mean)
-
-
 def save_image(image_numpy, image_path, aspect_ratio=1.0):
     """Save a numpy image to the disk
 
@@ -124,22 +127,6 @@ def save_image(image_numpy, image_path, aspect_ratio=1.0):
     elif aspect_ratio < 1.0:
         image_pil = image_pil.resize((int(h / aspect_ratio), w), Image.BICUBIC)
     image_pil.save(image_path)
-
-
-def print_numpy(x, val=True, shp=False):
-    """Print the mean, min, max, median, std, and size of a numpy array
-
-    Parameters:
-        val (bool) -- if print the values of the numpy array
-        shp (bool) -- if print the shape of the numpy array
-    """
-    x = x.astype(np.float64)
-    if shp:
-        print('shape,', x.shape)
-    if val:
-        x = x.flatten()
-        print('mean = %3.3f, min = %3.3f, max = %3.3f, median = %3.3f, std=%3.3f' % (
-            np.mean(x), np.min(x), np.max(x), np.median(x), np.std(x)))
 
 
 def mkdirs(paths):
@@ -163,29 +150,3 @@ def mkdir(path):
     """
     if not os.path.exists(path):
         os.makedirs(path)
-
-
-def correct_resize_label(t, size):
-    device = t.device
-    t = t.detach().cpu()
-    resized = []
-    for i in range(t.size(0)):
-        one_t = t[i, :1]
-        one_np = np.transpose(one_t.numpy().astype(np.uint8), (1, 2, 0))
-        one_np = one_np[:, :, 0]
-        one_image = Image.fromarray(one_np).resize(size, Image.NEAREST)
-        resized_t = torch.from_numpy(np.array(one_image)).long()
-        resized.append(resized_t)
-    return torch.stack(resized, dim=0).to(device)
-
-
-def correct_resize(t, size, mode=Image.BICUBIC):
-    device = t.device
-    t = t.detach().cpu()
-    resized = []
-    for i in range(t.size(0)):
-        one_t = t[i:i + 1]
-        one_image = Image.fromarray(tensor2im(one_t)).resize(size, Image.BICUBIC)
-        resized_t = torchvision.transforms.functional.to_tensor(one_image) * 2 - 1.0
-        resized.append(resized_t)
-    return torch.stack(resized, dim=0).to(device)

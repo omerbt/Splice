@@ -1,7 +1,3 @@
-"""This module implements an abstract base class (ABC) 'BaseDataset' for datasets.
-
-It also includes common transformation functions (e.g., get_transform, __scale_width), which can be later used in subclasses.
-"""
 import random
 import numpy as np
 from PIL import Image
@@ -34,8 +30,6 @@ def get_transform(opt, params=None, grayscale=False, method=Image.BICUBIC, conve
         transform_list.append(transforms.Resize(params["size"], method))
     if 'resize' in opt.preprocess:
         osize = [opt.load_size, opt.load_size]
-        if "gta2cityscapes" in opt.dataroot:
-            osize[0] = opt.load_size // 2
         transform_list.append(transforms.Resize(osize, method))
     elif 'scale_width' in opt.preprocess:
         transform_list.append(transforms.Lambda(lambda img: __scale_width(img, opt.load_size, opt.crop_size, method)))
@@ -168,13 +162,3 @@ def __flip(img, flip):
     if flip:
         return img.transpose(Image.FLIP_LEFT_RIGHT)
     return img
-
-
-def __print_size_warning(ow, oh, w, h):
-    """Print warning information about image size(only print once)"""
-    if not hasattr(__print_size_warning, 'has_printed'):
-        print("The image size needs to be a multiple of 4. "
-              "The loaded image size was (%d, %d), so it was adjusted to "
-              "(%d, %d). This adjustment will be done to all images "
-              "whose sizes are not multiples of 4" % (ow, oh, w, h))
-        __print_size_warning.has_printed = True

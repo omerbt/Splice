@@ -3,7 +3,6 @@ import os
 from util import util
 import torch
 import models
-import data
 import numpy as np
 import random
 
@@ -25,13 +24,12 @@ class BaseOptions():
     def initialize(self, parser):
         """Define the common options that are used in both training and test."""
         # basic parameters
-        parser.add_argument('--dataroot', default='placeholder',
+        parser.add_argument('--dataroot', default='./datasets/horse_zebra',
                             help='path to images (should have subfolders trainA, trainB, valA, valB, etc)')
         parser.add_argument('--name', type=str, default='experiment_name',
                             help='name of the experiment. It decides where to store samples and models')
         parser.add_argument('--project', type=str, default='semantic-texture-transfer', help='wandb project name')
         parser.add_argument('--easy_label', type=str, default='experiment_name', help='Interpretable name')
-        parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
         parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
         # model parameters
         parser.add_argument('--model', type=str, default='sincut', help='chooses which model to use.')
@@ -40,34 +38,19 @@ class BaseOptions():
         parser.add_argument('--output_nc', type=int, default=3,
                             help='# of output image channels: 3 for RGB and 1 for grayscale')
         parser.add_argument('--seed', type=int, default=-1, help='random seed to use, -1 for generating a random seed')
-        parser.add_argument('--ngf', type=int, default=64, help='# of gen filters in the last conv layer')
-        parser.add_argument('--ndf', type=int, default=64, help='# of discrim filters in the first conv layer')
-        parser.add_argument('--netD', type=str, default='basic',
-                            choices=['basic', 'n_layers', 'pixel', 'patch', 'tilestylegan2', 'stylegan2'],
-                            help='specify discriminator architecture. The basic model is a 70x70 PatchGAN. n_layers allows you to specify the layers in the discriminator')
-        parser.add_argument('--netG', type=str, default='skip',
-                            choices=['resnet_9blocks', 'resnet_6blocks', 'unet_256', 'unet_128', 'stylegan2',
-                                     'smallstylegan2', 'resnet_cat', 'skip'], help='specify generator architecture')
         parser.add_argument('--skip_activation', type=str, default='tanh',
-                            choices=['tanh', 'sigmoid', 'FusedLeakyReLU', 'none'])
-        parser.add_argument('--n_layers_D', type=int, default=3, help='only used if netD==n_layers')
+                            choices=['tanh', 'sigmoid', 'none'])
         parser.add_argument('--normG', type=str, default='instance', choices=['instance', 'batch', 'none'],
                             help='instance normalization or batch normalization for G')
-        parser.add_argument('--normD', type=str, default='instance', choices=['instance', 'batch', 'none'],
-                            help='instance normalization or batch normalization for D')
         parser.add_argument('--init_type', type=str, default='xavier',
                             choices=['normal', 'xavier', 'kaiming', 'orthogonal'], help='network initialization')
         parser.add_argument('--init_gain', type=float, default=0.02,
                             help='scaling factor for normal, xavier and orthogonal.')
         parser.add_argument('--no_dropout', type=util.str2bool, nargs='?', const=True, default=True,
                             help='no dropout for the generator')
-        parser.add_argument('--no_antialias', action='store_true',
-                            help='if specified, use stride=2 convs instead of antialiased-downsampling (sad)')
         parser.add_argument('--no_antialias_up', action='store_true',
                             help='if specified, use [upconv(learned filter)] instead of [upconv(hard-coded [1,3,3,1] filter), conv]')
         # dataset parameters
-        parser.add_argument('--dataset_mode', type=str, default='unaligned',
-                            help='chooses how datasets are loaded. [unaligned | aligned | single | colorization]')
         parser.add_argument('--direction', type=str, default='AtoB', help='AtoB or BtoA')
         parser.add_argument('--serial_batches', action='store_true',
                             help='if true, takes images in order to make batches, otherwise takes them randomly')
@@ -75,14 +58,10 @@ class BaseOptions():
         parser.add_argument('--batch_size', type=int, default=1, help='input batch size')
         parser.add_argument('--load_size', type=int, default=286, help='scale images to this size')
         parser.add_argument('--crop_size', type=int, default=256, help='then crop to this size')
-        parser.add_argument('--max_dataset_size', type=int, default=float("inf"),
-                            help='Maximum number of samples allowed per dataset. If the dataset directory contains more than max_dataset_size, only a subset is loaded.')
         parser.add_argument('--preprocess', type=str, default='resize_and_crop',
                             help='scaling and cropping of images at load time [resize_and_crop | crop | scale_width | scale_width_and_crop | none]')
         parser.add_argument('--no_flip', action='store_true',
                             help='if specified, do not flip the images for data augmentation')
-        parser.add_argument('--display_winsize', type=int, default=256,
-                            help='display window size for both visdom and HTML')
         parser.add_argument('--random_scale_max', type=float, default=3.0,
                             help='(used for single image translation) Randomly scale the image by the specified factor as data augmentation.')
         # additional parameters
@@ -92,13 +71,38 @@ class BaseOptions():
         parser.add_argument('--suffix', default='', type=str,
                             help='customized suffix: opt.name = opt.name + suffix: e.g., {model}_{netG}_size{load_size}')
 
-        # parameters related to StyleGAN2-based networks
-        parser.add_argument('--stylegan2_G_num_downsampling',
-                            default=1, type=int,
-                            help='Number of downsampling layers used by StyleGAN2Generator')
-        parser.add_argument('--seed', type=int, default=-1,
-                            help='random seed, -1 for generating a random seed')
         self.initialized = True
+
+        # visualization parameters
+        parser.add_argument('--log_images_freq', type=int, default=10,
+                            help='frequency of logging generated images to wandb')
+        # network saving and loading parameters
+        parser.add_argument('--save_latest_freq', type=int, default=5000, help='frequency of saving the latest results')
+        parser.add_argument('--save_epoch_freq', type=int, default=5,
+                            help='frequency of saving checkpoints at the end of epochs')
+        parser.add_argument('--evaluation_freq', type=int, default=5000, help='evaluation freq')
+        parser.add_argument('--save_by_iter', action='store_true', help='whether saves model by iteration')
+        parser.add_argument('--continue_train', action='store_true', help='continue training: load the latest model')
+        parser.add_argument('--epoch_count', type=int, default=1,
+                            help='the starting epoch count, we save the model by <epoch_count>, <epoch_count>+<save_latest_freq>, ...')
+        parser.add_argument('--phase', type=str, default='train', help='train, val, test, etc')
+        parser.add_argument('--pretrained_name', type=str, default=None, help='resume training from another checkpoint')
+        # training parameters
+        parser.add_argument('--n_epochs', type=int, default=200, help='number of epochs with the initial learning rate')
+        parser.add_argument('--n_epochs_decay', type=int, default=200,
+                            help='number of epochs to linearly decay learning rate to zero')
+        parser.add_argument('--beta1', type=float, default=0.5, help='momentum term of adam')
+        parser.add_argument('--beta2', type=float, default=0.999, help='momentum term of adam')
+        parser.add_argument('--lr', type=float, default=0.0002, help='initial learning rate for adam')
+        parser.add_argument('--lr_policy', type=str, default='linear',
+                            help='learning rate policy. [linear | step | plateau | cosine]')
+        parser.add_argument('--lr_decay_iters', type=int, default=50,
+                            help='multiply by a gamma every lr_decay_iters iterations')
+        parser.add_argument('--global_patch_size', type=int, default=224,
+                            help='patch size to be used for global ssim and class loss')
+        parser.add_argument('--dino_model_name', type=str, default='dino_vitb8',
+                            help='dino model for features extraction')
+        self.isTrain = True
         return parser
 
     def gather_options(self):
@@ -125,11 +129,6 @@ class BaseOptions():
             opt, _ = parser.parse_known_args()  # parse again with new defaults
         else:
             opt, _ = parser.parse_known_args(self.cmd_line)  # parse again with new defaults
-
-        # modify dataset-related parser options
-        dataset_name = opt.dataset_mode
-        dataset_option_setter = data.get_option_setter(dataset_name)
-        parser = dataset_option_setter(parser, self.isTrain)
 
         # save and return the parser
         self.parser = parser
@@ -178,16 +177,6 @@ class BaseOptions():
             opt.name = opt.name + suffix
 
         self.print_options(opt)
-
-        # set gpu ids
-        str_ids = opt.gpu_ids.split(',')
-        opt.gpu_ids = []
-        for str_id in str_ids:
-            id = int(str_id)
-            if id >= 0:
-                opt.gpu_ids.append(id)
-        if len(opt.gpu_ids) > 0:
-            torch.cuda.set_device(opt.gpu_ids[0])
 
         # set seed
         if opt.seed == -1:
