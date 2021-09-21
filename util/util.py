@@ -7,7 +7,7 @@ def get_scheduler(optimizer, lr_policy, n_epochs=None, n_epochs_decay=None, lr_d
     if lr_policy == 'linear':
         def lambda_rule(epoch):
             lr_l = 1.0 - max(0, epoch) / float(n_epochs_decay + 1)
-            return lr_l
+            return max(lr_l, 0)
 
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
     elif lr_policy == 'step':
@@ -28,8 +28,6 @@ def tensor2im(input_image, imtype=np.uint8):
         else:
             return input_image
         image_numpy = image_tensor[0].clamp(-1.0, 1.0).cpu().float().numpy()  # convert it into a numpy array
-        if image_numpy.shape[0] == 1:  # grayscale to RGB
-            image_numpy = np.tile(image_numpy, (3, 1, 1))
         image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image

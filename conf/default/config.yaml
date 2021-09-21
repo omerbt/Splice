@@ -22,9 +22,9 @@ model:
   init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 loss:
-  lambda_global_cls: 1.0
-  lambda_global_ssim: 1.0
-  lambda_patch_ssim: 1.0
+  lambda_global_cls: 4.0
+  lambda_global_ssim: 0.2
+  lambda_patch_ssim: 0.1
   lambda_identity: 1.0
   dino:
     model_name: dino_vitb8
@@ -33,9 +33,9 @@ loss:
 training:
   n_epochs: 100000
   scheduler:
-    policy: linear  # [linear | step | plateau | cosine]
+    policy: step  # [linear | step | plateau | cosine]
     n_epochs_decay: 8
-    lr_decay_iters: 50
+    lr_decay_iters: 300
   optimizer:
     beta1: 0.0
     beta2: 0.99
