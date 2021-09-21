@@ -1,80 +1,81 @@
-import time
+import logging
+import hydra
+from hydra import utils
 import torch
-from torch.utils.data import DataLoader
-from options.base_options import BaseOptions
+import wandb
+import numpy as np
+import random
+import os
 from data.Dataset import SingleImageDataset
 from models.model import Model
+from util.losses import LossG
 from util.util import tensor2im, get_scheduler
-import wandb
 
-if __name__ == '__main__':
-    # get configuration
-    opt = BaseOptions().parse()
+log = logging.getLogger(__name__)
+
+
+@hydra.main(config_path='conf/default', config_name='config')
+def train_model(cfg):
+    os.chdir(hydra.utils.get_original_cwd())
+    # set seed
+    if cfg.exp.seed == -1:
+        seed = np.random.randint(2 ** 32)
+        cfg.exp.seed = seed
+    random.seed(cfg.exp.seed)
+    np.random.seed(cfg.exp.seed)
+    torch.manual_seed(cfg.exp.seed)
 
     # create dataset, loader
-    dataset = SingleImageDataset(opt)
-    dataloader = DataLoader(dataset, batch_size=opt.batch_size, shuffle=True)
+    dataset = SingleImageDataset(cfg.dataset)
 
     # define model
-    model = Model(opt)
+    model = Model(cfg.model)
+
+    # define loss function
+    criterion = LossG(dataset.B_img, cfg.loss)
 
     # define optimizer, scheduler
-    optimizer = torch.optim.Adam(model.netG.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
-    scheduler = get_scheduler(optimizer, opt)
+    optimizer = torch.optim.Adam(model.netG.parameters(),
+                                 lr=cfg.training.optimizer.lr,
+                                 betas=(cfg.training.optimizer.beta1, cfg.training.optimizer.beta2))
+
+    scheduler = get_scheduler(optimizer,
+                              lr_policy=cfg.training.scheduler.policy,
+                              n_epochs=cfg.training.n_epochs,
+                              n_epochs_decay=cfg.training.scheduler.n_epochs_decay,
+                              lr_decay_iters=cfg.training.scheduler.lr_decay_iters)
 
     # logging
-    wandb.init(project=opt.project, entity='vit-vis', config=opt)
+    wandb.init(project=cfg.wandb.project, entity=cfg.wandb.entity, config=cfg)
 
-    total_iters = 0  # the total number of training iterations
-    for epoch in range(opt.epoch_count, opt.n_epochs + opt.n_epochs_decay + 1):
-        epoch_iter = 0  # the number of training iterations in current epoch, reset to 0 every epoch
+    for epoch in range(1, cfg.training.n_epochs + 1):
+        inputs = dataset[0]
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        losses = criterion(outputs, inputs)
+        loss_G = losses['total']
+        loss_G.backward()
+        optimizer.step()
 
-        for i, data in enumerate(dataloader):
-            batch_size = data["A"].size(0)
-            total_iters += batch_size
-            epoch_iter += batch_size
+        # log losses
+        wandb.log(losses)
 
-            # unpack data from dataset and apply preprocessing
-            model.set_input(data)
-
-            # calculate loss functions, get gradients, update network weights
-            optimizer.zero_grad()
-            model.forward()
-            losses = model.compute_G_loss()
-            loss_G = losses['total']
-            loss_G.backward()
-            optimizer.step()
-
-            # log losses
-            wandb.log(losses)
-
-            # log current generated entire image to wandb
-            if total_iters % opt.log_images_freq == 0:
-                model.netG.eval()
-                img_A = dataset.get_one_image()
-                with torch.no_grad():
-                    fake_img = model.netG(img_A)
-                image_numpy = tensor2im(fake_img)
-                wandb.log({"img": [wandb.Image(image_numpy)]})
-                model.netG.train()
-
-            # cache our latest model every <save_latest_freq> iterations
-            if total_iters % opt.save_latest_freq == 0:
-                print('saving the latest model (epoch %d, total_iters %d)' % (epoch, total_iters))
-                print(opt.name)  # it's useful to occasionally show the experiment name on console
-                save_suffix = 'iter_%d' % total_iters if opt.save_by_iter else 'latest'
-                model.save_networks(save_suffix)
-
-            iter_data_time = time.time()
-
-        # cache our model every <save_epoch_freq> epochs
-        if epoch % opt.save_epoch_freq == 0:
-            print('saving the model at the end of epoch %d, iters %d' % (epoch, total_iters))
-            model.save_networks('latest')
-            model.save_networks(epoch)
-
-        # update learning rates at the end of every epoch.
+        # update learning rate
         scheduler.step()
         lr = optimizer.param_groups[0]['lr']
-        print('learning rate = %.7f' % lr)
+        log.info('learning rate = %.7f' % lr)
         wandb.log({"lr": lr})
+
+        # log current generated entire image to wandb
+        if epoch % cfg.logging.log_images_freq == 0:
+            model.netG.eval()
+            img_A = dataset.get_A()
+            with torch.no_grad():
+                output = model.netG(img_A)
+            image_numpy = tensor2im(output)
+            wandb.log({"img": [wandb.Image(image_numpy)]})
+            model.netG.train()
+
+
+if __name__ == '__main__':
+    train_model()

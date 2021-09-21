@@ -1,137 +1,56 @@
-import numpy as np
 import os.path
-from data.transforms import get_transform
 from PIL import Image
-import random
 from torch.utils.data import Dataset
 from torchvision import transforms
 
 import os
 import os.path
 
-IMG_EXTENSIONS = [
-    '.jpg', '.JPG', '.jpeg', '.JPEG',
-    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
-    '.tif', '.TIF', '.tiff', '.TIFF',
-]
-
-
-def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
-
-
-def make_dataset(dir):
-    assert os.path.isdir(dir) or os.path.islink(dir), '%s is not a valid directory' % dir
-
-    for root, _, fnames in sorted(os.walk(dir, followlinks=True)):
-        for fname in fnames:
-            if is_image_file(fname):
-                path = os.path.join(root, fname)
-                return path
+from data.transforms import Global_crops, Local_crops
 
 
 class SingleImageDataset(Dataset):
-    def __init__(self, opt):
-        """Initialize this dataset class.
+    def __init__(self, cfg):
+        # normalization to be applied to every crop after augmentation
+        norm_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
-        Parameters:
-            opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
-        """
-
-        self.opt = opt
-        self.dir_A = os.path.join(opt.dataroot, 'trainA')  # create a path '/path/to/data/trainA'
-        self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
-
-        if os.path.exists(self.dir_A) and os.path.exists(self.dir_B):
-            self.A_path = make_dataset(self.dir_A)
-            self.B_path = make_dataset(self.dir_B)
-
-        A_img = Image.open(self.A_path).convert('RGB')
-        B_img = Image.open(self.B_path).convert('RGB')
-        print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
-
-        self.A_img = A_img
-        self.B_img = B_img
-
-        # In single-image translation, we augment the data loader by applying
-        # random scaling. Still, we design the data loader such that the
-        # amount of scaling is the same within a minibatch. To do this,
-        # we precompute the random scaling values, and repeat them by |batch_size|.
-        A_zoom = 1 / self.opt.random_scale_max
-        zoom_levels_A = np.random.uniform(A_zoom, 1.0, size=(len(self) // opt.batch_size + 1, 1, 2))
-        self.zoom_levels_A = np.reshape(np.tile(zoom_levels_A, (1, opt.batch_size, 1)), [-1, 2])
-
-        B_zoom = 1 / self.opt.random_scale_max
-        zoom_levels_B = np.random.uniform(B_zoom, 1.0, size=(len(self) // opt.batch_size + 1, 1, 2))
-        self.zoom_levels_B = np.reshape(np.tile(zoom_levels_B, (1, opt.batch_size, 1)), [-1, 2])
-
-        # While the crop locations are randomized, the negative samples should
-        # not come from the same location. To do this, we precompute the
-        # crop locations with no repetition.
-        self.patch_indices_A = list(range(len(self)))
-        random.shuffle(self.patch_indices_A)
-        self.patch_indices_B = list(range(len(self)))
-        random.shuffle(self.patch_indices_B)
-
-    def get_one_image(self):
-        AtoB = self.opt.direction == 'AtoB'
-        img = self.A_img if AtoB else self.B_img
-        preprocess = transforms.Compose([
+        self.base_transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            norm_transform
         ])
-        A = preprocess(img).unsqueeze(0)
-        return A
+
+        self.local_patches = Local_crops(n_crops=cfg.local_crops.n_crops,
+                                         crop_size=cfg.local_crops.crop_size,
+                                         scale_max=cfg.local_crops.scale_max,
+                                         last_transform=self.base_transform)
+
+        self.global_patches = Global_crops(n_crops=cfg.global_crops.n_crops,
+                                           min_cover=cfg.global_crops.min_cover,
+                                           last_transform=self.base_transform)
+
+        # open images
+        dir_A = os.path.join(cfg.dataroot, 'A')
+        dir_B = os.path.join(cfg.dataroot, 'B')
+        A_path = os.listdir(dir_A)[0]
+        B_path = os.listdir(dir_B)[0]
+        self.A_img = Image.open(os.path.join(dir_A, A_path)).convert('RGB')
+        self.B_img = Image.open(os.path.join(dir_B, B_path)).convert('RGB')
+
+        if cfg.direction == 'BtoA':
+            self.A_img, self.B_img = self.B_img, self.A_img
+
+        print("Image sizes %s and %s" % (str(self.A_img.size), str(self.B_img.size)))
+
+    def get_A(self):
+        return self.base_transform(self.A_img).unsqueeze(0)
 
     def __getitem__(self, index):
-        """Return a data point and its metadata information.
+        A_global = self.global_patches(self.A_img)
+        B_global = self.global_patches(self.B_img)
+        A_local = self.local_patches(self.A_img)
+        B_local = self.local_patches(self.B_img)
 
-        Parameters:
-            index (int)      -- a random integer for data indexing
-
-        Returns a dictionary that contains A, B, A_paths and B_paths
-            A (tensor)       -- an image in the input domain
-            B (tensor)       -- its corresponding image in the target domain
-            A_paths (str)    -- image paths
-            B_paths (str)    -- image paths
-        """
-        A_path = self.A_path
-        B_path = self.B_path
-        A_img = self.A_img
-        B_img = self.B_img
-
-        # apply image transformation
-        if self.opt.phase == "train":
-            param = {'scale_factor': self.zoom_levels_A[index],
-                     'patch_index': self.patch_indices_A[index],
-                     'flip': random.random() > 0.5}
-
-            transform_A = get_transform(self.opt, params=param, method=Image.BILINEAR)
-            A = transform_A(A_img)
-            param = {'scale_factor': self.zoom_levels_B[index],
-                     'patch_index': self.patch_indices_B[index],
-                     'flip': random.random() > 0.5}
-            transform_B = get_transform(self.opt, params=param, method=Image.BILINEAR)
-            B = transform_B(B_img)
-        else:
-            transform = get_transform(self.opt, method=Image.BILINEAR)
-            A = transform(A_img)
-            B = transform(B_img)
-
-        # crops to use for global class feature
-        if (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0) and self.opt.phase == "train":
-            global_transform = transforms.Compose([
-                transforms.ToTensor(),
-            ])
-            A_global = global_transform(A_img)
-            A_global = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(A_global).unsqueeze(0)
-            B_global = global_transform(B_img).unsqueeze(0)
-            return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path, 'A_global': A_global,
-                    'B_global': B_global}
-
-        return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
+        return {'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
 
     def __len__(self):
-        """ Let's pretend the single image contains 100,000 crops for convenience.
-        """
-        return 100000
+        return 1
