@@ -1,12 +1,33 @@
 import numpy as np
 import os.path
 from data.base_dataset import BaseDataset, get_transform
-from data.image_folder import make_dataset
 from PIL import Image
 import random
 import util.util as util
 from torchvision import transforms
 
+import os
+import os.path
+
+IMG_EXTENSIONS = [
+    '.jpg', '.JPG', '.jpeg', '.JPEG',
+    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
+    '.tif', '.TIF', '.tiff', '.TIFF',
+]
+
+
+def is_image_file(filename):
+    return any(filename.endswith(extension) for extension in IMG_EXTENSIONS)
+
+
+def make_dataset(dir):
+    assert os.path.isdir(dir) or os.path.islink(dir), '%s is not a valid directory' % dir
+
+    for root, _, fnames in sorted(os.walk(dir, followlinks=True)):
+        for fname in fnames:
+            if is_image_file(fname):
+                path = os.path.join(root, fname)
+                return path
 
 class SingleImageDataset(BaseDataset):
     """
@@ -31,15 +52,9 @@ class SingleImageDataset(BaseDataset):
         self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
 
         if os.path.exists(self.dir_A) and os.path.exists(self.dir_B):
-            self.A_paths = sorted(
-                make_dataset(self.dir_A, opt.max_dataset_size))  # load images from '/path/to/data/trainA'
-            self.B_paths = sorted(
-                make_dataset(self.dir_B, opt.max_dataset_size))  # load images from '/path/to/data/trainB'
-        self.A_size = len(self.A_paths)  # get the size of dataset A
-        self.B_size = len(self.B_paths)  # get the size of dataset B
+            self.A_path = make_dataset(self.dir_A)
+            self.B_path = make_dataset(self.dir_B)
 
-        assert len(self.A_paths) == 1 and len(self.B_paths) == 1, \
-            "SingleImageDataset class should be used with one image in each domain"
         A_img = Image.open(self.A_paths[0]).convert('RGB')
         B_img = Image.open(self.B_paths[0]).convert('RGB')
         print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
