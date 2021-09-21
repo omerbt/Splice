@@ -1,0 +1,24 @@
+program: sweeps/scripts/semantic-texture-mapping.py
+project: semantic-texture-mapping
+method: grid
+parameters:
+  dataroot:
+    values: ['./datasets/single_image_horse_zebra']
+  netG:
+    values: ['skip']
+  cls_lambda:
+    values: [4.0]
+  lambda_identity:
+    values: [1.0]
+  lambda_patch_ssim:
+    values: [0.2]
+  lambda_global_ssim:
+    values: [0.1]
+  skip_activation:
+    values: ['tanh']
+metric:
+    name: loss
+command:
+  - python
+  - ${program}
+  - ${args}
