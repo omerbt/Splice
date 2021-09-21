@@ -122,7 +122,7 @@ class Model(torch.nn.Module):
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
         self.real_B = input['B' if AtoB else 'A'].to(self.device)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
-        if self.isTrain and (self.opt.cls_lambda > 0 or self.opt.lambda_global_ssim > 0):
+        if self.opt.cls_lambda > 0 or self.opt.lambda_global_ssim > 0:
             self.global_A = input['A_global'][0].to(self.device)
             self.global_B = input['B_global'][0].to(self.device)
 
@@ -130,9 +130,9 @@ class Model(torch.nn.Module):
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
         self.real = torch.cat((self.real_A, self.real_B),
-                              dim=0) if self.opt.lambda_identity > 0 and self.opt.isTrain else self.real_A
+                              dim=0) if self.opt.lambda_identity > 0 else self.real_A
         if self.opt.flip_equivariance:
-            self.flipped_for_equivariance = self.opt.isTrain and (np.random.random() < 0.5)
+            self.flipped_for_equivariance = np.random.random() < 0.5
             if self.flipped_for_equivariance:
                 self.real = torch.flip(self.real, [3])
 
@@ -140,7 +140,7 @@ class Model(torch.nn.Module):
         self.fake_B = self.fake[:self.real_A.size(0)]
         if self.opt.lambda_identity > 0:
             self.idt_B = self.fake[self.real_A.size(0):]
-        if self.isTrain and (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0):
+        if self.opt.cls_lambda + self.opt.lambda_global_ssim > 0:
             self.global_fake = self.netG(self.global_A)
 
 
