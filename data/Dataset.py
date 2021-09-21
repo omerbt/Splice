@@ -1,9 +1,9 @@
 import numpy as np
 import os.path
-from data.base_dataset import BaseDataset, get_transform
+from data.transforms import get_transform
 from PIL import Image
 import random
-import util.util as util
+from torch.utils.data import Dataset
 from torchvision import transforms
 
 import os
@@ -29,24 +29,14 @@ def make_dataset(dir):
                 path = os.path.join(root, fname)
                 return path
 
-class SingleImageDataset(BaseDataset):
-    """
-    This dataset class can load unaligned/unpaired datasets.
 
-    It requires two directories to host training images from domain A '/path/to/data/trainA'
-    and from domain B '/path/to/data/trainB' respectively.
-    You can train the model with the dataset flag '--dataroot /path/to/data'.
-    Similarly, you need to prepare two directories:
-    '/path/to/data/testA' and '/path/to/data/testB' during test time.
-    """
-
+class SingleImageDataset(Dataset):
     def __init__(self, opt):
         """Initialize this dataset class.
 
         Parameters:
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
-        BaseDataset.__init__(self, opt)
 
         self.dir_A = os.path.join(opt.dataroot, 'trainA')  # create a path '/path/to/data/trainA'
         self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
@@ -55,8 +45,8 @@ class SingleImageDataset(BaseDataset):
             self.A_path = make_dataset(self.dir_A)
             self.B_path = make_dataset(self.dir_B)
 
-        A_img = Image.open(self.A_paths[0]).convert('RGB')
-        B_img = Image.open(self.B_paths[0]).convert('RGB')
+        A_img = Image.open(self.A_path).convert('RGB')
+        B_img = Image.open(self.B_path).convert('RGB')
         print("Image sizes %s and %s" % (str(A_img.size), str(B_img.size)))
 
         self.A_img = A_img
@@ -104,8 +94,8 @@ class SingleImageDataset(BaseDataset):
             A_paths (str)    -- image paths
             B_paths (str)    -- image paths
         """
-        A_path = self.A_paths[0]
-        B_path = self.B_paths[0]
+        A_path = self.A_path
+        B_path = self.B_path
         A_img = self.A_img
         B_img = self.B_img
 

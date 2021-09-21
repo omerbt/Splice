@@ -1,7 +1,4 @@
-import torch
-import torch.nn as nn
 from .common import *
-from ..stylegan_networks import FusedLeakyReLU
 
 
 def skip(
@@ -9,7 +6,7 @@ def skip(
         num_channels_down=[16, 32, 64, 128, 128], num_channels_up=[16, 32, 64, 128, 128],
         num_channels_skip=[4, 4, 4, 4, 4],
         filter_size_down=3, filter_size_up=3, filter_skip_size=1,
-        need_sigmoid=False, need_tanh=False, need_FusedLeakyReLU=False, need_bias=True,
+        need_sigmoid=False, need_tanh=False, need_bias=True,
         pad='zero', upsample_mode='nearest', downsample_mode='stride', act_fun='LeakyReLU',
         need1x1_up=True):
     """Assembles encoder-decoder with skip connections.
@@ -102,6 +99,4 @@ def skip(
         model.add(nn.Sigmoid())
     elif need_tanh:
         model.add(nn.Tanh())
-    elif need_FusedLeakyReLU:
-        model.add(FusedLeakyReLU(num_output_channels))
     return model
