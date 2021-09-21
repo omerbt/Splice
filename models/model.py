@@ -76,39 +76,41 @@ class Model(torch.nn.Module):
         return parser
 
     def __init__(self, opt):
-        super.__init__(self, opt)
+        super().__init__()
+        self.opt = opt
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         # define networks (both generator and discriminator)
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.init_type, opt.init_gain, opt)
 
-        if self.isTrain:
-            self.extractor = VitExtractor(model_name=opt.dino_model_name, device='cuda')
-            imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
-            resize_transform = Resize(opt.global_patch_size, max_size=480)
-            if self.opt.skip_activation == 'tanh':
-                self.global_fake_transform = transforms.Compose([
-                    resize_transform,
-                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
-                    imagenet_norm
-                ])
-                self.local_real_transform = self.local_fake_transform = transforms.Compose([
-                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
-                    imagenet_norm
-                ])
-            else:
-                self.global_fake_transform = transforms.Compose([
-                    resize_transform,
-                    imagenet_norm
-                ])
-                self.local_real_transform = self.local_fake_transform = transforms.Compose([
-                    imagenet_norm
-                ])
-            self.global_real_transform = transforms.Compose([
+        self.extractor = VitExtractor(model_name=opt.dino_model_name, device=self.device)
+        imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))  # imagenet normalization
+        resize_transform = Resize(opt.global_patch_size, max_size=480)
+        if self.opt.skip_activation == 'tanh':
+            self.global_fake_transform = transforms.Compose([
+                resize_transform,
+                transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                imagenet_norm
+            ])
+            self.local_real_transform = self.local_fake_transform = transforms.Compose([
+                transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                imagenet_norm
+            ])
+        else:
+            self.global_fake_transform = transforms.Compose([
                 resize_transform,
                 imagenet_norm
             ])
-            # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
-            # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
+            self.local_real_transform = self.local_fake_transform = transforms.Compose([
+                imagenet_norm
+            ])
+        self.global_real_transform = transforms.Compose([
+            resize_transform,
+            imagenet_norm
+        ])
+        # fake_new_size = util.calc_size(self.global_fake.shape, 224, max_size=480)
+        # fake_resized = resize_right.resize(self.global_fake.shape, out_shape=fake_new_size)
+
 
     def set_input(self, input):
         """Unpack input data from the dataloader and perform necessary pre-processing steps.
@@ -123,6 +125,7 @@ class Model(torch.nn.Module):
         if self.isTrain and (self.opt.cls_lambda > 0 or self.opt.lambda_global_ssim > 0):
             self.global_A = input['A_global'][0].to(self.device)
             self.global_B = input['B_global'][0].to(self.device)
+
 
     def forward(self):
         """Run forward pass; called by both functions <optimize_parameters> and <test>."""
@@ -139,6 +142,7 @@ class Model(torch.nn.Module):
             self.idt_B = self.fake[self.real_A.size(0):]
         if self.isTrain and (self.opt.cls_lambda + self.opt.lambda_global_ssim > 0):
             self.global_fake = self.netG(self.global_A)
+
 
     def compute_G_loss(self):
         losses = {}
@@ -179,6 +183,7 @@ class Model(torch.nn.Module):
         losses['total'] = self.loss_G
         return losses
 
+
     def calculate_patch_ssim_loss(self):
         # self similarity loss between real_A and fake_B
         ssim_loss = 0.0
@@ -190,6 +195,7 @@ class Model(torch.nn.Module):
             keys_ssim = self.extractor.get_keys_self_sim_from_input(fake.unsqueeze(0), layer_num=11)
             ssim_loss += torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
         return ssim_loss
+
 
     def calculate_cls_loss(self):
         # class token similarity between real_B and fake_B
@@ -213,6 +219,7 @@ class Model(torch.nn.Module):
             cls_loss = torch.nn.MSELoss()(cls_keys, target_cls_keys)
         return cls_loss
 
+
     def calculate_global_ssim(self):
         # keys self similarity between real_A and fake_B
         fake = self.global_fake_transform(self.global_fake)
@@ -221,6 +228,7 @@ class Model(torch.nn.Module):
         keys_ssim = self.extractor.get_keys_self_sim_from_input(fake, layer_num=11)
         ssim_loss = torch.nn.MSELoss()(keys_ssim, target_keys_self_sim)
         return ssim_loss
+
 
     def calculate_global_identity(self):
         fake = self.global_fake_transform(self.global_fake)

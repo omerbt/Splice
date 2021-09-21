@@ -38,6 +38,7 @@ class SingleImageDataset(Dataset):
             opt (Option class) -- stores all the experiment flags; needs to be a subclass of BaseOptions
         """
 
+        self.opt = opt
         self.dir_A = os.path.join(opt.dataroot, 'trainA')  # create a path '/path/to/data/trainA'
         self.dir_B = os.path.join(opt.dataroot, 'trainB')  # create a path '/path/to/data/trainB'
 
