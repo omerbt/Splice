@@ -31,7 +31,7 @@ loss:
     global_patch_size: 224
 
 training:
-  n_epochs: 1000
+  n_epochs: 100000
   scheduler:
     policy: linear  # [linear | step | plateau | cosine]
     n_epochs_decay: 8
