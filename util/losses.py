@@ -28,7 +28,7 @@ class LossG(torch.nn.Module):
         ])
 
         B = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(B_img).unsqueeze(0)
-        self.target_global_cls_token = self.extractor.get_feature_from_input(B)[-1][0, 0, :].detach()
+        self.target_global_cls_token = self.extractor.get_feature_from_input(B.to(device))[-1][0, 0, :].detach()
 
     def forward(self, outputs, inputs):
         losses = {}
