@@ -37,14 +37,14 @@ class LossG(torch.nn.Module):
 
         losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
         losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
-        losses['loss_global_cls'] = self.calculate_cls_loss(outputs['x_global'])
-        losses['loss_local_cls'] = self.calculate_cls_loss(outputs['x_local'])
+        losses['loss_global_cls'] = self.calculate_global_cls_loss(outputs['x_global'])
+        # losses['loss_local_cls'] = self.calculate_cls_loss(outputs['x_local'])
         losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
 
         loss_G += losses['loss_patch_ssim'] * self.cfg.lambda_patch_ssim
         loss_G += losses['loss_global_ssim'] * self.cfg.lambda_global_ssim
         loss_G += losses['loss_global_cls'] * self.cfg.lambda_global_cls
-        loss_G += losses['loss_local_cls'] * self.cfg.lambda_local_cls
+        # loss_G += losses['loss_local_cls'] * self.cfg.lambda_local_cls
         loss_G += losses['loss_idt_B'] * self.cfg.lambda_identity
 
         losses['total'] = loss_G
@@ -72,7 +72,7 @@ class LossG(torch.nn.Module):
             loss += F.mse_loss(keys_ssim, target_keys_self_sim)
         return loss
 
-    def calculate_cls_loss(self, outputs):
+    def calculate_global_cls_loss(self, outputs):
         loss = 0.0
         for a in outputs:  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0)
