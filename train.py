@@ -1,6 +1,6 @@
 import logging
-import hydra
-from hydra import utils
+# import hydra
+# from hydra import utils
 import torch
 import wandb
 import numpy as np
@@ -10,7 +10,7 @@ from data.Dataset import SingleImageDataset
 from models.model import Model
 from util.losses import LossG
 from util.util import tensor2im, get_scheduler
-from omegaconf import OmegaConf
+# from omegaconf import OmegaConf
 import yaml
 
 log = logging.getLogger(__name__)
@@ -52,7 +52,6 @@ def train_model():
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
 
-    # logging
 
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]

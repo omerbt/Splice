@@ -3,7 +3,7 @@ project: semantic-texture-transfer
 method: grid
 parameters:
   seed:
-    values: [-1]
+    values: [10]
 
   dataroot:
     values: ['./datasets/horse_zebra']

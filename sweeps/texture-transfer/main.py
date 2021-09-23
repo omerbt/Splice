@@ -1,11 +1,11 @@
 import sys
 
-sys.path.insert(0, "/home/labs/leeat/omerba/Develop/texture-mapping")
+sys.path.insert(0, "/home/labs/waic/narekt/projects/texture-mapping")
 
 
 import logging
-import hydra
-from hydra import utils
+# import hydra
+# from hydra import utils
 import torch
 import wandb
 import numpy as np
@@ -15,7 +15,7 @@ from data.Dataset import SingleImageDataset
 from models.model import Model
 from util.losses import LossG
 from util.util import tensor2im, get_scheduler
-from omegaconf import OmegaConf
+# from omegaconf import OmegaConf
 import yaml
 
 log = logging.getLogger(__name__)
@@ -24,7 +24,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # @hydra.main(config_path='conf/default', config_name='config')
 def train_model():
-    config = yaml.load('conf/default/config.yaml')
+    with open("conf/default/config.yaml", "r") as f:
+        config = yaml.safe_load(f)
     wandb.init(project='semantic-texture-transfer', entity='vit-vis', config=config)
     cfg = wandb.config
 
