@@ -12,6 +12,7 @@ from util.losses import LossG
 from util.util import tensor2im, get_scheduler
 
 log = logging.getLogger(__name__)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 @hydra.main(config_path='conf/default', config_name='config')
@@ -50,6 +51,8 @@ def train_model(cfg):
 
     for epoch in range(1, cfg.training.n_epochs + 1):
         inputs = dataset[0]
+        for key in inputs:
+            inputs[key] = inputs[key].to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
         losses = criterion(outputs, inputs)
@@ -69,7 +72,7 @@ def train_model(cfg):
         # log current generated entire image to wandb
         if epoch % cfg.logging.log_images_freq == 0:
             model.netG.eval()
-            img_A = dataset.get_A()
+            img_A = dataset.get_A().to(device)
             with torch.no_grad():
                 output = model.netG(img_A)
             image_numpy = tensor2im(output)
