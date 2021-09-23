@@ -6,7 +6,7 @@ class Model(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.netG = networks.define_G(cfg.init_type, cfg.init_gain).to(device)
+        self.netG = networks.define_G(cfg['init_type'], cfg['init_gain']).to(device)
 
     def forward(self, input):
         x_local = self.netG(input['A_local'])  # local patches from structure image

@@ -18,24 +18,24 @@ class SingleImageDataset(Dataset):
             norm_transform
         ])
 
-        self.local_patches = Local_crops(n_crops=cfg.local_crops.n_crops,
-                                         crop_size=cfg.local_crops.crop_size,
-                                         scale_max=cfg.local_crops.scale_max,
+        self.local_patches = Local_crops(n_crops=cfg['local_crops_n_crops'],
+                                         crop_size=cfg['local_crops_crop_size'],
+                                         scale_max=cfg['local_crops_scale_max'],
                                          last_transform=self.base_transform)
 
-        self.global_patches = Global_crops(n_crops=cfg.global_crops.n_crops,
-                                           min_cover=cfg.global_crops.min_cover,
+        self.global_patches = Global_crops(n_crops=cfg['global_crops_n_crops'],
+                                           min_cover=cfg['global_crops_min_cover'],
                                            last_transform=self.base_transform)
 
         # open images
-        dir_A = os.path.join(cfg.dataroot, 'A')
-        dir_B = os.path.join(cfg.dataroot, 'B')
+        dir_A = os.path.join(cfg['dataroot'], 'A')
+        dir_B = os.path.join(cfg['dataroot'], 'B')
         A_path = os.listdir(dir_A)[0]
         B_path = os.listdir(dir_B)[0]
         self.A_img = Image.open(os.path.join(dir_A, A_path)).convert('RGB')
         self.B_img = Image.open(os.path.join(dir_B, B_path)).convert('RGB')
 
-        if cfg.direction == 'BtoA':
+        if cfg['direction'] == 'BtoA':
             self.A_img, self.B_img = self.B_img, self.A_img
 
         print("Image sizes %s and %s" % (str(self.A_img.size), str(self.B_img.size)))

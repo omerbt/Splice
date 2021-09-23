@@ -1,0 +1,64 @@
+program: sweeps/texture-transfer/main.py
+project: semantic-texture-transfer
+method: grid
+parameters:
+  seed:
+    values: [-1]
+
+  dataroot:
+    values: ['./datasets/horse_zebra']
+  direction:
+    values: ['AtoB']  # AtoB or BtoA
+  local_crops_n_crops:
+    values: [16]
+  local_crops_crop_size:
+    values: [64]
+  local_crops_scale_max:
+    values: [3.0]
+
+  global_crops_n_crops:
+    values: [4]
+  global_crops_min_cover:
+    values: [0.85]
+
+  init_type:
+    values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+  init_gain:
+    values: [0.02]  # scaling factor for normal, xavier and orthogonal
+
+  lambda_global_cls:
+    values: [4.0]
+  #  lambda_local_cls: 0.0
+  lambda_global_ssim:
+    values: [0.2]
+  lambda_patch_ssim:
+    values: [0.1]
+  lambda_identity:
+    values: [1.0]
+  dino_model_name:
+    values: ['dino_vitb8']
+  dino_global_patch_size:
+    values: [224]
+
+  n_epochs:
+    values: [100000]
+  scheduler_policy:
+    values: ['step']  # [linear | step | plateau | cosine]
+  scheduler_n_epochs_decay:
+    values: [8]
+  scheduler_lr_decay_iters:
+    values: [300]
+
+  optimizer_beta1:
+    values: [0.0]
+  optimizer_beta2:
+    values: [0.99]
+  lr:
+    values: [0.002]
+
+  log_images_freq:
+    values: [10]
+
+metric:
+  name: loss
+
