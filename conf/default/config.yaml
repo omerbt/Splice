@@ -1,0 +1,53 @@
+wandb:
+  project: semantic-texture-transfer
+  entity: vit-vis
+
+exp:
+  summary: texture-transfer
+  seed: -1
+
+dataset:
+  dataroot: ./datasets/horse_zebra
+  direction: AtoB  # AtoB or BtoA
+  local_crops:
+    n_crops: 16
+    crop_size: 64
+    scale_max: 3.0
+  global_crops:
+    n_crops: 4
+    min_cover: 0.85
+
+model:
+  init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+  init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
+
+loss:
+  lambda_global_cls: 4.0
+#  lambda_local_cls: 0.0
+  lambda_global_ssim: 0.2
+  lambda_patch_ssim: 0.1
+  lambda_identity: 1.0
+  dino:
+    model_name: dino_vitb8
+    global_patch_size: 224
+
+training:
+  n_epochs: 100000
+  scheduler:
+    policy: step  # [linear | step | plateau | cosine]
+    n_epochs_decay: 8
+    lr_decay_iters: 300
+  optimizer:
+    beta1: 0.0
+    beta2: 0.99
+    lr: 0.002
+
+logging:
+  checkpoints_dir: ./checkpoints
+  log_images_freq: 10
+  save_latest_freq: 20000
+  save_epoch_freq: 1
+  save_by_iter: True
+  resume: False
+
+
