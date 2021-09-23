@@ -1,25 +1,26 @@
 program: sweeps/texture-transfer/main.py
 project: semantic-texture-transfer
+entity: vit-vis
 method: grid
 parameters:
   seed:
     values: [10]
 
   dataroot:
-    values: ['./datasets/horse_zebra']
+    values: ['./datasets/horse_zebra','./datasets/horse_zebra_1','./datasets/horse_zebra_2','./datasets/horse_zebra_3','./datasets/horse_zebra_4']
   direction:
     values: ['AtoB']  # AtoB or BtoA
   local_crops_n_crops:
-    values: [16]
+    values: [8]
   local_crops_crop_size:
     values: [64]
   local_crops_scale_max:
     values: [3.0]
 
   global_crops_n_crops:
-    values: [4]
+    values: [2]
   global_crops_min_cover:
-    values: [0.85]
+    values: [0.95]
 
   init_type:
     values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
@@ -27,32 +28,32 @@ parameters:
     values: [0.02]  # scaling factor for normal, xavier and orthogonal
 
   lambda_global_cls:
-    values: [4.0]
+    values: [1.0,4.0,10.0]
   #  lambda_local_cls: 0.0
   lambda_global_ssim:
-    values: [0.2]
+    values: [0.1,0.2,0.6,1.0]
   lambda_patch_ssim:
-    values: [0.1]
+    values: [0.1,0.2,0.6,1.0]
   lambda_identity:
-    values: [1.0]
+    values: [0.1,0.2,0.6,1.0]
   dino_model_name:
     values: ['dino_vitb8']
   dino_global_patch_size:
     values: [224]
 
   n_epochs:
-    values: [100000]
+    values: [2000]
   scheduler_policy:
     values: ['step']  # [linear | step | plateau | cosine]
   scheduler_n_epochs_decay:
     values: [8]
   scheduler_lr_decay_iters:
-    values: [300]
+    values: [500]
 
   optimizer_beta1:
-    values: [0.0]
+    values: [0.9]
   optimizer_beta2:
-    values: [0.99]
+    values: [0.999]
   lr:
     values: [0.002]
 
