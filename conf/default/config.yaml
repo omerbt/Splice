@@ -23,6 +23,7 @@ model:
 
 loss:
   lambda_global_cls: 4.0
+  lambda_local_cls: 0.0
   lambda_global_ssim: 0.2
   lambda_patch_ssim: 0.1
   lambda_identity: 1.0
