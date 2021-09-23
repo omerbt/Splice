@@ -13,10 +13,10 @@ class LossG(torch.nn.Module):
         super().__init__()
 
         self.cfg = cfg
-        self.extractor = VitExtractor(model_name=cfg.dino.model_name, device=device)
+        self.extractor = VitExtractor(model_name=cfg['dino_model_name'], device=device)
 
         imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-        resize_transform = Resize(cfg.dino.global_patch_size, max_size=480)
+        resize_transform = Resize(cfg['dino_global_patch_size'], max_size=480)
 
         self.global_transform = transforms.Compose([resize_transform,
                                                     transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
@@ -41,13 +41,13 @@ class LossG(torch.nn.Module):
         # losses['loss_local_cls'] = self.calculate_cls_loss(outputs['x_local'])
         losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
 
-        loss_G += losses['loss_patch_ssim'] * self.cfg.lambda_patch_ssim
-        loss_G += losses['loss_global_ssim'] * self.cfg.lambda_global_ssim
-        loss_G += losses['loss_global_cls'] * self.cfg.lambda_global_cls
+        loss_G += losses['loss_patch_ssim'] * self.cfg['lambda_patch_ssim']
+        loss_G += losses['loss_global_ssim'] * self.cfg['lambda_global_ssim']
+        loss_G += losses['loss_global_cls'] * self.cfg['lambda_global_cls']
         # loss_G += losses['loss_local_cls'] * self.cfg.lambda_local_cls
-        loss_G += losses['loss_idt_B'] * self.cfg.lambda_identity
+        loss_G += losses['loss_idt_B'] * self.cfg['lambda_identity']
 
-        losses['total'] = loss_G
+        losses['loss'] = loss_G
         return losses
 
     def calculate_local_ssim_loss(self, outputs, inputs):
