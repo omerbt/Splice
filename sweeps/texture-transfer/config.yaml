@@ -7,7 +7,7 @@ parameters:
     values: [10]
 
   dataroot:
-    values: ['./datasets/horse_zebra','./datasets/horse_zebra_1','./datasets/horse_zebra_2','./datasets/horse_zebra_3','./datasets/horse_zebra_4']
+    values: ['./datasets/cartoon_cat_fox','./datasets/cows_2','./datasets/elephant_leopard','./datasets/faces_1','./datasets/faces_2','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
   direction:
     values: ['AtoB']  # AtoB or BtoA
   local_crops_n_crops:
@@ -42,20 +42,20 @@ parameters:
     values: [224]
 
   n_epochs:
-    values: [2000]
+    values: [1200]
   scheduler_policy:
     values: ['step']  # [linear | step | plateau | cosine]
   scheduler_n_epochs_decay:
     values: [8]
   scheduler_lr_decay_iters:
-    values: [500]
+    values: [600]
 
   optimizer_beta1:
     values: [0.9]
   optimizer_beta2:
     values: [0.999]
   lr:
-    values: [0.002]
+    values: [0.01]
 
   log_images_freq:
     values: [10]
