@@ -128,4 +128,4 @@ class SingleImageDataset(BaseDataset):
     def __len__(self):
         """ Let's pretend the single image contains 100,000 crops for convenience.
         """
-        return 100000
+        return 1200
