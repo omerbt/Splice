@@ -9,9 +9,18 @@ class Model(torch.nn.Module):
         self.netG = networks.define_G(cfg['init_type'], cfg['init_gain']).to(device)
 
     def forward(self, input):
+        x = self.netG(input['A'])
+        y = self.netG(input['B']) #####
         x_local = self.netG(input['A_local'])  # local patches from structure image
-        y_local = self.netG(input['B_local'])  # local patches from texture image
+        y_local = self.netG(input['B_local'])  # local patches from texture image #####
         x_global = self.netG(input['A_global'])  # global patches from structure image
         y_global = self.netG(input['B_global'])  # global patches from texture image
 
-        return {'x_local': x_local, 'y_local': y_local, 'x_global': x_global, 'y_global': y_global}
+        return {
+            'x': x,
+            'y': y,
+            'x_local': x_local,
+            'y_local': y_local,
+            'x_global': x_global,
+            'y_global': y_global
+        }

@@ -45,7 +45,7 @@ def train_model():
     model = Model(cfg)
 
     # define loss function
-    criterion = LossG(dataset.B_img, cfg)
+    criterion = LossG(dataset.A_img, dataset.B_img, cfg)
 
     # define optimizer, scheduler
     optimizer = torch.optim.Adam(model.netG.parameters(),
@@ -58,7 +58,6 @@ def train_model():
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
 
-    # logging
 
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]
@@ -82,6 +81,7 @@ def train_model():
 
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
+            print(f'epoch: {epoch}')
             model.netG.eval()
             img_A = dataset.get_A().to(device)
             with torch.no_grad():

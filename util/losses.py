@@ -9,7 +9,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class LossG(torch.nn.Module):
 
-    def __init__(self, B_img, cfg):
+    def __init__(self, A_img, B_img, cfg):
         super().__init__()
 
         self.cfg = cfg
@@ -27,7 +27,9 @@ class LossG(torch.nn.Module):
             imagenet_norm
         ])
 
+        A = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(A_img).unsqueeze(0)
         B = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(B_img).unsqueeze(0)
+        self.target_global_ssim = self.extractor.get_keys_self_sim_from_input(A.to(device), layer_num=11).detach()
         self.target_global_cls_token = self.extractor.get_feature_from_input(B.to(device))[-1][0, 0, :].detach()
 
     def forward(self, outputs, inputs):
@@ -35,12 +37,16 @@ class LossG(torch.nn.Module):
 
         loss_G = 0
 
+        losses['loss_ssim'] = self.calculate_ssim_loss(outputs)
+        losses['loss_cls'] = self.calculate_cls_loss(outputs)
         losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
         losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
         losses['loss_global_cls'] = self.calculate_global_cls_loss(outputs['x_global'])
         # losses['loss_local_cls'] = self.calculate_cls_loss(outputs['x_local'])
         losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
 
+        loss_G += losses['loss_ssim'] * self.cfg['lambda_ssim']
+        loss_G += losses['loss_cls'] * self.cfg['lambda_cls']
         loss_G += losses['loss_patch_ssim'] * self.cfg['lambda_patch_ssim']
         loss_G += losses['loss_global_ssim'] * self.cfg['lambda_global_ssim']
         loss_G += losses['loss_global_cls'] * self.cfg['lambda_global_cls']
@@ -49,6 +55,18 @@ class LossG(torch.nn.Module):
 
         losses['loss'] = loss_G
         return losses
+
+    def calculate_ssim_loss(self, outputs):
+        x = self.global_transform(outputs['x'])
+        ssim = self.extractor.get_keys_self_sim_from_input(x, layer_num=11)
+        loss = F.mse_loss(ssim, self.target_global_ssim)
+        return loss
+
+    def calculate_cls_loss(self, outputs):
+        x = self.global_transform(outputs['x'])
+        cls_token = self.extractor.get_feature_from_input(x)[-1][0, 0, :]
+        loss = F.mse_loss(cls_token, self.target_global_cls_token)
+        return loss
 
     def calculate_local_ssim_loss(self, outputs, inputs):
         loss = 0.0
