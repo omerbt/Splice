@@ -29,7 +29,7 @@ scheduler_lr_decay_iters: 600
 
 optimizer_beta1: 0.0
 optimizer_beta2: 0.99
-lr: 0.002
+lr: 0.01
 
 
 checkpoints_dir: ./checkpoints
