@@ -1,6 +1,6 @@
 seed: 10
 
-dataroot: ./datasets/horse_zebra
+dataroot: ./datasets/horse_zebra_s
 direction: AtoB  # AtoB or BtoA
 local_crops_n_crops: 4
 local_crops_crop_size: 96
@@ -19,6 +19,8 @@ lambda_global_ssim: 0.0
 lambda_local_cls: 0.0
 lambda_patch_ssim: 2.0
 lambda_identity: 0.1
+lambda_crops_cls: 2.0
+
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 

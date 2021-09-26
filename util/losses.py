@@ -31,6 +31,7 @@ class LossG(torch.nn.Module):
         B = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(B_img).unsqueeze(0)
         self.target_global_ssim = self.extractor.get_keys_self_sim_from_input(A.to(device), layer_num=11).detach()
         self.target_global_cls_token = self.extractor.get_feature_from_input(B.to(device))[-1][0, 0, :].detach()
+        self.B = B.to(device)
 
     def forward(self, outputs, inputs):
         losses = {}
@@ -54,7 +55,7 @@ class LossG(torch.nn.Module):
         loss_G += losses['loss_local_cls'] * self.cfg.lambda_local_cls
         loss_G += losses['loss_idt_B'] * self.cfg['lambda_identity']
 
-        loss_G += losses['loss_crops_cls'] * 3.0
+        loss_G += losses['loss_crops_cls'] * self.cfg['lambda_crops_cls']
 
         losses['loss'] = loss_G
         return losses
@@ -109,8 +110,10 @@ class LossG(torch.nn.Module):
         n_crops = 4
         for _ in range(n_crops):
             a = transforms.RandomCrop(self.cfg['dino_global_patch_size'])(x)
+            b = transforms.RandomCrop(self.cfg['dino_global_patch_size'])(self.B)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
-            loss += F.mse_loss(cls_token, self.target_global_cls_token)
+            target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
+            loss += F.mse_loss(cls_token, target_cls_token)
         return loss
 
     def calculate_local_ssim(self, outputs, inputs):
