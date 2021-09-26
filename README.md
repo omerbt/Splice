@@ -1,3 +1,3 @@
 # Texture Mapping
 
-![plot](./horse-zebra.jpeg)
+![plot](imgs/horse-zebra.jpeg)

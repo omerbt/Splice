@@ -1,3 +1,8 @@
+import sys
+
+sys.path.insert(0, "/home/labs/waic/narekt/projects/texture-mapping")
+
+
 import logging
 # import hydra
 # from hydra import utils
@@ -19,8 +24,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # @hydra.main(config_path='conf/default', config_name='config')
 def train_model():
-    config = yaml.load('conf/default/config.yaml')
-    wandb.init(project='semantic_texture-transfer', entity='vit-vis', config=config)
+    with open("conf/default/config.yaml", "r") as f:
+        config = yaml.safe_load(f)
+    wandb.init(project='semantic-texture-transfer', entity='vit-vis', config=config)
     cfg = wandb.config
 
     # set seed
@@ -52,6 +58,7 @@ def train_model():
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
 
+    # logging
 
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]
