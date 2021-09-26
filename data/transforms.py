@@ -18,11 +18,10 @@ class Local_crops(nn.Module):
     def forward(self, img):
         crops = []
         # first scale the image
-        zoom_level = (np.random.uniform(1 / self.scale_max, 1), np.random.uniform(1 / self.scale_max, 1))
+        zoom_level = np.random.uniform(1 / self.scale_max, 1)
         iw, ih = img.size
-        zoomw = max(self.crop_size, iw * zoom_level[0])
-        zoomh = max(self.crop_size, ih * zoom_level[1])
-        img = img.resize((int(round(zoomw)), int(round(zoomh))), Image.BICUBIC)
+        zoomh = max(self.crop_size, ih * zoom_level)
+        img = transforms.Resize(int(round(zoomh)))(img)
 
         # take random crops
         for _ in range(self.n_crops):
