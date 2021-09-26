@@ -37,12 +37,13 @@ class LossG(torch.nn.Module):
 
         loss_G = 0
 
-        losses['loss_ssim'] = self.calculate_ssim_loss(outputs)
-        losses['loss_cls'] = self.calculate_cls_loss(outputs)
+        losses['loss_ssim'] = self.calculate_ssim_loss(outputs['x'])
+        losses['loss_cls'] = self.calculate_global_cls_loss(outputs['x'])
         losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
         losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
         losses['loss_global_cls'] = self.calculate_global_cls_loss(outputs['x_global'])
-        # losses['loss_local_cls'] = self.calculate_cls_loss(outputs['x_local'])
+        losses['loss_local_cls'] = self.calculate_local_cls_loss(outputs['x_local'])
+        losses['loss_crops_cls'] = self.calculate_crops_cls_loss(outputs['x'])
         losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
 
         loss_G += losses['loss_ssim'] * self.cfg['lambda_ssim']
@@ -50,22 +51,18 @@ class LossG(torch.nn.Module):
         loss_G += losses['loss_patch_ssim'] * self.cfg['lambda_patch_ssim']
         loss_G += losses['loss_global_ssim'] * self.cfg['lambda_global_ssim']
         loss_G += losses['loss_global_cls'] * self.cfg['lambda_global_cls']
-        # loss_G += losses['loss_local_cls'] * self.cfg.lambda_local_cls
+        loss_G += losses['loss_local_cls'] * self.cfg.lambda_local_cls
         loss_G += losses['loss_idt_B'] * self.cfg['lambda_identity']
+
+        loss_G += losses['loss_crops_cls'] * 3.0
 
         losses['loss'] = loss_G
         return losses
 
-    def calculate_ssim_loss(self, outputs):
-        x = self.global_transform(outputs['x'])
+    def calculate_ssim_loss(self, output):
+        x = self.global_transform(output)
         ssim = self.extractor.get_keys_self_sim_from_input(x, layer_num=11)
         loss = F.mse_loss(ssim, self.target_global_ssim)
-        return loss
-
-    def calculate_cls_loss(self, outputs):
-        x = self.global_transform(outputs['x'])
-        cls_token = self.extractor.get_feature_from_input(x)[-1][0, 0, :]
-        loss = F.mse_loss(cls_token, self.target_global_cls_token)
         return loss
 
     def calculate_local_ssim_loss(self, outputs, inputs):
@@ -94,6 +91,24 @@ class LossG(torch.nn.Module):
         loss = 0.0
         for a in outputs:  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0)
+            cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
+            loss += F.mse_loss(cls_token, self.target_global_cls_token)
+        return loss
+
+    def calculate_local_cls_loss(self, outputs):
+        loss = 0.0
+        for a in outputs:
+            a = self.local_transform(a).unsqueeze(0)
+            cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
+            loss += F.mse_loss(cls_token, self.target_global_cls_token)
+        return loss
+
+    def calculate_crops_cls_loss(self, output):
+        x = self.global_transform(output)
+        loss = 0.0
+        n_crops = 4
+        for _ in range(n_crops):
+            a = transforms.RandomCrop(self.cfg['dino_global_patch_size'])(x)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, self.target_global_cls_token)
         return loss

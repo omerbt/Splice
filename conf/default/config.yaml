@@ -12,12 +12,12 @@ global_crops_min_cover: 0.95
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
-lambda_ssim: 1.0
+lambda_ssim: 2.0
 lambda_cls: 4.0
-lambda_global_cls: 0.0 # 4.0
-lambda_global_ssim: 0.0 # 0.5
-#  lambda_local_cls: 0.0
-lambda_patch_ssim: 1.0
+lambda_global_cls: 0.0
+lambda_global_ssim: 0.0
+lambda_local_cls: 0.0
+lambda_patch_ssim: 2.0
 lambda_identity: 0.1
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
