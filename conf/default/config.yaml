@@ -23,7 +23,7 @@ lambda_identity: 0.0
 lambda_crops_cls: 0.0
 
 dino_model_name: dino_vitb8
-dino_global_patch_size: ${input_img_height}
+dino_global_patch_size: 380
 
 n_epochs: 1200
 scheduler_policy: step  # [linear | step | plateau | cosine]
