@@ -7,18 +7,20 @@ parameters:
     values: [10]
 
   dataroot:
-    values: ['./datasets/cartoon_cat_fox','./datasets/cows_2','./datasets/elephant_leopard','./datasets/faces_1','./datasets/faces_2','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
+    values: ['./datasets/cartoon_cat_fox','./datasets/cartoon_cat_tiger','./datasets/elephant_leopard','./datasets/faces_1','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
   direction:
     values: ['AtoB']  # AtoB or BtoA
   local_crops_n_crops:
     values: [8]
   local_crops_crop_size:
-    values: [64]
+    values: [96]
   local_crops_scale_max:
-    values: [3.0]
+    values: [1.0]
+  input_img_height:
+    values: [380]
 
   global_crops_n_crops:
-    values: [2]
+    values: [1]
   global_crops_min_cover:
     values: [0.95]
 
@@ -27,19 +29,27 @@ parameters:
   init_gain:
     values: [0.02]  # scaling factor for normal, xavier and orthogonal
 
+  lambda_ssim:
+    values: [1.0, 2.0]
+  lambda_cls:
+    values: [2.0, 4.0]
   lambda_global_cls:
-    values: [1.0,4.0,10.0]
-  #  lambda_local_cls: 0.0
+    values: [0.0]
   lambda_global_ssim:
-    values: [0.1,0.2,0.6,1.0]
+    values: [0.0]
+  lambda_local_cls:
+    values: [0.0, 2.0]
   lambda_patch_ssim:
-    values: [0.1,0.2,0.6,1.0]
+    values: [0.0, 1.0, 2.0]
   lambda_identity:
-    values: [0.1,0.2,0.6,1.0]
+    values: [0.0]
+  lambda_crops_cls:
+    values: [0.0]
+
   dino_model_name:
     values: ['dino_vitb8']
   dino_global_patch_size:
-    values: [224]
+    values: [380]
 
   n_epochs:
     values: [1200]
@@ -51,9 +61,9 @@ parameters:
     values: [600]
 
   optimizer_beta1:
-    values: [0.9]
+    values: [0.0]
   optimizer_beta2:
-    values: [0.999]
+    values: [0.99]
   lr:
     values: [0.01]
 

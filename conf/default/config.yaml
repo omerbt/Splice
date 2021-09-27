@@ -19,7 +19,7 @@ lambda_global_cls: 0.0
 lambda_global_ssim: 0.0
 lambda_local_cls: 0.0
 lambda_patch_ssim: 2.0
-lambda_identity: 0.1
+lambda_identity: 0.0
 lambda_crops_cls: 0.0
 
 dino_model_name: dino_vitb8

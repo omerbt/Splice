@@ -109,8 +109,8 @@ class LossG(torch.nn.Module):
         loss = 0.0
         n_crops = 4
         for _ in range(n_crops):
-            a = transforms.RandomCrop(self.cfg['dino_global_patch_size'])(x)
-            b = transforms.RandomCrop(self.cfg['dino_global_patch_size'])(self.B)
+            a = transforms.RandomCrop(self.cfg['local_crops_crop_size'])(x)
+            b = transforms.RandomCrop(self.cfg['local_crops_crop_size'])(self.B)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, target_cls_token)
