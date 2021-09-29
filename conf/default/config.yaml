@@ -37,7 +37,7 @@ start_warmup_lr: -1
 
 optimizer_beta1: 0.0
 optimizer_beta2: 0.99
-lr: 0.01
+lr: 0.005
 
 cls_warmup: 1000
 
@@ -47,5 +47,3 @@ save_latest_freq: 20000
 save_epoch_freq: 1
 save_by_iter: True
 resume: False
-
-
