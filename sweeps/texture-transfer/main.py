@@ -53,8 +53,8 @@ def train_model():
     is_cfg_valid = validate_cfg(cfg)
     if not is_cfg_valid:
         print("invalid config, aborting the run...")
-        run = api.run(f'vit-vis/semantic-texture-transfer/{wandb.run.id}')
-        run.delete()
+        # run = api.run(f'vit-vis/semantic-texture-transfer/{wandb.run.id}')
+        # run.delete()
         return
 
     # set seed
