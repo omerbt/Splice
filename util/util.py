@@ -4,24 +4,24 @@ import torch
 
 
 def get_scheduler(optimizer, cfg, n_epochs=None, n_epochs_decay=None, lr_decay_iters=None):
-    if cfg['lr_policy'] == 'linear':
+    if cfg['scheduler_policy'] == 'linear':
         def lambda_rule(epoch):
             lr_l = 1.0 - max(0, epoch) / float(n_epochs_decay + 1)
             return max(lr_l, 0)
 
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
-    elif cfg['lr_policy'] == 'step':
+    elif cfg['scheduler_policy'] == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=lr_decay_iters, gamma=0.5)
-    elif cfg['lr_policy'] == 'plateau':
+    elif cfg['scheduler_policy'] == 'plateau':
         scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
-    elif cfg['lr_policy'] == 'cosine':
+    elif cfg['scheduler_policy'] == 'cosine':
         scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=n_epochs, eta_min=0)
-    elif cfg['lr_policy'] == 'cosine_dino':
+    elif cfg['scheduler_policy'] == 'cosine_dino':
         scheduler = cosine_scheduler(cfg['base_lr'], cfg['final_lr'], cfg['n_epochs'], cfg['warmup_epochs_prop'], cfg['start_warmup_lr'])
-    elif cfg['lr_policy'] == 'none':
+    elif cfg['scheduler_policy'] == 'none':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=100000, gamma=1.0)
     else:
-        return NotImplementedError('learning rate policy [%s] is not implemented', cfg['lr_policy'])
+        return NotImplementedError('learning rate policy [%s] is not implemented', cfg['scheduler_policy'])
     return scheduler
 
 
