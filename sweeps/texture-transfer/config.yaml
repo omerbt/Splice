@@ -64,7 +64,7 @@ parameters:
     values: [600]
   ## 'cosine_dino' scheduler-specific, values of -1 are a workaround for avoiding redundant sweeps
   base_lr:
-    values: [-1,0.01]
+    values: [-1,0.0075]
   final_lr:
     values: [-1,0.002]
   warmup_epochs_prop:
