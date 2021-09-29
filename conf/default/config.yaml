@@ -13,27 +13,33 @@ global_crops_min_cover: 0.95
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
-lambda_ssim: 2.0
-lambda_cls: 4.0
+lambda_ssim: 0.0
+lambda_cls: 1.0
 lambda_global_cls: 0.0
 lambda_global_ssim: 0.0
 lambda_local_cls: 0.0
-lambda_patch_ssim: 2.0
+lambda_patch_ssim: 0.0
 lambda_identity: 0.0
 lambda_crops_cls: 0.0
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 380
 
-n_epochs: 1200
-scheduler_policy: step  # [linear | step | plateau | cosine]
+n_epochs: 2500
+scheduler_policy: none  # [linear | step | plateau | cosine | cosine_dino | none]
 scheduler_n_epochs_decay: 8
 scheduler_lr_decay_iters: 600
+## 'cosine_dino' scheduler-specific, values of -1 are a workaround for avoiding redundant sweeps
+base_lr: -1
+final_lr: -1
+warmup_epochs_prop: -1
+start_warmup_lr: -1
 
 optimizer_beta1: 0.0
 optimizer_beta2: 0.99
 lr: 0.01
 
+cls_warmup: 1000
 
 checkpoints_dir: ./checkpoints
 log_images_freq: 10

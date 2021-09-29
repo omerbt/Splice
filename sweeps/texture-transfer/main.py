@@ -22,12 +22,37 @@ log = logging.getLogger(__name__)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+def validate_cfg(cfg):
+    if (
+            (cfg['scheduler_policy'] == 'cosine_dino' and (
+                    cfg['base_lr'] < 0 or cfg['final_lr'] < 0 or cfg['warmup_epochs_prop'] < 0 or cfg['start_warmup_lr'] < 0))
+            or
+            (cfg['scheduler_policy'] != 'cosine_dino' and (
+            cfg['base_lr'] > 0 or cfg['final_lr'] > 0 or cfg['warmup_epochs_prop'] > 0 or cfg['start_warmup_lr'] > 0))
+    ):
+        return False
+
+    return True
+
+
+def make_scheduler_step(optimizer, scheduler, iter, cfg):
+    if cfg['scheduler_policy'] == 'cosine_dino':
+        optimizer.param_groups[0]['lr'] = scheduler[iter]
+    else:
+        scheduler.step()
+
+
 # @hydra.main(config_path='conf/default', config_name='config')
 def train_model():
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
     wandb.init(project='semantic-texture-transfer', entity='vit-vis', config=config)
     cfg = wandb.config
+
+    is_cfg_valid = validate_cfg(cfg)
+    if not is_cfg_valid:
+        print("invalid config, aborting the run...")
+        return
 
     # set seed
     if cfg['seed'] == -1:
@@ -53,11 +78,10 @@ def train_model():
                                  betas=(cfg['optimizer_beta1'], cfg['optimizer_beta2']))
 
     scheduler = get_scheduler(optimizer,
-                              lr_policy=cfg['scheduler_policy'],
+                              cfg,
                               n_epochs=cfg['n_epochs'],
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
-
 
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]
@@ -74,10 +98,10 @@ def train_model():
         wandb.log(losses)
 
         # update learning rate
-        scheduler.step()
+        make_scheduler_step(optimizer, scheduler, epoch, cfg)
         lr = optimizer.param_groups[0]['lr']
         log.info('learning rate = %.7f' % lr)
-        wandb.log({"lr": lr})
+        wandb.log({"lr": lr, "epoch": epoch})
 
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
