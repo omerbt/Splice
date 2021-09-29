@@ -94,6 +94,12 @@ def train_model():
         loss_G.backward()
         optimizer.step()
 
+        # log gradient total norm
+        grad_norm = 0.0
+        for p in list(filter(lambda p: p.grad is not None, model.parameters())):
+            grad_norm += p.grad.data.norm(2).item()
+        wandb.log({'grad_norm': grad_norm})
+
         # log losses
         wandb.log(losses)
 
