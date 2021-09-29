@@ -8,7 +8,7 @@ parameters:
 
   dataroot:
 #    values: ['./datasets/cartoon_cat_fox','./datasets/cartoon_cat_tiger','./datasets/elephant_leopard','./datasets/faces_1','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
-    values: ['./datasets/horse_zebra','./datasets/horse_zebra_2','./datasets/horse_zebra_3','./datasets/horse_zebra_4','./datasets/horse_zebra_5','./datasets/cartoon_cat_tiger','./datasets/pigeon_parrot_2','./datasets/rcow_bwcow','./datasets/cows_2']
+    values: ['./datasets/horse_zebra','./datasets/horse_zebra_2','./datasets/horse_zebra_3','./datasets/horse_zebra_4','./datasets/horse_zebra_5','./datasets/cartoon_cat_tiger','./datasets/pigeon_parrot_2','./datasets/rcow_bwcow','./datasets/cows_2','./datasets/cats_pair_1','./datasets/cats_pair_2','./datasets/dogs_pair_1','wild_pair_1']
   direction:
     values: ['AtoB']  # AtoB or BtoA
   local_crops_n_crops:
@@ -77,7 +77,7 @@ parameters:
   optimizer_beta2:
     values: [0.99]
   lr:
-    values: [0.005, 0.1]
+    values: [0.005,0.1]
 
   log_images_freq:
     values: [10]
