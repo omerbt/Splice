@@ -57,7 +57,7 @@ parameters:
   cls_warmup:
     values: [1000]
   scheduler_policy:
-    values: ['cosine_dino']  # [linear | step | plateau | cosine | none | cosine_dino]
+    values: ['cosine_dino','step']  # [linear | step | plateau | cosine | none | cosine_dino]
   scheduler_n_epochs_decay:
     values: [8]
   scheduler_lr_decay_iters:
@@ -77,7 +77,7 @@ parameters:
   optimizer_beta2:
     values: [0.99]
   lr:
-    values: [0.005,0.1]
+    values: [0.005]
 
   log_images_freq:
     values: [10]
