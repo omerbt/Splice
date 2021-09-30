@@ -20,7 +20,6 @@ import yaml
 
 log = logging.getLogger(__name__)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-api = wandb.Api()
 
 
 def validate_cfg(cfg):
