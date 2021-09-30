@@ -14,7 +14,7 @@ import os
 from data.Dataset import SingleImageDataset
 from models.model import Model
 from util.losses import LossG
-from util.util import tensor2im, get_scheduler
+from util.util import tensor2im, get_scheduler, get_optimizer
 # from omegaconf import OmegaConf
 import yaml
 
@@ -75,9 +75,7 @@ def train_model():
     criterion = LossG(dataset.A_img, dataset.B_img, cfg)
 
     # define optimizer, scheduler
-    optimizer = torch.optim.Adam(model.netG.parameters(),
-                                 lr=cfg['lr'],
-                                 betas=(cfg['optimizer_beta1'], cfg['optimizer_beta2']))
+    optimizer = get_optimizer(cfg, model.netG.parameters())
 
     scheduler = get_scheduler(optimizer,
                               cfg,
