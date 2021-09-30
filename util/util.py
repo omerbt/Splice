@@ -40,7 +40,7 @@ def tensor2im(input_image, imtype=np.uint8):
 
 def cosine_scheduler(base_value, final_value, epochs, warmup_epochs_prop=0, start_warmup_value=0):
     warmup_schedule = np.array([])
-    warmup_iters = warmup_epochs_prop * epochs
+    warmup_iters = int(warmup_epochs_prop * epochs)
     if warmup_epochs_prop > 0:
         warmup_schedule = np.linspace(start_warmup_value, base_value, warmup_iters)
 
