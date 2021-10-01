@@ -39,9 +39,27 @@ class LossG(torch.nn.Module):
         B = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(B_img).unsqueeze(0)
         self.target_global_cls_token = self.extractor.get_feature_from_input(B.to(device))[-1][0, 0, :].detach()
 
-    def forward(self, outputs, inputs):
-        losses = {}
+        self.register_buffer("step", torch.zeros(1))
+        self.lambdas = dict(
+            lambda_global_cls=cfg['lambda_global_cls'],
+            lambda_patch_ssim=0,
+            lambda_global_ssim=0,
+            lambda_identity=0
+        )
 
+    def update_lambda_config(self):
+        if self.step == self.cfg['cls_warmup']:
+            self.lambdas['lambda_patch_ssim'] = self.cfg['lambda_patch_ssim']
+            self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
+            self.lambdas['lambda_identity'] = self.cfg['lambda_identity']
+
+    def update_step(self):
+        self.step += 1
+        self.update_lambda_config()
+
+    def forward(self, outputs, inputs):
+        self.update_lambda_config()
+        losses = {}
         loss_G = 0
 
         losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])

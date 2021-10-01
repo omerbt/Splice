@@ -1,13 +1,13 @@
 seed: 10
 
-dataroot: ./datasets/pigeon_parrot_2
+dataroot: ./datasets/horse_zebra_4
 direction: AtoB  # AtoB or BtoA
 local_crops_n_crops: 1
 local_crops_crop_size: 64
 local_crops_scale_max: 3.0
 
 global_A_crops_n_crops: 1
-global_A_crops_min_cover: 0.9
+global_A_crops_min_cover: 0.5
 
 global_B_crops_n_crops: 1
 global_B_crops_min_cover: 0.5
@@ -15,6 +15,7 @@ global_B_crops_min_cover: 0.5
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
+cls_warmup: 1
 lambda_global_cls: 1.0
 lambda_global_ssim: 0.0
 lambda_patch_ssim: 0.0
@@ -31,7 +32,6 @@ optimizer: adam
 optimizer_beta1: 0.0
 optimizer_beta2: 0.99
 lr: 0.002
-
 
 checkpoints_dir: ./checkpoints
 log_images_freq: 10
