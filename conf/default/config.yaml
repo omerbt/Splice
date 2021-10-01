@@ -1,4 +1,4 @@
-seed: 11
+seed: 10
 
 dataroot: ./datasets/wcat_rcat_2
 direction: AtoB  # AtoB or BtoA
@@ -12,7 +12,7 @@ local_crops_crop_size: 64
 local_crops_scale_max: 3.0
 
 global_A_crops_n_crops: 1
-global_A_crops_min_cover: 0.5
+global_A_crops_min_cover: 0.6
 
 global_B_crops_n_crops: 1
 global_B_crops_min_cover: 0.5
