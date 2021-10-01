@@ -84,7 +84,7 @@ class LossG(torch.nn.Module):
         loss = 0.0
         for a, b in zip(inputs, outputs):  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0)
-            b = self.global_transform(b).unsqueeze(0)
+            b = self.global_transform(b).unsqueeze(0).to(device)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, target_cls_token)
