@@ -62,15 +62,18 @@ class LossG(torch.nn.Module):
         losses = {}
         loss_G = 0
 
-        losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
-        losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
-        losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'])
-        losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
-
-        loss_G += losses['loss_patch_ssim'] * self.lambdas['lambda_patch_ssim']
-        loss_G += losses['loss_global_ssim'] * self.lambdas['lambda_global_ssim']
-        loss_G += losses['loss_global_cls'] * self.cfg['lambda_global_cls']
-        loss_G += losses['loss_idt_B'] * self.cfg['lambda_global_cls']
+        if self.lambdas['lambda_patch_ssim'] > 0:
+            losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
+            loss_G += losses['loss_patch_ssim'] * self.lambdas['lambda_patch_ssim']
+        if self.lambdas['lambda_global_ssim'] > 0:
+            losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
+            loss_G += losses['loss_global_ssim'] * self.lambdas['lambda_global_ssim']
+        if self.lambdas['lambda_global_cls'] > 0:
+            losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'])
+            loss_G += losses['loss_global_cls'] * self.lambdas['lambda_global_cls']
+        if self.lambdas['lambda_global_cls'] > 0:
+            losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
+            loss_G += losses['loss_idt_B'] * self.lambdas['lambda_global_cls']
 
         losses['loss'] = loss_G
         return losses
