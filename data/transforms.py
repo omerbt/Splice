@@ -42,7 +42,7 @@ class Global_crops(nn.Module):
         if flip:
             transforms_lst += [transforms.RandomHorizontalFlip()]
 
-        self.last_transform = transforms_lst
+        self.last_transform = transforms.Compose(transforms_lst)
 
     def forward(self, img):
         crops = []
