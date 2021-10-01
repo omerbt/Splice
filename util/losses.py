@@ -59,7 +59,7 @@ class LossG(torch.nn.Module):
         self.update_lambda_config()
 
     def forward(self, outputs, inputs):
-        self.update_lambda_config()
+        self.update_step()
         losses = {}
         loss_G = 0
 
