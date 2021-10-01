@@ -59,7 +59,7 @@ class LossG(torch.nn.Module):
 
     def update_lambda_config(self):
         if self.step == self.cfg['cls_warmup']:
-            self.lambdas['lambda_patch_ssim'] = self.cfg['lambda_patch_ssim']
+            self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
             self.lambdas['lambda_local_ssim'] = self.cfg['lambda_local_ssim']
             self.lambdas['lambda_identity'] = self.cfg['lambda_identity']
 
