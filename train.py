@@ -16,7 +16,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train_model():
     config = yaml.load('conf/default/config.yaml')
-    wandb.init(project='semantic_texture-transfer', entity='vit-vis', config=config)
+    # wandb.init(project='semantic_texture-transfer', entity='vit-vis', config=config)
+    wandb.init(project='arch', entity='vit-vis', config=config)
     cfg = wandb.config
 
     # set seed
