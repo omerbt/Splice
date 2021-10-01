@@ -55,5 +55,5 @@ def init_net(net, init_type='normal', init_gain=0.02, debug=False, initialize_we
 
 
 def define_G(init_type='normal', init_gain=0.02):
-    net = skip(need_tanh=True)
+    net = skip(need_sigmoid=True, need_tanh=False)
     return init_net(net, init_type, init_gain, initialize_weights=True)

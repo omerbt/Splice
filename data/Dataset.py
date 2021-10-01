@@ -11,11 +11,11 @@ from data.transforms import Global_crops, Local_crops
 class SingleImageDataset(Dataset):
     def __init__(self, cfg):
         # normalization to be applied to every crop after augmentation
-        norm_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        # norm_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
         self.base_transform = transforms.Compose([
             transforms.ToTensor(),
-            norm_transform
+            # norm_transform
         ])
 
         self.local_patches = Local_crops(n_crops=cfg['local_A_crops_n_crops'],
