@@ -37,10 +37,12 @@ class Global_crops(nn.Module):
         super().__init__()
         self.n_crops = n_crops
         self.min_cover = min_cover
+
+        transforms_lst = [last_transform]
         if flip:
-            transforms.Compose([last_transform, transforms.RandomHorizontalFlip()])
-        else:
-            self.last_transform = last_transform
+            transforms_lst += [transforms.RandomHorizontalFlip()]
+
+        self.last_transform = transforms_lst
 
     def forward(self, img):
         crops = []
