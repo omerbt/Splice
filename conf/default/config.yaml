@@ -6,8 +6,11 @@ local_crops_n_crops: 1
 local_crops_crop_size: 64
 local_crops_scale_max: 3.0
 
-global_crops_n_crops: 1
-global_crops_min_cover: 1
+global_A_crops_n_crops: 1
+global_A_crops_min_cover: 1
+
+global_B_crops_n_crops: 1
+global_B_crops_min_cover: 0.85
 
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal

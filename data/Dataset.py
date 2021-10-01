@@ -23,8 +23,8 @@ class SingleImageDataset(Dataset):
                                          scale_max=cfg['local_crops_scale_max'],
                                          last_transform=self.base_transform)
 
-        self.global_patches = Global_crops(n_crops=cfg['global_crops_n_crops'],
-                                           min_cover=cfg['global_crops_min_cover'],
+        self.global_patches = Global_crops(n_crops=cfg['global_A_crops_n_crops'],
+                                           min_cover=cfg['global_A_crops_min_cover'],
                                            last_transform=self.base_transform)
 
         # open images
