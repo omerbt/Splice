@@ -1,15 +1,15 @@
 seed: 10
 
-dataroot: ./datasets/horse_zebra
+dataroot: ./datasets/horse_zebra_4
 direction: AtoB  # AtoB or BtoA
 local_crops_n_crops: 1
 local_crops_crop_size: 64
 local_crops_scale_max: 3.0
 
-global_A_crops_n_crops: 8
+global_A_crops_n_crops: 1
 global_A_crops_min_cover: 0.9
 
-global_B_crops_n_crops: 8
+global_B_crops_n_crops: 1
 global_B_crops_min_cover: 0.5
 
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
