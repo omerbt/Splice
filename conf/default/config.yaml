@@ -10,7 +10,7 @@ global_A_crops_n_crops: 1
 global_A_crops_min_cover: 1
 
 global_B_crops_n_crops: 1
-global_B_crops_min_cover: 0.85
+global_B_crops_min_cover: 0.5
 
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
@@ -22,7 +22,7 @@ lambda_identity: 0.0
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 
-n_epochs: 2000
+n_epochs: 10000
 scheduler_policy: none  # [linear | step | plateau | cosine | none]
 scheduler_n_epochs_decay: 8
 scheduler_lr_decay_iters: 300
