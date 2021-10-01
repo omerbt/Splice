@@ -17,7 +17,7 @@ def get_scheduler(optimizer, lr_policy, n_epochs=None, n_epochs_decay=None, lr_d
     elif lr_policy == 'cosine':
         scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=n_epochs, eta_min=0)
     elif lr_policy == 'none':
-        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: x)
+        scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda x: 1)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', lr_policy)
     return scheduler
