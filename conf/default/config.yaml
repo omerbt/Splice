@@ -2,25 +2,25 @@ seed: 10
 
 dataroot: ./datasets/horse_zebra
 direction: AtoB  # AtoB or BtoA
-local_crops_n_crops: 2 # 16
+local_crops_n_crops: 1
 local_crops_crop_size: 64
 local_crops_scale_max: 3.0
 
-global_crops_n_crops: 1 # 4
-global_crops_min_cover: 0.85
+global_crops_n_crops: 1
+global_crops_min_cover: 1
 
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
-lambda_global_cls: 4.0
-lambda_global_ssim: 0.2
-lambda_patch_ssim: 0.1
+lambda_global_cls: 1.0
+lambda_global_ssim: 0.0
+lambda_patch_ssim: 0.0
 lambda_identity: 0.0
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 
 n_epochs: 2000
-scheduler_policy: step  # [linear | step | plateau | cosine]
+scheduler_policy: none  # [linear | step | plateau | cosine | none]
 scheduler_n_epochs_decay: 8
 scheduler_lr_decay_iters: 300
 
