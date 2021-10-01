@@ -83,10 +83,9 @@ class LossG(torch.nn.Module):
     def calculate_crop_cls_loss(self, outputs):
         inputs = self.global_B_patches(self.B_img)
         loss = 0.0
-        for a, b in zip(inputs, outputs):  # avoid memory limitations
+        for a, b in zip(outputs, inputs):  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0).to(device)
             b = b.unsqueeze(0).to(device)
-            print(b.shape)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, target_cls_token)
