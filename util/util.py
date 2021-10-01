@@ -21,6 +21,20 @@ def get_scheduler(optimizer, lr_policy, n_epochs=None, n_epochs_decay=None, lr_d
     return scheduler
 
 
+def get_optimizer(cfg, params):
+    if cfg['optimizer'] == 'adam':
+        optimizer = torch.optim.Adam(params,
+                                     lr=cfg['lr'],
+                                     betas=(cfg['optimizer_beta1'], cfg['optimizer_beta2']))
+    elif cfg['optimizer'] == 'rmsprop':
+        optimizer = torch.optim.RMSprop(params, lr=cfg['lr'])
+    elif cfg['optimizer'] == 'sgd':
+        optimizer = torch.optim.SGD(params, lr=cfg['lr'])
+    else:
+        return NotImplementedError('optimizer [%s] is not implemented', cfg['optimizer'])
+    return optimizer
+
+
 def tensor2im(input_image, imtype=np.uint8):
     if not isinstance(input_image, np.ndarray):
         if isinstance(input_image, torch.Tensor):  # get the data from a variable
