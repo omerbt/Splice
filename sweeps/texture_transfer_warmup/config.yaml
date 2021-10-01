@@ -1,0 +1,111 @@
+program: sweeps/texture-transfer-warmup/main.py
+project: semantic-texture-transfer
+entity: vit-vis
+method: grid
+parameters:
+  seed:
+    values: [10]
+
+  dataroot:
+    values:
+      - './datasets/horse_zebra'
+      - './datasets/horse_zebra_2'
+      - './datasets/horse_zebra_3'
+      - './datasets/horse_zebra_4'
+      - './datasets/rcow_bwcow'
+      - './datasets/cows_2'
+      - './datasets/cats_pair_1'
+      - './datasets/cats_pair_2'
+      - './datasets/cats_pair_3'
+      - './datasets/cats_pair_4'
+      - './datasets/cats_pair_5'
+      - './datasets/dogs_pair_1'
+      - './datasets/dogs_pair_2'
+      - './datasets/dogs_pair_3'
+      - './datasets/dogs_pair_4'
+      - './datasets/dogs_pair_5'
+      - './datasets/wild_pair_1'
+      - './datasets/wild_pair_2'
+      - './datasets/wild_pair_3'
+      - './datasets/wild_pair_4'
+      - './datasets/wild_pair_5'
+  direction:
+    values: ['AtoB']  # AtoB or BtoA
+  local_crops_n_crops:
+    values: [8]
+  local_crops_crop_size:
+    values: [96]
+  local_crops_scale_max:
+    values: [1.0]
+  input_img_height:
+    values: [380]
+
+  global_crops_n_crops:
+    values: [1]
+  global_crops_min_cover:
+    values: [0.95]
+
+  init_type:
+    values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+  init_gain:
+    values: [0.02]  # scaling factor for normal, xavier and orthogonal
+
+  lambda_ssim:
+    values: [0.0]
+  lambda_cls:
+    values: [1.0]
+  lambda_global_cls_cropped:
+    values: [0.0]
+  lambda_global_cls:
+    values: [1.0]
+  lambda_global_ssim:
+    values: [0.0]
+  lambda_local_cls:
+    values: [0.0,1.0]
+  lambda_patch_ssim:
+    values: [0.0]
+  lambda_identity:
+    values: [0.0]
+  lambda_crops_cls:
+    values: [0.0]
+
+  dino_model_name:
+    values: ['dino_vitb8']
+  dino_global_patch_size:
+    values: [380]
+
+  n_epochs:
+    values: [1500]
+  cls_warmup:
+    values: [1000]
+  scheduler_policy:
+    values: ['step']  # [linear | step | plateau | cosine | none | cosine_dino]
+  scheduler_n_epochs_decay:
+    values: [8]
+  scheduler_lr_decay_iters:
+    values: [600]
+  ## 'cosine_dino' scheduler-specific, values of -1 are a workaround for avoiding redundant sweeps
+  base_lr:
+    values: [-1] # 0.0075
+  final_lr:
+    values: [-1] # 0.002
+  warmup_epochs_prop:
+    values: [-1] # 0.1
+  start_warmup_lr:
+    values: [-1] # 0.004
+
+  optimizer:
+    values: ['adam'] # [rmsprop | adam | sgd]
+  optimizer_beta1:
+    values: [0.0]
+  optimizer_beta2:
+    values: [0.99]
+  lr:
+    values: [0.005]
+
+  log_images_freq:
+    values: [10]
+
+metric:
+  name: loss
+

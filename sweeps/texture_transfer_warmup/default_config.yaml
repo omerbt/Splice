@@ -1,0 +1,51 @@
+seed: 10
+
+dataroot: ./datasets/horse_zebra_2
+direction: AtoB  # AtoB or BtoA
+local_crops_n_crops: 4
+local_crops_crop_size: 96
+local_crops_scale_max: 1.0
+input_img_height: 380
+
+global_crops_n_crops: 1
+global_crops_min_cover: 0.95
+
+init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
+
+lambda_ssim: 0.0
+lambda_cls: 1.0
+lambda_global_cls_cropped: 1.0
+lambda_global_cls: 1.0
+lambda_global_ssim: 0.0
+lambda_local_cls: 0.0
+lambda_patch_ssim: 0.0
+lambda_identity: 0.0
+lambda_crops_cls: 0.0
+
+dino_model_name: dino_vitb8
+dino_global_patch_size: 380
+
+n_epochs: 1500
+scheduler_policy: none  # [linear | step | plateau | cosine | cosine_dino | none]
+scheduler_n_epochs_decay: 8
+scheduler_lr_decay_iters: 600
+## 'cosine_dino' scheduler-specific, values of -1 are a workaround for avoiding redundant sweeps
+base_lr: -1 # 0.0075
+final_lr: -1 # 0.002
+warmup_epochs_prop: -1 # 0.1
+start_warmup_lr: -1 # 0.004
+
+optimizer: adam # [rmsprop | adam | sgd]
+optimizer_beta1: 0.0
+optimizer_beta2: 0.99
+lr: 0.005
+
+cls_warmup: 1000
+
+checkpoints_dir: ./checkpoints
+log_images_freq: 10
+save_latest_freq: 20000
+save_epoch_freq: 1
+save_by_iter: True
+resume: False
