@@ -23,11 +23,11 @@ class LossG(torch.nn.Module):
         local_resize_transform = Resize(cfg['dino_local_patch_size'], max_size=480)
 
         self.global_transform = transforms.Compose([global_resize_transform,
-                                                    # transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+                                                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                                                     imagenet_norm
                                                     ])
         self.local_transform = transforms.Compose([
-            # transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
+            transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
             imagenet_norm
         ])
 
