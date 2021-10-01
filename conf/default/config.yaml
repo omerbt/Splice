@@ -1,4 +1,4 @@
-seed: 10
+seed: 11
 
 dataroot: ./datasets/wcat_rcat_2
 direction: AtoB  # AtoB or BtoA
