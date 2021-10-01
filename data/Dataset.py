@@ -18,9 +18,8 @@ class SingleImageDataset(Dataset):
             norm_transform
         ])
 
-        self.local_patches = Local_crops(n_crops=cfg['local_crops_n_crops'],
-                                         crop_size=cfg['local_crops_crop_size'],
-                                         scale_max=cfg['local_crops_scale_max'],
+        self.local_patches = Local_crops(n_crops=cfg['local_A_crops_n_crops'],
+                                         max_cover=cfg['local_A_crops_max_cover'],
                                          last_transform=self.base_transform)
 
         self.global_patches = Global_crops(n_crops=cfg['global_A_crops_n_crops'],

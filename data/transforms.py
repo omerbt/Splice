@@ -5,7 +5,7 @@ import numpy as np
 import torch
 
 
-class Local_crops(nn.Module):
+class Local_crops_Legacy(nn.Module):
     def __init__(self, n_crops, crop_size, scale_max, last_transform):
         super().__init__()
         self.n_crops = n_crops
@@ -29,6 +29,29 @@ class Local_crops(nn.Module):
             crop = self.patch_transform(img)
             crops.append(crop)
 
+        return torch.stack(crops)
+
+
+class Local_crops(nn.Module):
+    def __init__(self, n_crops, max_cover, last_transform, flip=False):
+        super().__init__()
+        self.n_crops = n_crops
+        self.max_cover = max_cover
+
+        transforms_lst = [last_transform]
+        if flip:
+            transforms_lst += [transforms.RandomHorizontalFlip()]
+
+        self.last_transform = transforms.Compose(transforms_lst)
+
+    def forward(self, img):
+        crops = []
+        h = img.size[1]
+        size = int(round(np.random.uniform(0.15 * h, self.max_cover * h)))
+        t = transforms.Compose([transforms.RandomCrop(size), self.last_transform])
+        for _ in range(self.n_crops):
+            crop = t(img)
+            crops.append(crop)
         return torch.stack(crops)
 
 

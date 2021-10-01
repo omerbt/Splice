@@ -3,7 +3,7 @@ from torchvision import transforms
 import torch
 import torch.nn.functional as F
 
-from data.transforms import Global_crops
+from data.transforms import Global_crops, Local_crops
 from models.extractor import VitExtractor
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -19,9 +19,10 @@ class LossG(torch.nn.Module):
         self.extractor = VitExtractor(model_name=cfg['dino_model_name'], device=device)
 
         imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-        resize_transform = Resize(cfg['dino_global_patch_size'], max_size=480)
+        global_resize_transform = Resize(cfg['dino_global_patch_size'], max_size=480)
+        local_resize_transform = Resize(cfg['dino_local_patch_size'], max_size=480)
 
-        self.global_transform = transforms.Compose([resize_transform,
+        self.global_transform = transforms.Compose([global_resize_transform,
                                                     transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                                                     imagenet_norm
                                                     ])
@@ -33,17 +34,25 @@ class LossG(torch.nn.Module):
         self.global_B_patches = Global_crops(n_crops=cfg['global_B_crops_n_crops'],
                                              min_cover=cfg['global_B_crops_min_cover'],
                                              last_transform=transforms.Compose([transforms.ToTensor(),
-                                                                                resize_transform,
+                                                                                global_resize_transform,
                                                                                 imagenet_norm]),
                                              flip=False)
 
-        B = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(B_img).unsqueeze(0)
+        self.local_B_patches = Local_crops(n_crops=cfg['local_B_crops_n_crops'],
+                                           max_cover=cfg['local_B_crops_max_cover'],
+                                           last_transform=transforms.Compose([transforms.ToTensor(),
+                                                                              local_resize_transform,
+                                                                              imagenet_norm]),
+                                           flip=False)
+
+        B = transforms.Compose([transforms.ToTensor(), global_resize_transform, imagenet_norm])(B_img).unsqueeze(0)
         self.target_global_cls_token = self.extractor.get_feature_from_input(B.to(device))[-1][0, 0, :].detach()
 
         self.register_buffer("step", torch.zeros(1))
         self.lambdas = dict(
             lambda_global_cls=cfg['lambda_global_cls'],
-            lambda_patch_ssim=0,
+            lambda_local_cls=cfg['lambda_local_cls'],
+            lambda_local_ssim=0,
             lambda_global_ssim=0,
             lambda_identity=0
         )
@@ -51,7 +60,7 @@ class LossG(torch.nn.Module):
     def update_lambda_config(self):
         if self.step == self.cfg['cls_warmup']:
             self.lambdas['lambda_patch_ssim'] = self.cfg['lambda_patch_ssim']
-            self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
+            self.lambdas['lambda_local_ssim'] = self.cfg['lambda_local_ssim']
             self.lambdas['lambda_identity'] = self.cfg['lambda_identity']
 
     def update_step(self):
@@ -63,9 +72,9 @@ class LossG(torch.nn.Module):
         losses = {}
         loss_G = 0
 
-        if self.lambdas['lambda_patch_ssim'] > 0:
-            losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
-            loss_G += losses['loss_patch_ssim'] * self.lambdas['lambda_patch_ssim']
+        if self.lambdas['lambda_local_ssim'] > 0:
+            losses['loss_local_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
+            loss_G += losses['loss_local_ssim'] * self.lambdas['lambda_local_ssim']
 
         if self.lambdas['lambda_global_ssim'] > 0:
             losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
@@ -74,6 +83,10 @@ class LossG(torch.nn.Module):
         if self.lambdas['lambda_global_cls'] > 0:
             losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'])
             loss_G += losses['loss_global_cls'] * self.lambdas['lambda_global_cls']
+
+        if self.lambdas['lambda_local_cls'] > 0:
+            losses['loss_local_cls'] = self.calculate_local_crop_cls_loss(outputs['x_local'])
+            loss_G += losses['loss_local_cls'] * self.lambdas['lambda_local_cls']
 
         if self.lambdas['lambda_identity'] > 0:
             losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
@@ -109,6 +122,17 @@ class LossG(torch.nn.Module):
         loss = 0.0
         for a, b in zip(outputs, inputs):  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0).to(device)
+            b = b.unsqueeze(0).to(device)
+            cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
+            target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
+            loss += F.mse_loss(cls_token, target_cls_token)
+        return loss
+
+    def calculate_local_crop_cls_loss(self, outputs):
+        inputs = self.local_B_patches(self.B_img)
+        loss = 0.0
+        for a, b in zip(outputs, inputs):  # avoid memory limitations
+            a = self.local_transform(a).unsqueeze(0).to(device)
             b = b.unsqueeze(0).to(device)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
