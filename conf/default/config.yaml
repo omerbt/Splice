@@ -25,7 +25,7 @@ lambda_global_cls: 1.0
 lambda_local_cls: 0.0
 lambda_global_ssim: 0.0
 lambda_local_ssim: 1.0
-lambda_identity: 0.0
+lambda_identity: 1.0
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 dino_local_patch_size: 96
