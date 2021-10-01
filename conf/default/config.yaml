@@ -1,6 +1,6 @@
 seed: 10
 
-dataroot: ./datasets/horse_zebra_4
+dataroot: ./datasets/pigeon_parrot_2
 direction: AtoB  # AtoB or BtoA
 local_crops_n_crops: 1
 local_crops_crop_size: 64

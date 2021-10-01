@@ -46,7 +46,6 @@ class LossG(torch.nn.Module):
 
         losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
         losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
-        # losses['loss_global_cls'] = self.calculate_global_cls_loss(outputs['x_global'])
         losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'])
         losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
 
