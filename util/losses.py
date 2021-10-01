@@ -35,7 +35,7 @@ class LossG(torch.nn.Module):
                                              last_transform=transforms.Compose([transforms.ToTensor(),
                                                                                 resize_transform,
                                                                                 imagenet_norm]),
-                                             flip=True)
+                                             flip=False)
 
         B = transforms.Compose([transforms.ToTensor(), resize_transform, imagenet_norm])(B_img).unsqueeze(0)
         self.target_global_cls_token = self.extractor.get_feature_from_input(B.to(device))[-1][0, 0, :].detach()
