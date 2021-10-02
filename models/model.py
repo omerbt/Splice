@@ -7,11 +7,27 @@ class Model(torch.nn.Module):
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.netG = networks.define_G(cfg['init_type'], cfg['init_gain']).to(device)
+        self.cfg = cfg
 
     def forward(self, input):
-        x_local = self.netG(input['A_local'])  # local patches from structure image
-        y_local = self.netG(input['B_local'])  # local patches from texture image
-        x_global = self.netG(input['A_global'])  # global patches from structure image
-        y_global = self.netG(input['B_global'])  # global patches from texture image
+        outputs = {}
+        # global patches from structure image
+        if self.cfg['lambda_global_cls'] + self.cfg['lambda_global_ssim'] > 0:
+            outputs['x_global'] = self.netG(input['A_global'])
 
-        return {'x_local': x_local, 'y_local': y_local, 'x_global': x_global, 'y_global': y_global}
+        # entire structure image
+        if self.cfg['lambda_entire_ssim'] > 0:
+            outputs['x_entire'] = self.netG(input['A'])
+
+        # local patches from structure image
+        if self.cfg['lambda_local_ssim'] > 0:
+            outputs['x_local'] = self.netG(input['A_local'])
+
+        # local patches from texture image
+        if self.cfg['lambda_local_identity'] > 0:
+            outputs['B_local'] = self.netG(input['B_local'])
+
+        # global patches from texture image
+        outputs['y_global'] = self.netG(input['B_global'])
+
+        return outputs

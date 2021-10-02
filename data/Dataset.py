@@ -51,12 +51,13 @@ class SingleImageDataset(Dataset):
         return self.base_transform(self.A_img).unsqueeze(0)
 
     def __getitem__(self, index):
+        A = self.get_A()
         A_global = self.global_A_patches(self.A_img)
         B_global = self.global_B_patches(self.B_img)
         A_local = self.local_A_patches(self.A_img)
         B_local = self.local_B_patches(self.B_img)
 
-        return {'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
+        return {'A': A, 'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
 
     def __len__(self):
         return 1
