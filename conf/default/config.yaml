@@ -1,26 +1,37 @@
 seed: 10
 
-dataroot: ./datasets/horse_zebra
+dataroot: ./datasets/horse_zebra2_4
 direction: AtoB  # AtoB or BtoA
-local_crops_n_crops: 2 # 16
-local_crops_crop_size: 64
-local_crops_scale_max: 3.0
 
-global_crops_n_crops: 1 # 4
-global_crops_min_cover: 0.85
+local_A_crops_n_crops: 1
+local_A_crops_max_cover: 0.5
+
+local_B_crops_n_crops: 1
+local_B_crops_max_cover: 0.5
+
+global_A_crops_n_crops: 1
+global_A_crops_min_cover: 0.5
+
+global_B_crops_n_crops: 1
+global_B_crops_min_cover: 0.5
 
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
-lambda_global_cls: 4.0
-lambda_global_ssim: 0.2
-lambda_patch_ssim: 0.1
-lambda_identity: 0.0
+cls_warmup: 1
+lambda_global_cls: 10.0
+lambda_local_cls: 0.0
+lambda_global_ssim: 0.0
+lambda_local_ssim: 1.0
+lambda_local_identity: 0.0
+lambda_global_identity: 1.0
+lambda_entire_ssim: 0.0
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
+dino_local_patch_size: 96
 
-n_epochs: 2000
-scheduler_policy: step  # [linear | step | plateau | cosine | none]
+n_epochs: 10000
+scheduler_policy: none  # [linear | step | plateau | cosine | none]
 scheduler_n_epochs_decay: 8
 scheduler_lr_decay_iters: 300
 
@@ -28,7 +39,6 @@ optimizer: adam
 optimizer_beta1: 0.0
 optimizer_beta2: 0.99
 lr: 0.002
-
 
 checkpoints_dir: ./checkpoints
 log_images_freq: 10
