@@ -1,0 +1,65 @@
+program: sweeps/texture-transfer/main.py
+project: semantic-texture-transfer
+entity: vit-vis
+method: grid
+parameters:
+  seed:
+    values: [10]
+
+  dataroot:
+    values: ['./datasets/cartoon_cat_fox','./datasets/cows_2','./datasets/elephant_leopard','./datasets/faces_1','./datasets/faces_2','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
+  direction:
+    values: ['AtoB']  # AtoB or BtoA
+  local_crops_n_crops:
+    values: [8]
+  local_crops_crop_size:
+    values: [64]
+  local_crops_scale_max:
+    values: [3.0]
+
+  global_crops_n_crops:
+    values: [2]
+  global_crops_min_cover:
+    values: [0.95]
+
+  init_type:
+    values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+  init_gain:
+    values: [0.02]  # scaling factor for normal, xavier and orthogonal
+
+  lambda_global_cls:
+    values: [1.0,4.0,10.0]
+  #  lambda_local_cls: 0.0
+  lambda_global_ssim:
+    values: [0.1,0.2,0.6,1.0]
+  lambda_patch_ssim:
+    values: [0.1,0.2,0.6,1.0]
+  lambda_identity:
+    values: [0.1,0.2,0.6,1.0]
+  dino_model_name:
+    values: ['dino_vitb8']
+  dino_global_patch_size:
+    values: [224]
+
+  n_epochs:
+    values: [1200]
+  scheduler_policy:
+    values: ['step']  # [linear | step | plateau | cosine]
+  scheduler_n_epochs_decay:
+    values: [8]
+  scheduler_lr_decay_iters:
+    values: [600]
+
+  optimizer_beta1:
+    values: [0.9]
+  optimizer_beta2:
+    values: [0.999]
+  lr:
+    values: [0.01]
+
+  log_images_freq:
+    values: [10]
+
+metric:
+  name: loss
+
