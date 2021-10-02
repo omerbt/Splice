@@ -56,7 +56,7 @@ class SingleImageDataset(Dataset):
         A_local = self.local_A_patches(self.A_img)
         B_local = self.local_B_patches(self.B_img)
 
-        return {'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
+        return {'A': self.A_img, 'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
 
     def __len__(self):
         return 1
