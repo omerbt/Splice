@@ -18,13 +18,21 @@ class SingleImageDataset(Dataset):
             norm_transform
         ])
 
-        self.local_patches = Local_crops(n_crops=cfg['local_A_crops_n_crops'],
-                                         max_cover=cfg['local_A_crops_max_cover'],
-                                         last_transform=self.base_transform)
-
-        self.global_patches = Global_crops(n_crops=cfg['global_A_crops_n_crops'],
-                                           min_cover=cfg['global_A_crops_min_cover'],
+        self.local_A_patches = Local_crops(n_crops=cfg['local_A_crops_n_crops'],
+                                           max_cover=cfg['local_A_crops_max_cover'],
                                            last_transform=self.base_transform)
+
+        self.local_B_patches = Local_crops(n_crops=cfg['local_B_crops_n_crops'],
+                                           max_cover=cfg['local_B_crops_max_cover'],
+                                           last_transform=self.base_transform)
+
+        self.global_A_patches = Global_crops(n_crops=cfg['global_A_crops_n_crops'],
+                                             min_cover=cfg['global_A_crops_min_cover'],
+                                             last_transform=self.base_transform)
+
+        self.global_B_patches = Global_crops(n_crops=cfg['global_B_crops_n_crops'],
+                                             min_cover=cfg['global_B_crops_min_cover'],
+                                             last_transform=self.base_transform)
 
         # open images
         dir_A = os.path.join(cfg['dataroot'], 'A')
@@ -43,10 +51,10 @@ class SingleImageDataset(Dataset):
         return self.base_transform(self.A_img).unsqueeze(0)
 
     def __getitem__(self, index):
-        A_global = self.global_patches(self.A_img)
-        B_global = self.global_patches(self.B_img)
-        A_local = self.local_patches(self.A_img)
-        B_local = self.local_patches(self.B_img)
+        A_global = self.global_A_patches(self.A_img)
+        B_global = self.global_B_patches(self.B_img)
+        A_local = self.local_A_patches(self.A_img)
+        B_local = self.local_B_patches(self.B_img)
 
         return {'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
 
