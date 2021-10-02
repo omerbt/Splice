@@ -42,6 +42,7 @@ class LossG(torch.nn.Module):
         losses['loss_cls'] = self.calculate_global_cls_loss(outputs['x'], self.cfg['lambda_cls'])
         losses['loss_patch_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
         losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
+        losses['loss_global_cls_cropped'] = self.calculate_global_cls_cropped_loss(outputs['x_global'], inputs['B_global'])
         losses['loss_global_cls'] = self.calculate_global_cls_loss(outputs['x_global'], self.cfg['lambda_global_cls'])
         losses['loss_local_cls'] = self.calculate_local_cls_loss(outputs['x_local'])
         losses['loss_crops_cls'] = self.calculate_crops_cls_loss(outputs['x'])
@@ -51,6 +52,7 @@ class LossG(torch.nn.Module):
         loss_G += losses['loss_cls'] * self.cfg['lambda_cls']
         loss_G += losses['loss_patch_ssim'] * self.cfg['lambda_patch_ssim']
         loss_G += losses['loss_global_ssim'] * self.cfg['lambda_global_ssim']
+        loss_G += losses['loss_global_cls_cropped'] * self.cfg['lambda_global_cls_cropped']
         loss_G += losses['loss_global_cls'] * self.cfg['lambda_global_cls']
         loss_G += losses['loss_local_cls'] * self.cfg['lambda_local_cls']
         loss_G += losses['loss_idt_B'] * self.cfg['lambda_identity']
@@ -92,6 +94,18 @@ class LossG(torch.nn.Module):
                                                                                layer_num=11).detach()
             keys_ssim = self.extractor.get_keys_self_sim_from_input(b.unsqueeze(0), layer_num=11)
             loss += F.mse_loss(keys_ssim, target_keys_self_sim)
+        return loss
+
+    def calculate_global_cls_cropped_loss(self, outputs, inputs):
+        if self.cfg['lambda_global_cls_cropped'] == 0:
+            return 0
+        loss = 0.0
+        for a, b in zip(inputs, outputs):
+            a = self.global_transform(a)
+            b = self.global_transform(b)
+            target_cls_token = self.extractor.get_feature_from_input(a.unsqueeze(0))[-1][0, 0, :]
+            cls_token = self.extractor.get_feature_from_input(b.unsqueeze(0))[-1][0, 0, :]
+            loss += F.mse_loss(cls_token, target_cls_token)
         return loss
 
     def calculate_global_cls_loss(self, outputs, loss_lambda):

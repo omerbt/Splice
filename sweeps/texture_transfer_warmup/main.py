@@ -100,7 +100,7 @@ def train_model():
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
 
-    overfit_to_content(dataset, model.netG)
+    # overfit_to_content(dataset, model.netG)
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]
         for key in inputs:

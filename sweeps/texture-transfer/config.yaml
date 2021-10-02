@@ -7,8 +7,28 @@ parameters:
     values: [10]
 
   dataroot:
-#    values: ['./datasets/cartoon_cat_fox','./datasets/cartoon_cat_tiger','./datasets/elephant_leopard','./datasets/faces_1','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
-    values: ['./datasets/horse_zebra','./datasets/horse_zebra_2','./datasets/horse_zebra_3','./datasets/horse_zebra_4','./datasets/horse_zebra_5','./datasets/cartoon_cat_tiger','./datasets/pigeon_parrot_2','./datasets/rcow_bwcow','./datasets/cows_2','./datasets/cats_pair_1','./datasets/cats_pair_2','./datasets/dogs_pair_1','wild_pair_1']
+    values:
+      - './datasets/horse_zebra'
+      - './datasets/horse_zebra_2'
+      - './datasets/horse_zebra_3'
+      - './datasets/horse_zebra_4'
+      - './datasets/rcow_bwcow'
+      - './datasets/cows_2'
+      - './datasets/cats_pair_1'
+      - './datasets/cats_pair_2'
+      - './datasets/cats_pair_3'
+      - './datasets/cats_pair_4'
+      - './datasets/cats_pair_5'
+      - './datasets/dogs_pair_1'
+      - './datasets/dogs_pair_2'
+      - './datasets/dogs_pair_3'
+      - './datasets/dogs_pair_4'
+      - './datasets/dogs_pair_5'
+      - './datasets/wild_pair_1'
+      - './datasets/wild_pair_2'
+      - './datasets/wild_pair_3'
+      - './datasets/wild_pair_4'
+      - './datasets/wild_pair_5'
   direction:
     values: ['AtoB']  # AtoB or BtoA
   local_crops_n_crops:
@@ -34,12 +54,14 @@ parameters:
     values: [0.0]
   lambda_cls:
     values: [1.0]
-  lambda_global_cls:
+  lambda_global_cls_cropped:
     values: [0.0]
+  lambda_global_cls:
+    values: [0.0,1.0]
   lambda_global_ssim:
     values: [0.0]
   lambda_local_cls:
-    values: [0.0]
+    values: [0.0,1.0]
   lambda_patch_ssim:
     values: [0.0]
   lambda_identity:
@@ -57,21 +79,23 @@ parameters:
   cls_warmup:
     values: [1000]
   scheduler_policy:
-    values: ['cosine_dino','step']  # [linear | step | plateau | cosine | none | cosine_dino]
+    values: ['step']  # [linear | step | plateau | cosine | none | cosine_dino]
   scheduler_n_epochs_decay:
     values: [8]
   scheduler_lr_decay_iters:
     values: [600]
   ## 'cosine_dino' scheduler-specific, values of -1 are a workaround for avoiding redundant sweeps
   base_lr:
-    values: [-1,0.0075]
+    values: [-1] # 0.0075
   final_lr:
-    values: [-1,0.002]
+    values: [-1] # 0.002
   warmup_epochs_prop:
-    values: [-1,0.1]
+    values: [-1] # 0.1
   start_warmup_lr:
-    values: [-1,0.004]
+    values: [-1] # 0.004
 
+  optimizer:
+    values: ['adam'] # [rmsprop | adam | sgd]
   optimizer_beta1:
     values: [0.0]
   optimizer_beta2:

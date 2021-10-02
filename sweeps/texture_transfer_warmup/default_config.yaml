@@ -14,9 +14,9 @@ init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 lambda_ssim: 0.0
-lambda_cls: 1.0
+lambda_cls: 0.0
 lambda_global_cls_cropped: 1.0
-lambda_global_cls: 1.0
+lambda_global_cls: 0.0
 lambda_global_ssim: 0.0
 lambda_local_cls: 0.0
 lambda_patch_ssim: 0.0

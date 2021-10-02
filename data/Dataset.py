@@ -26,6 +26,9 @@ class SingleImageDataset(Dataset):
         self.global_patches = Global_crops(n_crops=cfg['global_crops_n_crops'],
                                            min_cover=cfg['global_crops_min_cover'],
                                            last_transform=self.base_transform)
+        self.global_patches_t = Global_crops(n_crops=cfg['global_crops_n_crops'],
+                                           min_cover=0.5,
+                                           last_transform=self.base_transform)
 
         # open images
         dir_A = os.path.join(cfg['dataroot'], 'A')
@@ -53,7 +56,7 @@ class SingleImageDataset(Dataset):
         A = self.get_A()
         B = self.get_B()
         A_global = self.global_patches(self.A_img)
-        B_global = self.global_patches(self.B_img)
+        B_global = self.global_patches_t(self.B_img)
         A_local = self.local_patches(self.A_img)
         B_local = self.local_patches(self.B_img)
 
