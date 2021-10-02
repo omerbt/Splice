@@ -54,14 +54,16 @@ class LossG(torch.nn.Module):
             lambda_local_cls=cfg['lambda_local_cls'],
             lambda_local_ssim=0,
             lambda_global_ssim=0,
-            lambda_identity=0
+            lambda_local_identity=0,
+            lambda_global_identity=0
         )
 
     def update_lambda_config(self):
         if self.step == self.cfg['cls_warmup']:
             self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
             self.lambdas['lambda_local_ssim'] = self.cfg['lambda_local_ssim']
-            self.lambdas['lambda_identity'] = self.cfg['lambda_identity']
+            self.lambdas['lambda_local_identity'] = self.cfg['lambda_local_identity']
+            self.lambdas['lambda_global_identity'] = self.cfg['lambda_global_identity']
 
     def update_step(self):
         self.step += 1
@@ -88,9 +90,13 @@ class LossG(torch.nn.Module):
             losses['loss_local_cls'] = self.calculate_local_crop_cls_loss(outputs['x_local'])
             loss_G += losses['loss_local_cls'] * self.lambdas['lambda_local_cls']
 
-        if self.lambdas['lambda_identity'] > 0:
-            losses['loss_idt_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
-            loss_G += losses['loss_idt_B'] * self.lambdas['lambda_identity']
+        if self.lambdas['lambda_local_identity'] > 0:
+            losses['loss_local_id_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
+            loss_G += losses['loss_local_id_B'] * self.lambdas['lambda_local_identity']
+
+        if self.lambdas['lambda_global_identity'] > 0:
+            losses['loss_global_id_B'] = F.l1_loss(outputs['y_global'], inputs['B_global'])
+            loss_G += losses['loss_global_id_B'] * self.lambdas['lambda_global_identity']
 
         losses['loss'] = loss_G
         return losses
