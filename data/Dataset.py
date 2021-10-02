@@ -51,7 +51,7 @@ class SingleImageDataset(Dataset):
         return self.base_transform(self.A_img).unsqueeze(0)
 
     def __getitem__(self, index):
-        A = self.base_transform(self.A_img)
+        A = self.get_A()
         A_global = self.global_A_patches(self.A_img)
         B_global = self.global_B_patches(self.B_img)
         A_local = self.local_A_patches(self.A_img)
