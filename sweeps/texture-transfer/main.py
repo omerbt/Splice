@@ -4,8 +4,6 @@ sys.path.insert(0, "/home/labs/waic/narekt/projects/texture-mapping")
 
 
 import logging
-# import hydra
-# from hydra import utils
 import torch
 import wandb
 import numpy as np
@@ -14,19 +12,17 @@ import os
 from data.Dataset import SingleImageDataset
 from models.model import Model
 from util.losses import LossG
-from util.util import tensor2im, get_scheduler
-# from omegaconf import OmegaConf
+from util.util import tensor2im, get_scheduler, get_optimizer
 import yaml
 
 log = logging.getLogger(__name__)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-# @hydra.main(config_path='conf/default', config_name='config')
 def train_model():
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
-    wandb.init(project='semantic-texture-transfer', entity='vit-vis', config=config)
+    wandb.init(project='semantic_texture-transfer', entity='vit-vis', config=config)
     cfg = wandb.config
 
     # set seed
@@ -48,17 +44,13 @@ def train_model():
     criterion = LossG(dataset.B_img, cfg)
 
     # define optimizer, scheduler
-    optimizer = torch.optim.Adam(model.netG.parameters(),
-                                 lr=cfg['lr'],
-                                 betas=(cfg['optimizer_beta1'], cfg['optimizer_beta2']))
+    optimizer = get_optimizer(cfg, model.netG.parameters())
 
     scheduler = get_scheduler(optimizer,
                               lr_policy=cfg['scheduler_policy'],
                               n_epochs=cfg['n_epochs'],
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
-
-    # logging
 
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]

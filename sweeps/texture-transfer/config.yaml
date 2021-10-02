@@ -58,7 +58,7 @@ parameters:
   cls_warmup:
     values: [1]
   n_epochs:
-    values: [1200]
+    values: [1500]
   scheduler_policy:
     values: ['step']  # [linear | step | plateau | cosine]
   scheduler_n_epochs_decay:
