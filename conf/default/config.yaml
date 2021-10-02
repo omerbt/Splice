@@ -21,8 +21,8 @@ init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 cls_warmup: 1
 lambda_global_cls: 10.0
 lambda_local_cls: 0.0
-lambda_global_ssim: 0.0
-lambda_local_ssim: 1.0
+lambda_global_ssim: 1.0
+lambda_local_ssim: 0.0
 lambda_local_identity: 0.0
 lambda_global_identity: 1.0
 dino_model_name: dino_vitb8
