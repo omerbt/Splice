@@ -1,6 +1,6 @@
 seed: 10
 
-dataroot: ./datasets/horse_zebra
+dataroot: ./datasets/horse_zebra_2
 direction: AtoB  # AtoB or BtoA
 
 local_A_crops_n_crops: 1
