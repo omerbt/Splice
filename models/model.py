@@ -25,7 +25,7 @@ class Model(torch.nn.Module):
 
         # local patches from texture image
         if self.cfg['lambda_local_identity'] > 0:
-            outputs['B_local'] = self.netG(input['B_local'])
+            outputs['y_local'] = self.netG(input['B_local'])
 
         # global patches from texture image
         outputs['y_global'] = self.netG(input['B_global'])
