@@ -4,23 +4,29 @@ entity: vit-vis
 method: grid
 parameters:
   seed:
-    values: [10]
+    values: [-1]
 
   dataroot:
-    values: ['./datasets/cartoon_cat_fox','./datasets/cows_2','./datasets/elephant_leopard','./datasets/faces_1','./datasets/faces_2','./datasets/pigeon_parrot_2','./datasets/tiger_cat','./datasets/rcow_bwcow']
+    values: ['./datasets/horse_zebra']
   direction:
     values: ['AtoB']  # AtoB or BtoA
-  local_crops_n_crops:
-    values: [8]
-  local_crops_crop_size:
-    values: [64]
-  local_crops_scale_max:
-    values: [3.0]
 
-  global_crops_n_crops:
-    values: [2]
-  global_crops_min_cover:
+  local_A_crops_n_crops:
+    values: [1,5]
+  local_A_crops_max_cover:
+    values: [0.3,0.5]
+  local_B_crops_n_crops:
+    values: [1]
+  local_B_crops_max_cover:
+    values: [0.5]
+  global_A_crops_n_crops:
+    values: [1]
+  global_A_crops_min_cover:
     values: [0.95]
+  global_B_crops_n_crops:
+    values: [1]
+  global_B_crops_min_cover:
+    values: [0.5,0.95]
 
   init_type:
     values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
@@ -28,19 +34,29 @@ parameters:
     values: [0.02]  # scaling factor for normal, xavier and orthogonal
 
   lambda_global_cls:
-    values: [1.0,4.0,10.0]
-  #  lambda_local_cls: 0.0
+    values: [10.0]
+  lambda_local_cls:
+    values: [0.0]
   lambda_global_ssim:
-    values: [0.1,0.2,0.6,1.0]
-  lambda_patch_ssim:
-    values: [0.1,0.2,0.6,1.0]
-  lambda_identity:
-    values: [0.1,0.2,0.6,1.0]
+    values: [0.0,1.0]
+  lambda_local_ssim:
+    values: [1.0,4.0]
+  lambda_local_identity:
+    values: [0.0]
+  lambda_global_identity:
+    values: [0.0,1.0]
+  lambda_entire_ssim:
+    values: [0.0]
+
   dino_model_name:
     values: ['dino_vitb8']
   dino_global_patch_size:
     values: [224]
+  dino_local_patch_size:
+    values: [96]
 
+  cls_warmup:
+    values: [1]
   n_epochs:
     values: [1200]
   scheduler_policy:
@@ -50,12 +66,14 @@ parameters:
   scheduler_lr_decay_iters:
     values: [600]
 
+  optimizer:
+    values: ['adam']
   optimizer_beta1:
-    values: [0.9]
+    values: [0.0]
   optimizer_beta2:
-    values: [0.999]
+    values: [0.99]
   lr:
-    values: [0.01]
+    values: [0.002]
 
   log_images_freq:
     values: [10]
