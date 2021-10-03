@@ -21,13 +21,11 @@ def train_model():
     cfg = wandb.config
 
     # set seed
-    if cfg['seed'] == -1:
-        seed = np.random.randint(2 ** 32)
-        cfg['seed'] = seed
-    random.seed(cfg['seed'])
-    np.random.seed(cfg['seed'])
-    torch.manual_seed(cfg['seed'])
-    log.info(f'seed: {cfg["seed"]}')
+    seed = np.random.randint(2 ** 32)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    print(f'seed: {cfg["seed"]}')
 
     # create dataset, loader
     dataset = SingleImageDataset(cfg)
