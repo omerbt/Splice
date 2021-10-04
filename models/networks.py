@@ -1,6 +1,7 @@
 from torch.nn import init
 from torch.optim import lr_scheduler
 from models.unet.skip import skip
+from models.unet.texturenet import get_texture_nets
 
 
 def get_scheduler(optimizer, opt):
@@ -56,4 +57,5 @@ def init_net(net, init_type='normal', init_gain=0.02, debug=False, initialize_we
 
 def define_G(init_type='normal', init_gain=0.02):
     net = skip(need_tanh=True)
-    return init_net(net, init_type, init_gain, initialize_weights=False)
+    # net = get_texture_nets(need_tanh=True)
+    return init_net(net, init_type, init_gain, initialize_weights=True)
