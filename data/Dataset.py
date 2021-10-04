@@ -5,7 +5,7 @@ from torchvision import transforms
 import os
 import os.path
 
-from data.transforms import Global_crops, Local_crops
+from data.transforms import Global_crops, Local_crops, dino_structure_transforms, dino_texture_transforms
 
 
 class SingleImageDataset(Dataset):
@@ -13,26 +13,46 @@ class SingleImageDataset(Dataset):
         # normalization to be applied to every crop after augmentation
         norm_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
+        self.structure_transforms = dino_structure_transforms if cfg['use_augmentations'] else transforms.Compose([])
+        self.texture_transforms = dino_texture_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.base_transform = transforms.Compose([
             transforms.ToTensor(),
             norm_transform
         ])
 
-        self.local_A_patches = Local_crops(n_crops=cfg['local_A_crops_n_crops'],
-                                           max_cover=cfg['local_A_crops_max_cover'],
-                                           last_transform=self.base_transform)
+        self.local_A_patches = transforms.Compose([
+            self.structure_transforms,
+            Local_crops(n_crops=cfg['local_A_crops_n_crops'],
+                        max_cover=cfg['local_A_crops_max_cover'],
+                        last_transform=self.base_transform)
+        ])
 
-        self.local_B_patches = Local_crops(n_crops=cfg['local_B_crops_n_crops'],
-                                           max_cover=cfg['local_B_crops_max_cover'],
-                                           last_transform=self.base_transform)
+        self.local_B_patches = transforms.Compose(
+            [
+                self.texture_transforms,
+                Local_crops(n_crops=cfg['local_B_crops_n_crops'],
+                            max_cover=cfg['local_B_crops_max_cover'],
+                            last_transform=self.base_transform)
+            ]
+        )
 
-        self.global_A_patches = Global_crops(n_crops=cfg['global_A_crops_n_crops'],
-                                             min_cover=cfg['global_A_crops_min_cover'],
-                                             last_transform=self.base_transform)
+        self.global_A_patches = transforms.Compose(
+            [
+                self.structure_transforms,
+                Global_crops(n_crops=cfg['global_A_crops_n_crops'],
+                             min_cover=cfg['global_A_crops_min_cover'],
+                             last_transform=self.base_transform)
+            ]
+        )
 
-        self.global_B_patches = Global_crops(n_crops=cfg['global_B_crops_n_crops'],
-                                             min_cover=cfg['global_B_crops_min_cover'],
-                                             last_transform=self.base_transform)
+        self.global_B_patches = transforms.Compose(
+            [
+                self.texture_transforms,
+                Global_crops(n_crops=cfg['global_B_crops_n_crops'],
+                             min_cover=cfg['global_B_crops_min_cover'],
+                             last_transform=self.base_transform)
+            ]
+        )
 
         # open images
         dir_A = os.path.join(cfg['dataroot'], 'A')

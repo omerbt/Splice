@@ -20,6 +20,10 @@ parameters:
   B_resize:
     values:
       - 224
+  use_augmentations:
+    values:
+      - True
+      - False
   entire_A_every:
     values: [50]
   local_A_crops_n_crops:
