@@ -44,7 +44,7 @@ parameters:
     values: [0.02]  # scaling factor for normal, xavier and orthogonal
 
   lambda_global_cls:
-    values: [1.0]
+    values: [1.0,3.0]
   lambda_local_cls:
     values: [0.0]
   lambda_global_ssim:
@@ -54,7 +54,7 @@ parameters:
   lambda_local_identity:
     values: [0.0]
   lambda_global_identity:
-    values: [0.0]
+    values: [0.0,1.0]
   lambda_entire_ssim:
     values: [0.0]
 
