@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/horse_zebra_5
+dataroot: ./datasets/horse_zebra
 direction: AtoB  # AtoB or BtoA
 A_resize: 224
 B_resize: 224
@@ -12,10 +12,10 @@ local_B_crops_n_crops: 1
 local_B_crops_max_cover: 0.5
 
 global_A_crops_n_crops: 1
-global_A_crops_min_cover: 0.95
+global_A_crops_min_cover: 0.9
 
 global_B_crops_n_crops: 1
-global_B_crops_min_cover: 0.95
+global_B_crops_min_cover: 0.9
 
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
@@ -25,7 +25,7 @@ lambda_local_cls: 0.0
 lambda_global_ssim: 1.0
 lambda_local_ssim: 0.0
 lambda_local_identity: 0.0
-lambda_global_identity: 0.0
+lambda_global_identity: 1.0
 lambda_entire_ssim: 0.0
 
 dino_model_name: dino_vitb8
@@ -33,7 +33,7 @@ dino_global_patch_size: 224
 dino_local_patch_size: 96
 
 cls_warmup: 1
-n_epochs: 1500
+n_epochs: 2500
 scheduler_policy: none  # [linear | step | plateau | cosine | none]
 scheduler_n_epochs_decay: 8
 scheduler_lr_decay_iters: 300
