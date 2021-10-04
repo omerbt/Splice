@@ -42,6 +42,12 @@ class SingleImageDataset(Dataset):
         self.A_img = Image.open(os.path.join(dir_A, A_path)).convert('RGB')
         self.B_img = Image.open(os.path.join(dir_B, B_path)).convert('RGB')
 
+        if cfg['A_resize'] > 0:
+            self.A_img = transforms.Resize(cfg['A_resize'])(self.A_img)
+
+        if cfg['B_resize'] > 0:
+            self.B_img = transforms.Resize(cfg['B_resize'])(self.B_img)
+
         if cfg['direction'] == 'BtoA':
             self.A_img, self.B_img = self.B_img, self.A_img
 

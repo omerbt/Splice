@@ -1,7 +1,9 @@
-seed: 10
+seed: -1
 
 dataroot: ./datasets/horse_zebra2_4
 direction: AtoB  # AtoB or BtoA
+A_resize: -1
+B_resize: -1
 
 local_A_crops_n_crops: 1
 local_A_crops_max_cover: 0.5
@@ -15,7 +17,7 @@ global_A_crops_min_cover: 0.5
 global_B_crops_n_crops: 1
 global_B_crops_min_cover: 0.5
 
-init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+init_type: none  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 lambda_global_cls: 10.0
@@ -37,9 +39,9 @@ scheduler_n_epochs_decay: 8
 scheduler_lr_decay_iters: 300
 
 optimizer: adam
-optimizer_beta1: 0.0
-optimizer_beta2: 0.99
-lr: 0.002
+optimizer_beta1: 0.9
+optimizer_beta2: 0.999
+lr: 0.001
 
 checkpoints_dir: ./checkpoints
 log_images_freq: 10

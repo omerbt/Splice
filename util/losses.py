@@ -55,7 +55,7 @@ class LossG(torch.nn.Module):
 
     def forward(self, outputs, inputs):
         self.update_step()
-        losses = {}
+        losses = {'step': self.step}
         loss_G = 0
 
         if self.lambdas['lambda_local_ssim'] > 0:
