@@ -1,6 +1,7 @@
 from torch.nn import init
 from torch.optim import lr_scheduler
 from models.unet.skip import skip
+from models.unet.texturenet import get_texture_nets
 
 
 def get_scheduler(optimizer, opt):

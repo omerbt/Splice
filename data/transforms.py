@@ -76,3 +76,17 @@ class Global_crops(nn.Module):
             crop = t(img)
             crops.append(crop)
         return torch.stack(crops)
+
+
+dino_structure_transforms = transforms.Compose([
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomApply(
+        [transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)],
+        p=0.5
+    ),
+    transforms.RandomApply([transforms.GaussianBlur(kernel_size=3)], p=0.2)
+])
+
+dino_texture_transforms = transforms.Compose([
+    transforms.RandomHorizontalFlip(p=0.5)
+])
