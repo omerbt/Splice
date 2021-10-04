@@ -37,17 +37,24 @@ class LossG(torch.nn.Module):
             lambda_local_ssim=0,
             lambda_global_ssim=0,
             lambda_entire_ssim=0,
+            lambda_entire_cls=0,
             lambda_local_identity=0,
             lambda_global_identity=0
         )
 
     def update_lambda_config(self):
         if self.step == self.cfg['cls_warmup']:
-            self.lambdas['lambda_entire_ssim'] = self.cfg['lambda_entire_ssim']
             self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
             self.lambdas['lambda_local_ssim'] = self.cfg['lambda_local_ssim']
             self.lambdas['lambda_local_identity'] = self.cfg['lambda_local_identity']
             self.lambdas['lambda_global_identity'] = self.cfg['lambda_global_identity']
+
+        if self.step % self.cfg['entire_A_every'] == 0:
+            self.lambdas['lambda_entire_ssim'] = self.cfg['lambda_entire_ssim']
+            self.lambdas['lambda_entire_cls'] = self.cfg['lambda_entire_cls']
+        else:
+            self.lambdas['lambda_entire_ssim'] = 0
+            self.lambdas['lambda_entire_cls'] = 0
 
     def update_step(self):
         self.step += 1
@@ -69,6 +76,10 @@ class LossG(torch.nn.Module):
         if self.lambdas['lambda_entire_ssim'] > 0:
             losses['loss_entire_ssim'] = self.calculate_global_ssim_loss(outputs['x_entire'], inputs['A'])
             loss_G += losses['loss_entire_ssim'] * self.lambdas['lambda_entire_ssim']
+
+        if self.lambdas['lambda_entire_cls'] > 0:
+            losses['loss_entire_cls'] = self.calculate_crop_cls_loss(outputs['x_entire'], inputs['B_global'])
+            loss_G += losses['loss_entire_cls'] * self.lambdas['lambda_entire_cls']
 
         if self.lambdas['lambda_global_cls'] > 0:
             losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'], inputs['B_global'])

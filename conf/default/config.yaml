@@ -26,7 +26,9 @@ lambda_global_ssim: 1.0
 lambda_local_ssim: 0.0
 lambda_local_identity: 0.0
 lambda_global_identity: 1.0
+entire_A_every: 50
 lambda_entire_ssim: 0.0
+lambda_entire_cls: 0.0
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
