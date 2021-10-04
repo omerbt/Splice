@@ -48,7 +48,7 @@ parameters:
   lambda_local_cls:
     values: [0.0]
   lambda_global_ssim:
-    values: [0.0,1.0]
+    values: [1.0]
   lambda_local_ssim:
     values: [0.0]
   lambda_local_identity:
