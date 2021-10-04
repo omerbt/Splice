@@ -79,11 +79,11 @@ class LossG(torch.nn.Module):
             loss_G += losses['loss_local_cls'] * self.lambdas['lambda_local_cls']
 
         if self.lambdas['lambda_local_identity'] > 0:
-            losses['loss_local_id_B'] = F.l1_loss(outputs['y_local'], inputs['B_local'])
+            losses['loss_local_id_B'] = self.calculate_local_id_loss(outputs['y_local'], inputs['B_local'])
             loss_G += losses['loss_local_id_B'] * self.lambdas['lambda_local_identity']
 
         if self.lambdas['lambda_global_identity'] > 0:
-            losses['loss_global_id_B'] = F.l1_loss(outputs['y_global'], inputs['B_global'])
+            losses['loss_global_id_B'] = self.calculate_global_id_loss(outputs['y_global'], inputs['B_global'])
             loss_G += losses['loss_global_id_B'] * self.lambdas['lambda_global_identity']
 
         losses['loss'] = loss_G
@@ -137,6 +137,26 @@ class LossG(torch.nn.Module):
             a = self.global_transform(a).unsqueeze(0)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, self.target_global_cls_token)
+        return loss
+
+    def calculate_global_id_loss(self, outputs, inputs):
+        loss = 0.0
+        for a, b in zip(inputs, outputs):
+            a = self.global_transform(a)
+            b = self.global_transform(b)
+            keys_a = self.extractor.get_keys_from_input(a.unsqueeze(0), 11)
+            keys_b = self.extractor.get_keys_from_input(b.unsqueeze(0), 11)
+            loss += F.mse_loss(keys_a, keys_b)
+        return loss
+
+    def calculate_local_id_loss(self, outputs, inputs):
+        loss = 0.0
+        for a, b in zip(inputs, outputs):
+            a = self.local_transform(a)
+            b = self.local_transform(b)
+            keys_a = self.extractor.get_keys_from_input(a.unsqueeze(0), 11)
+            keys_b = self.extractor.get_keys_from_input(b.unsqueeze(0), 11)
+            loss += F.mse_loss(keys_a, keys_b)
         return loss
 
     def calculate_local_ssim(self, outputs, inputs):
