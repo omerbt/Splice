@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/horse_zebra
+dataroot: ./datasets/horse_zebra_5
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: 480
