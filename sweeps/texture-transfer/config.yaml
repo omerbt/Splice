@@ -39,7 +39,7 @@ parameters:
     values: [0.95,1.0]
 
   init_type:
-    values: ['none']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+    values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
   init_gain:
     values: [0.02]  # scaling factor for normal, xavier and orthogonal
 
@@ -79,11 +79,11 @@ parameters:
   optimizer:
     values: ['adam']
   optimizer_beta1:
-    values: [0.9]
+    values: [0.0]
   optimizer_beta2:
-    values: [0.999]
+    values: [0.99]
   lr:
-    values: [0.001]
+    values: [0.002]
 
   log_images_freq:
     values: [10]
