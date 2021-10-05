@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/rcow_bwcow
+dataroot: ./datasets/summer_winter
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
