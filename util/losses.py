@@ -24,27 +24,20 @@ class LossG(torch.nn.Module):
         self.global_transform = transforms.Compose([global_resize_transform,
                                                     imagenet_norm
                                                     ])
-        self.local_transform = transforms.Compose([
-            imagenet_norm
-        ])
 
         self.register_buffer("step", torch.zeros(1))
         self.lambdas = dict(
             lambda_global_cls=cfg['lambda_global_cls'],
-            lambda_local_cls=cfg['lambda_local_cls'],
             lambda_local_ssim=0,
             lambda_global_ssim=0,
             lambda_entire_ssim=0,
             lambda_entire_cls=0,
-            lambda_local_identity=0,
             lambda_global_identity=0
         )
 
     def update_lambda_config(self):
         if self.step == self.cfg['cls_warmup']:
             self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
-            self.lambdas['lambda_local_ssim'] = self.cfg['lambda_local_ssim']
-            self.lambdas['lambda_local_identity'] = self.cfg['lambda_local_identity']
             self.lambdas['lambda_global_identity'] = self.cfg['lambda_global_identity']
 
         if self.step % self.cfg['entire_A_every'] == 0:
@@ -63,10 +56,6 @@ class LossG(torch.nn.Module):
         losses = {'step': self.step}
         loss_G = 0
 
-        if self.lambdas['lambda_local_ssim'] > 0:
-            losses['loss_local_ssim'] = self.calculate_local_ssim_loss(outputs['x_local'], inputs['A_local'])
-            loss_G += losses['loss_local_ssim'] * self.lambdas['lambda_local_ssim']
-
         if self.lambdas['lambda_global_ssim'] > 0:
             losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
             loss_G += losses['loss_global_ssim'] * self.lambdas['lambda_global_ssim']
@@ -83,31 +72,12 @@ class LossG(torch.nn.Module):
             losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'], inputs['B_global'])
             loss_G += losses['loss_global_cls'] * self.lambdas['lambda_global_cls']
 
-        if self.lambdas['lambda_local_cls'] > 0:
-            losses['loss_local_cls'] = self.calculate_local_crop_cls_loss(outputs['x_local'], inputs['B_local'])
-            loss_G += losses['loss_local_cls'] * self.lambdas['lambda_local_cls']
-
-        if self.lambdas['lambda_local_identity'] > 0:
-            losses['loss_local_id_B'] = self.calculate_local_id_loss(outputs['y_local'], inputs['B_local'])
-            loss_G += losses['loss_local_id_B'] * self.lambdas['lambda_local_identity']
-
         if self.lambdas['lambda_global_identity'] > 0:
             losses['loss_global_id_B'] = self.calculate_global_id_loss(outputs['y_global'], inputs['B_global'])
             loss_G += losses['loss_global_id_B'] * self.lambdas['lambda_global_identity']
 
         losses['loss'] = loss_G
         return losses
-
-    def calculate_local_ssim_loss(self, outputs, inputs):
-        loss = 0.0
-        for a, b in zip(inputs, outputs):  # avoid memory limitations
-            a = self.local_transform(a)
-            b = self.local_transform(b)
-            target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(a.unsqueeze(0),
-                                                                               layer_num=11).detach()
-            keys_ssim = self.extractor.get_keys_self_sim_from_input(b.unsqueeze(0), layer_num=11)
-            loss += F.mse_loss(keys_ssim, target_keys_self_sim)
-        return loss
 
     def calculate_global_ssim_loss(self, outputs, inputs):
         loss = 0.0
@@ -130,16 +100,6 @@ class LossG(torch.nn.Module):
             loss += F.mse_loss(cls_token, target_cls_token)
         return loss
 
-    def calculate_local_crop_cls_loss(self, outputs, inputs):
-        loss = 0.0
-        for a, b in zip(outputs, inputs):  # avoid memory limitations
-            a = self.local_transform(a).unsqueeze(0).to(device)
-            b = self.local_transform(b).unsqueeze(0).to(device)
-            cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
-            target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
-            loss += F.mse_loss(cls_token, target_cls_token)
-        return loss
-
     def calculate_global_cls_loss(self, outputs):
         loss = 0.0
         for a in outputs:  # avoid memory limitations
@@ -156,25 +116,4 @@ class LossG(torch.nn.Module):
             keys_a = self.extractor.get_keys_from_input(a.unsqueeze(0), 11)
             keys_b = self.extractor.get_keys_from_input(b.unsqueeze(0), 11)
             loss += F.mse_loss(keys_a, keys_b)
-        return loss
-
-    def calculate_local_id_loss(self, outputs, inputs):
-        loss = 0.0
-        for a, b in zip(inputs, outputs):
-            a = self.local_transform(a)
-            b = self.local_transform(b)
-            keys_a = self.extractor.get_keys_from_input(a.unsqueeze(0), 11)
-            keys_b = self.extractor.get_keys_from_input(b.unsqueeze(0), 11)
-            loss += F.mse_loss(keys_a, keys_b)
-        return loss
-
-    def calculate_local_ssim(self, outputs, inputs):
-        loss = 0.0
-        for a, b in zip(inputs, outputs):  # avoid memory limitations
-            a = self.local_transform(a)
-            b = self.local_transform(b)
-            target_keys_self_sim = self.extractor.get_keys_self_sim_from_input(a.unsqueeze(0),
-                                                                               layer_num=11).detach()
-            keys_ssim = self.extractor.get_keys_self_sim_from_input(b.unsqueeze(0), layer_num=11)
-            loss += F.mse_loss(keys_ssim, target_keys_self_sim)
         return loss
