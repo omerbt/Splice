@@ -51,10 +51,8 @@ def train_model():
         inputs = dataset[0]
         for key in inputs:
             inputs[key] = inputs[key].to(device)
-            print(inputs[key].min(), inputs[key].max())
         optimizer.zero_grad()
         outputs = model(inputs)
-        print('crop output', outputs['x_global'].max().item(), outputs['x_global'].min().item())
         losses = criterion(outputs, inputs)
         loss_G = losses['loss']
         loss_G.backward()
@@ -75,7 +73,6 @@ def train_model():
             model.netG.eval()
             with torch.no_grad():
                 output = model.netG(img_A)
-                print('entire output', output.max().item(), output.min().item())
             image_numpy = tensor2im(output)
             wandb.log({"img_eval": [wandb.Image(image_numpy)]})
             model.netG.train()
