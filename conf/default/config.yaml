@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/dog_cat
+dataroot: ./datasets/horse_zebra
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
@@ -28,14 +28,14 @@ lambda_local_ssim: 0.0
 lambda_local_identity: 0.0
 lambda_global_identity: 1.0
 entire_A_every: 75
-lambda_entire_ssim: 1.0
+lambda_entire_ssim: 5.0
 lambda_entire_cls: 10.0
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 dino_local_patch_size: 96
 
-cls_warmup: 200
+cls_warmup: 1
 n_epochs: 5000
 scheduler_policy: none  # [linear | step | plateau | cosine | none]
 scheduler_n_epochs_decay: 8
