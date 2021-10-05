@@ -7,3 +7,7 @@
 ![plot](imgs/dogs.jpeg)
 
 ![plot](imgs/apple2orange.jpeg)
+
+![plot](imgs/swans.jpeg)
+
+![plot](imgs/birds.jpeg)
