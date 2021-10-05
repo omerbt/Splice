@@ -3,7 +3,6 @@ from torchvision import transforms
 import torch
 import torch.nn.functional as F
 
-from data.transforms import Global_crops
 from models.extractor import VitExtractor
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -98,14 +97,6 @@ class LossG(torch.nn.Module):
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, target_cls_token)
-        return loss
-
-    def calculate_global_cls_loss(self, outputs):
-        loss = 0.0
-        for a in outputs:  # avoid memory limitations
-            a = self.global_transform(a).unsqueeze(0)
-            cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
-            loss += F.mse_loss(cls_token, self.target_global_cls_token)
         return loss
 
     def calculate_global_id_loss(self, outputs, inputs):
