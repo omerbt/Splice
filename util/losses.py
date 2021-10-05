@@ -24,9 +24,6 @@ class LossG(torch.nn.Module):
         self.global_transform = transforms.Compose([global_resize_transform,
                                                     imagenet_norm
                                                     ])
-        self.local_transform = transforms.Compose([
-            imagenet_norm
-        ])
 
         self.register_buffer("step", torch.zeros(1))
         self.lambdas = dict(
