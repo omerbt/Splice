@@ -19,14 +19,6 @@ class Model(torch.nn.Module):
         if self.cfg['lambda_entire_ssim'] > 0:
             outputs['x_entire'] = self.netG(input['A'])
 
-        # local patches from structure image
-        if self.cfg['lambda_local_ssim'] > 0:
-            outputs['x_local'] = self.netG(input['A_local'])
-
-        # local patches from texture image
-        if self.cfg['lambda_local_identity'] > 0:
-            outputs['y_local'] = self.netG(input['B_local'])
-
         # global patches from texture image
         outputs['y_global'] = self.netG(input['B_global'])
 

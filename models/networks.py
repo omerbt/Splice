@@ -1,7 +1,6 @@
 from torch.nn import init
 from torch.optim import lr_scheduler
 from models.unet.skip import skip
-from models.unet.texturenet import get_texture_nets
 
 
 def get_scheduler(optimizer, opt):
@@ -23,7 +22,6 @@ def get_scheduler(optimizer, opt):
 
 
 def init_weights(net, init_type='normal', init_gain=0.02, debug=False):
-
     def init_func(m):  # define the initialization function
         classname = m.__class__.__name__
         if hasattr(m, 'weight') and (classname.find('Conv') != -1 or classname.find('Linear') != -1):
@@ -56,5 +54,5 @@ def init_net(net, init_type='normal', init_gain=0.02, debug=False, initialize_we
 
 
 def define_G(init_type='normal', init_gain=0.02):
-    net = skip(need_tanh=True)
+    net = skip(need_sigmoid=True)
     return init_net(net, init_type, init_gain, initialize_weights=True)

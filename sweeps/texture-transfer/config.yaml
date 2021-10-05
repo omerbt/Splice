@@ -9,35 +9,20 @@ parameters:
   dataroot:
     values:
       - './datasets/horse_zebra'
-      - './datasets/horse_zebra_2'
-      - './datasets/rcow_bwcow'
-      - './datasets/summer_winter'
   direction:
     values: ['AtoB']  # AtoB or BtoA
   A_resize:
-    values:
-      - -1
+    values: [-1]
   B_resize:
-    values:
-      - -1
+    values: [-1]
   use_augmentations:
-    values:
-      - True
-      - False
+    values: True
   entire_A_every:
     values: [75]
-  local_A_crops_n_crops:
-    values: [1]
-  local_A_crops_max_cover:
-    values: [0.5]
-  local_B_crops_n_crops:
-    values: [1]
-  local_B_crops_max_cover:
-    values: [0.5]
   global_A_crops_n_crops:
     values: [1]
   global_A_crops_min_cover:
-    values: [0.95,1.0]
+    values: [0.95]
   global_B_crops_n_crops:
     values: [1]
   global_B_crops_min_cover:
@@ -50,27 +35,19 @@ parameters:
 
   lambda_global_cls:
     values: [10.0]
-  lambda_local_cls:
-    values: [0.0]
   lambda_global_ssim:
     values: [1.0]
-  lambda_local_ssim:
-    values: [0.0]
-  lambda_local_identity:
-    values: [0.0]
   lambda_global_identity:
-    values: [0.0,1.0]
+    values: [1.0]
   lambda_entire_ssim:
-    values: [0.0,1.0]
+    values: [1.0]
   lambda_entire_cls:
-    values: [0.0,10.0]
+    values: [10.0]
 
   dino_model_name:
     values: ['dino_vitb8']
   dino_global_patch_size:
     values: [224]
-  dino_local_patch_size:
-    values: [96]
 
   cls_warmup:
     values: [1]

@@ -5,36 +5,17 @@ from torchvision import transforms
 import os
 import os.path
 
-from data.transforms import Global_crops, Local_crops, dino_structure_transforms, dino_texture_transforms
+from data.transforms import Global_crops, dino_structure_transforms, dino_texture_transforms
 
 
 class SingleImageDataset(Dataset):
     def __init__(self, cfg):
-        # normalization to be applied to every crop after augmentation
-        norm_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
         self.structure_transforms = dino_structure_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.texture_transforms = dino_texture_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.base_transform = transforms.Compose([
             transforms.ToTensor(),
-            norm_transform
         ])
-
-        self.local_A_patches = transforms.Compose([
-            self.structure_transforms,
-            Local_crops(n_crops=cfg['local_A_crops_n_crops'],
-                        max_cover=cfg['local_A_crops_max_cover'],
-                        last_transform=self.base_transform)
-        ])
-
-        self.local_B_patches = transforms.Compose(
-            [
-                self.texture_transforms,
-                Local_crops(n_crops=cfg['local_B_crops_n_crops'],
-                            max_cover=cfg['local_B_crops_max_cover'],
-                            last_transform=self.base_transform)
-            ]
-        )
 
         self.global_A_patches = transforms.Compose(
             [
@@ -80,10 +61,8 @@ class SingleImageDataset(Dataset):
         A = self.get_A()
         A_global = self.global_A_patches(self.A_img)
         B_global = self.global_B_patches(self.B_img)
-        A_local = self.local_A_patches(self.A_img)
-        B_local = self.local_B_patches(self.B_img)
 
-        return {'A': A, 'A_global': A_global, 'B_global': B_global, 'A_local': A_local, 'B_local': B_local}
+        return {'A': A, 'A_global': A_global, 'B_global': B_global}
 
     def __len__(self):
         return 1
