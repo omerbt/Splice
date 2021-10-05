@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/brugge_venice
+dataroot: ./datasets/panther_leopard
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
@@ -35,7 +35,7 @@ dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 dino_local_patch_size: 96
 
-cls_warmup: 1
+cls_warmup: 1000
 n_epochs: 500000
 scheduler_policy: none  # [linear | step | plateau | cosine | none]
 scheduler_n_epochs_decay: 8
