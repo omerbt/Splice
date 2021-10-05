@@ -70,16 +70,24 @@ def train_model():
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
             img_A = dataset.get_A().to(device)
+            crops = inputs['A_global']
+            wandb.log({"img_crop_input": [wandb.Image(crops)]})
+            # log eval
             model.netG.eval()
             with torch.no_grad():
                 output = model.netG(img_A)
+                output_crops = model.netG(crops)
             image_numpy = tensor2im(output)
-            wandb.log({"img_eval": [wandb.Image(image_numpy)]})
+            image_crop_numpy = tensor2im(output_crops)
+            wandb.log({"img_eval": [wandb.Image(image_numpy)], "img_crop_eval": [wandb.Image(image_crop_numpy)]})
+            # log train
             model.netG.train()
             with torch.no_grad():
                 output = model.netG(img_A)
+            output_crops = model.netG(crops)
             image_numpy = tensor2im(output)
-            wandb.log({"img_train": [wandb.Image(image_numpy)]})
+            image_crop_numpy = tensor2im(output_crops)
+            wandb.log({"img_train": [wandb.Image(image_numpy)], "img_crop_train": [wandb.Image(image_crop_numpy)]})
 
 
 if __name__ == '__main__':
