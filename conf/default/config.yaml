@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/panther_leopard
+dataroot: ./datasets/horse_zebra
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
@@ -27,8 +27,8 @@ lambda_global_ssim: 1.0
 lambda_local_ssim: 0.0
 lambda_local_identity: 0.0
 lambda_global_identity: 1.0
-entire_A_every: 50
-lambda_entire_ssim: 7.0
+entire_A_every: 75
+lambda_entire_ssim: 1.0
 lambda_entire_cls: 10.0
 
 dino_model_name: dino_vitb8

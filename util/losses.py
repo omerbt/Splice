@@ -24,11 +24,9 @@ class LossG(torch.nn.Module):
         # TODO maybe it's not the best way to do it, resize interpolates values and if we only then unnormalize
         # TODO it might be a bit different from what happens in inference. We might also want to remove this 0.5 norm
         self.global_transform = transforms.Compose([global_resize_transform,
-                                                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                                                     imagenet_norm
                                                     ])
         self.local_transform = transforms.Compose([
-            transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
             imagenet_norm
         ])
 

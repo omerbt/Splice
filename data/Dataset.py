@@ -10,14 +10,11 @@ from data.transforms import Global_crops, Local_crops, dino_structure_transforms
 
 class SingleImageDataset(Dataset):
     def __init__(self, cfg):
-        # normalization to be applied to every crop after augmentation
-        norm_transform = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 
         self.structure_transforms = dino_structure_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.texture_transforms = dino_texture_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.base_transform = transforms.Compose([
             transforms.ToTensor(),
-            norm_transform
         ])
 
         self.local_A_patches = transforms.Compose([
