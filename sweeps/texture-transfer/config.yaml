@@ -9,31 +9,24 @@ parameters:
   dataroot:
     values:
       - './datasets/horse_zebra'
-      - './datasets/horse_zebra_3'
-      - './datasets/horse_zebra_4'
-      - './datasets/horse_zebra_5'
   direction:
     values: ['AtoB']  # AtoB or BtoA
   A_resize:
-    values:
-      - 224
+    values: [-1]
   B_resize:
-    values:
-      - 224
+    values: [-1]
   use_augmentations:
-    values:
-      - True
-      - False
+    values: True
   entire_A_every:
-    values: [50]
+    values: [75]
   global_A_crops_n_crops:
     values: [1]
   global_A_crops_min_cover:
-    values: [0.95,1.0]
+    values: [0.95]
   global_B_crops_n_crops:
     values: [1]
   global_B_crops_min_cover:
-    values: [0.95,1.0]
+    values: [0.95]
 
   init_type:
     values: ['xavier']  # ['normal', 'xavier', 'kaiming', 'orthogonal']
@@ -41,15 +34,15 @@ parameters:
     values: [0.02]  # scaling factor for normal, xavier and orthogonal
 
   lambda_global_cls:
-    values: [1.0,10.0]
+    values: [10.0]
   lambda_global_ssim:
     values: [1.0]
   lambda_global_identity:
-    values: [0.0,1.0]
+    values: [1.0]
   lambda_entire_ssim:
-    values: [0.0]
+    values: [1.0]
   lambda_entire_cls:
-    values: [0.0]
+    values: [10.0]
 
   dino_model_name:
     values: ['dino_vitb8']

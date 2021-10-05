@@ -22,9 +22,11 @@ class LossG(torch.nn.Module):
         global_resize_transform = Resize(cfg['dino_global_patch_size'], max_size=480)
 
         self.global_transform = transforms.Compose([global_resize_transform,
-                                                    transforms.Normalize((-1, -1, -1), (2, 2, 2)),  # [-1, 1] -> [0, 1]
                                                     imagenet_norm
                                                     ])
+        self.local_transform = transforms.Compose([
+            imagenet_norm
+        ])
 
         self.register_buffer("step", torch.zeros(1))
         self.lambdas = dict(
@@ -95,7 +97,7 @@ class LossG(torch.nn.Module):
         loss = 0.0
         for a, b in zip(outputs, inputs):  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0).to(device)
-            b = b.unsqueeze(0).to(device)
+            b = self.global_transform(b).unsqueeze(0).to(device)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, target_cls_token)
