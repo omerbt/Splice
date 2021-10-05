@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/pigeon_parrot_2
+dataroot: ./datasets/puppy_dalametian
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
