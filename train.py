@@ -70,24 +70,36 @@ def train_model():
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
             img_A = dataset.get_A().to(device)
-            crops = inputs['A_global']
-            wandb.log({"img_crop_input": [wandb.Image(crops)]})
+            structure_crops = inputs['A_global']
+            texture_crops = inputs['B_global']
             # log eval
             model.netG.eval()
             with torch.no_grad():
                 output = model.netG(img_A)
-                output_crops = model.netG(crops)
-            image_numpy = tensor2im(output)
-            image_crop_numpy = tensor2im(output_crops)
-            wandb.log({"img_eval": [wandb.Image(image_numpy)], "img_crop_eval": [wandb.Image(image_crop_numpy)]})
+                output_crops = model.netG(structure_crops)
+                output_texture_crops = model.netG(texture_crops)
+            image_numpy_eval = tensor2im(output)
+            image_structure_crop_numpy_eval = tensor2im(output_crops)
+            image_texture_crop_numpy_eval = tensor2im(output_texture_crops)
             # log train
             model.netG.train()
             with torch.no_grad():
                 output = model.netG(img_A)
-            output_crops = model.netG(crops)
-            image_numpy = tensor2im(output)
-            image_crop_numpy = tensor2im(output_crops)
-            wandb.log({"img_train": [wandb.Image(image_numpy)], "img_crop_train": [wandb.Image(image_crop_numpy)]})
+                output_crops = model.netG(structure_crops)
+                output_texture_crops = model.netG(texture_crops)
+            image_numpy_train = tensor2im(output)
+            image_structure_crop_numpy_train = tensor2im(output_crops)
+            image_texture_crop_numpy_train = tensor2im(output_texture_crops)
+            wandb.log({
+                "structure_crop_input": [wandb.Image(structure_crops)],
+                "texture_crop_input": [wandb.Image(texture_crops)],
+                "img_eval": [wandb.Image(image_numpy_eval)],
+                "structure_crop_eval": [wandb.Image(image_structure_crop_numpy_eval)],
+                "texture_crop_eval": [wandb.Image(image_texture_crop_numpy_eval)],
+                "texture_crop_train": [wandb.Image(image_texture_crop_numpy_train)],
+                "img_train": [wandb.Image(image_numpy_train)],
+                "structure_crop_train": [wandb.Image(image_structure_crop_numpy_train)]
+            })
 
 
 if __name__ == '__main__':
