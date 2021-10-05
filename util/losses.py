@@ -131,12 +131,10 @@ class LossG(torch.nn.Module):
         return loss
 
     def calculate_local_crop_cls_loss(self, outputs, inputs):
-        raise NotImplementedError
-        # TODO make sure inputs is resized and matches imagenet normalization
         loss = 0.0
         for a, b in zip(outputs, inputs):  # avoid memory limitations
             a = self.local_transform(a).unsqueeze(0).to(device)
-            b = b.unsqueeze(0).to(device)
+            b = self.local_transform(b).unsqueeze(0).to(device)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
             target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
             loss += F.mse_loss(cls_token, target_cls_token)
