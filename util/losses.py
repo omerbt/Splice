@@ -21,8 +21,6 @@ class LossG(torch.nn.Module):
         imagenet_norm = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
         global_resize_transform = Resize(cfg['dino_global_patch_size'], max_size=480)
 
-        # TODO maybe it's not the best way to do it, resize interpolates values and if we only then unnormalize
-        # TODO it might be a bit different from what happens in inference. We might also want to remove this 0.5 norm
         self.global_transform = transforms.Compose([global_resize_transform,
                                                     imagenet_norm
                                                     ])
