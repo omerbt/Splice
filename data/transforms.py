@@ -69,9 +69,11 @@ class Global_crops(nn.Module):
 
     def forward(self, img):
         crops = []
+        w = img.size[0]
         h = img.size[1]
-        size = int(round(np.random.uniform(self.min_cover * h, h)))
-        t = transforms.Compose([transforms.RandomCrop(size), self.last_transform])
+        size_h = int(round(np.random.uniform(self.min_cover * h, h)))
+        size_w = int(round(np.random.uniform(self.min_cover * w, w)))
+        t = transforms.Compose([transforms.RandomCrop((size_h, size_w)), self.last_transform])
         for _ in range(self.n_crops):
             crop = t(img)
             crops.append(crop)
