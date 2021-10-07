@@ -70,39 +70,44 @@ def train_model():
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
             img_A = dataset.get_A().to(device)
-            structure_crops = inputs['A_global']
-            texture_crops = inputs['B_global']
-            # log eval
-            model.netG.eval()
-            with torch.no_grad():
-                output = model.netG(img_A)
-                output_crops = model.netG(structure_crops)
-                output_texture_crops = model.netG(texture_crops)
-            image_numpy_eval = tensor2im(output)
-            image_structure_crop_numpy_eval = tensor2im(output_crops)
-            image_texture_crop_numpy_eval = tensor2im(output_texture_crops)
             # log train
             model.netG.train()
             with torch.no_grad():
                 output = model.netG(img_A)
-                output_crops = model.netG(structure_crops)
-                output_texture_crops = model.netG(texture_crops)
             image_numpy_train = tensor2im(output)
-            image_structure_crop_numpy_train = tensor2im(output_crops)
-            image_texture_crop_numpy_train = tensor2im(output_texture_crops)
             log_data = {
                 "img_train": [wandb.Image(image_numpy_train)]
             }
             if cfg['log_crops']:
+                structure_crops = inputs['A_global']
+                texture_crops = inputs['B_global']
+                with torch.no_grad():
+                    output_crops = model.netG(structure_crops)
+                    output_texture_crops = model.netG(texture_crops)
+                image_structure_crop_numpy_train = tensor2im(output_crops)
+                image_texture_crop_numpy_train = tensor2im(output_texture_crops)
                 log_data["structure_crop_input"] = [wandb.Image(structure_crops)]
                 log_data["texture_crop_input"] = [wandb.Image(texture_crops)]
                 log_data["texture_crop_train"] = [wandb.Image(image_texture_crop_numpy_train)]
                 log_data["structure_crop_train"] = [wandb.Image(image_structure_crop_numpy_train)]
                 if cfg['log_eval']:
+                    model.netG.eval()
+                    with torch.no_grad():
+                        output_crops = model.netG(structure_crops)
+                        output_texture_crops = model.netG(texture_crops)
+                    image_structure_crop_numpy_eval = tensor2im(output_crops)
+                    image_texture_crop_numpy_eval = tensor2im(output_texture_crops)
                     log_data["structure_crop_eval"] = [wandb.Image(image_structure_crop_numpy_eval)]
                     log_data["texture_crop_eval"] = [wandb.Image(image_texture_crop_numpy_eval)]
+                    model.netG.train()
             if cfg['log_eval']:
+                model.netG.eval()
+                with torch.no_grad():
+                    output = model.netG(img_A)
+                image_numpy_eval = tensor2im(output)
                 log_data["img_eval"] = [wandb.Image(image_numpy_eval)]
+                model.netG.train()
+
             wandb.log(log_data)
 
 
