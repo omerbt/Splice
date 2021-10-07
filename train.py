@@ -72,6 +72,7 @@ def train_model():
                 output = model.netG(img_A)
             image_numpy_train = tensor2im(output)
             log_data = {
+                "epoch": epoch,
                 "img_train": [wandb.Image(image_numpy_train)]
             }
             if cfg['log_crops']:
