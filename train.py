@@ -55,10 +55,8 @@ def train_model():
         outputs = model(inputs)
         losses = criterion(outputs, inputs)
         loss_G = losses['loss']
-        losses['epoch'] = epoch
-
-        # log losses
-        wandb.log(losses)
+        log_data = losses
+        log_data['epoch'] = epoch
 
         # update learning rate
         scheduler.step()
@@ -72,9 +70,7 @@ def train_model():
             with torch.no_grad():
                 output = model.netG(img_A)
             image_numpy_train = tensor2im(output)
-            log_data = {
-                "img_train": [wandb.Image(image_numpy_train)]
-            }
+            log_data["img_train"] = [wandb.Image(image_numpy_train)]
             if cfg['log_crops']:
                 structure_crops = inputs['A_global']
                 texture_crops = inputs['B_global']
@@ -87,10 +83,9 @@ def train_model():
                 log_data["structure_crop_train"] = [wandb.Image(image_structure_crop_numpy_train)]
                 log_data["texture_crop_train"] = [wandb.Image(image_texture_crop_numpy_train)]
 
-            wandb.log(log_data)
-
         loss_G.backward()
         optimizer.step()
+        wandb.log(log_data)
 
 
 if __name__ == '__main__':
