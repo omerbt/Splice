@@ -68,19 +68,19 @@ def train_model():
             img_A = dataset.get_A().to(device)
             with torch.no_grad():
                 output = model.netG(img_A)
-            image_numpy_train = tensor2im(output)
-            log_data["img_train"] = [wandb.Image(image_numpy_train)]
+            image_numpy_output = tensor2im(output)
+            log_data["img_output"] = [wandb.Image(image_numpy_output)]
             if cfg['log_crops']:
                 structure_crops = inputs['A_global']
                 texture_crops = inputs['B_global']
                 output_crops = outputs['x_global']
                 output_texture_crops = outputs['y_global']
-                image_structure_crop_numpy_train = tensor2im(output_crops)
-                image_texture_crop_numpy_train = tensor2im(output_texture_crops)
+                image_structure_crop_numpy_output = tensor2im(output_crops)
+                image_texture_crop_numpy_output = tensor2im(output_texture_crops)
                 log_data["structure_crop_input"] = [wandb.Image(structure_crops)]
                 log_data["texture_crop_input"] = [wandb.Image(texture_crops)]
-                log_data["structure_crop_train"] = [wandb.Image(image_structure_crop_numpy_train)]
-                log_data["texture_crop_train"] = [wandb.Image(image_texture_crop_numpy_train)]
+                log_data["structure_crop_output"] = [wandb.Image(image_structure_crop_numpy_output)]
+                log_data["texture_crop_output"] = [wandb.Image(image_texture_crop_numpy_output)]
 
         loss_G.backward()
         optimizer.step()
