@@ -7,7 +7,6 @@ B_resize: -1
 use_augmentations: True
 
 log_crops: False
-log_eval: False
 
 global_A_crops_n_crops: 1
 global_A_crops_min_cover: 0.95
