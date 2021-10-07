@@ -59,10 +59,10 @@ def train_model():
         log_data['epoch'] = epoch
 
         # update learning rate
-        scheduler.step()
         lr = optimizer.param_groups[0]['lr']
         log.info('learning rate = %.7f' % lr)
-        wandb.log({"lr": lr})
+        log_data["lr"] = lr
+        scheduler.step()
 
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
