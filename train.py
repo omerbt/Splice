@@ -55,6 +55,7 @@ def train_model():
         outputs = model(inputs)
         losses = criterion(outputs, inputs)
         loss_G = losses['loss']
+        losses['epoch'] = epoch
 
         # log losses
         wandb.log(losses)
@@ -72,7 +73,6 @@ def train_model():
                 output = model.netG(img_A)
             image_numpy_train = tensor2im(output)
             log_data = {
-                "epoch": epoch,
                 "img_train": [wandb.Image(image_numpy_train)]
             }
             if cfg['log_crops']:
