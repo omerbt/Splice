@@ -70,8 +70,6 @@ def train_model():
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
             img_A = dataset.get_A().to(device)
-            # log train
-            model.netG.train()
             with torch.no_grad():
                 output = model.netG(img_A)
             image_numpy_train = tensor2im(output)
