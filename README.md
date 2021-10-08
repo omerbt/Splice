@@ -4,7 +4,7 @@
 
 ![plot](imgs/results.png)
 
-![plot](imgs/dogs.jpeg)
+![plot](imgs/dogs.png)
 
 ![plot](imgs/apple2orange.jpeg)
 
