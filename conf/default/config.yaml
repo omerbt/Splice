@@ -1,10 +1,12 @@
 seed: -1
 
-dataroot: ./datasets/horse_zebra
+dataroot: ./datasets/apple2orange
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
 use_augmentations: True
+
+log_crops: False
 
 global_A_crops_n_crops: 1
 global_A_crops_min_cover: 0.95
