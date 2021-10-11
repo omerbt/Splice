@@ -1,7 +1,7 @@
 seed: -1
 
 dataroot: ./datasets/cars/pair1
-direction: BtoA  # AtoB or BtoA
+direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
 use_augmentations: True
