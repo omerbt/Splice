@@ -1,7 +1,7 @@
 seed: -1
 
-dataroot: ./datasets/drinks/coffees/pair_2
-direction: BtoA  # AtoB or BtoA
+dataroot: ./datasets/fruits/lemon2lime
+direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
 use_augmentations: True
