@@ -53,6 +53,6 @@ def init_net(net, init_type='normal', init_gain=0.02, debug=False, initialize_we
     return net
 
 
-def define_G(init_type='normal', init_gain=0.02):
-    net = skip(need_sigmoid=True)
+def define_G(init_type='normal', init_gain=0.02, upsample_mode='nearest'):
+    net = skip(need_sigmoid=True, upsample_mode=upsample_mode)
     return init_net(net, init_type, init_gain, initialize_weights=True)
