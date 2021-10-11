@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/animals/swans/pair2
+dataroot: ./datasets/animals/tigers
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
