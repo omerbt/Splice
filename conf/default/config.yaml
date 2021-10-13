@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/churches
+dataroot: ./datasets/ffhq512/pair1
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
