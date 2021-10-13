@@ -21,7 +21,7 @@ class Global_crops(nn.Module):
         crops = []
         h = img.size[1]
         size = int(round(np.random.uniform(self.min_cover * h, h)))
-        t = transforms.Compose([transforms.RandomCrop(size), self.last_transform])
+        t = transforms.Compose([transforms.RandomCrop(min(size, img.size[0])), self.last_transform])
         for _ in range(self.n_crops):
             crop = t(img)
             crops.append(crop)
