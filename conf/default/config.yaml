@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/landscape/sa1
+dataroot: ./datasets/landscape/sa2
 direction: AtoB  # AtoB or BtoA
 A_resize: 512
 B_resize: 512
