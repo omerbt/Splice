@@ -11,7 +11,7 @@ from data.transforms import Global_crops, dino_structure_transforms, dino_textur
 
 class SingleImageDataset(Dataset):
     def __init__(self, cfg):
-
+        self.cfg = cfg
         self.structure_transforms = dino_structure_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.texture_transforms = dino_texture_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.base_transform = transforms.Compose([
