@@ -24,7 +24,6 @@ class LossG(torch.nn.Module):
                                                     imagenet_norm
                                                     ])
 
-        self.register_buffer("step", torch.zeros(1))
         self.lambdas = dict(
             lambda_global_cls=cfg['lambda_global_cls'],
             lambda_local_cls=cfg['lambda_local_cls'],
@@ -34,24 +33,20 @@ class LossG(torch.nn.Module):
             lambda_global_identity=0
         )
 
-    def update_lambda_config(self):
-        if self.step == self.cfg['cls_warmup']:
+    def update_lambda_config(self, step):
+        if step == self.cfg['cls_warmup']:
             self.lambdas['lambda_global_ssim'] = self.cfg['lambda_global_ssim']
             self.lambdas['lambda_global_identity'] = self.cfg['lambda_global_identity']
 
-        if self.step % self.cfg['entire_A_every'] == 0:
+        if step % self.cfg['entire_A_every'] == 0:
             self.lambdas['lambda_entire_ssim'] = self.cfg['lambda_entire_ssim']
             self.lambdas['lambda_entire_cls'] = self.cfg['lambda_entire_cls']
         else:
             self.lambdas['lambda_entire_ssim'] = 0
             self.lambdas['lambda_entire_cls'] = 0
 
-    def update_step(self):
-        self.step += 1
-        self.update_lambda_config()
-
     def forward(self, outputs, inputs):
-        self.update_step()
+        self.update_lambda_config(inputs['step'])
         losses = {}
         loss_G = 0
 

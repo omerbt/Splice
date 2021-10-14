@@ -4,13 +4,14 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 import os
 import os.path
+import torch
 
 from data.transforms import Global_crops, dino_structure_transforms, dino_texture_transforms
 
 
 class SingleImageDataset(Dataset):
     def __init__(self, cfg):
-
+        self.cfg = cfg
         self.structure_transforms = dino_structure_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.texture_transforms = dino_texture_transforms if cfg['use_augmentations'] else transforms.Compose([])
         self.base_transform = transforms.Compose([
@@ -53,16 +54,20 @@ class SingleImageDataset(Dataset):
             self.A_img, self.B_img = self.B_img, self.A_img
 
         print("Image sizes %s and %s" % (str(self.A_img.size), str(self.B_img.size)))
+        self.step = torch.zeros(1)
 
     def get_A(self):
         return self.base_transform(self.A_img).unsqueeze(0)
 
     def __getitem__(self, index):
-        A = self.get_A()
-        A_global = self.global_A_patches(self.A_img)
-        B_global = self.global_B_patches(self.B_img)
+        self.step += 1
+        sample = {'step': self.step}
+        if self.step % self.cfg['entire_A_every'] == 0:
+            sample['A'] = self.get_A()
+        sample['A_global'] = self.global_A_patches(self.A_img)
+        sample['B_global'] = self.global_B_patches(self.B_img)
 
-        return {'A': A, 'A_global': A_global, 'B_global': B_global}
+        return sample
 
     def __len__(self):
         return 1
