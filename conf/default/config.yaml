@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/landscape/flickermountains10
+dataroot: ./datasets/landscape/flickermountains11
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
