@@ -88,7 +88,8 @@ def get_activations(files, model, batch_size=1, dims=64,
 
     pred_arr = np.empty((n_used_imgs, dims))
 
-    for i in tqdm(range(n_batches)):
+    # for i in tqdm(range(n_batches)):
+    for i in range(n_batches):
         if verbose:
             print('\rPropagating batch %d/%d' % (i + 1, n_batches),
                   end='', flush=True)
@@ -270,7 +271,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
-    calculate_sifid_for_dataset('example', 1, args.gpu != '', 64, 'B', 'out')
+    calculate_sifid_for_dataset('mountains', 1, args.gpu != '', 64, 'A', 'B')
     # path1 = args.path2real
     # path2 = args.path2fake
     # suffix = args.images_suffix
