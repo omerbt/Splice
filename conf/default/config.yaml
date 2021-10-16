@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/fruits/apples2oranges
+dataroot: ./datasets/afhq/dog2dog1/1
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
