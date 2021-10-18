@@ -17,7 +17,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def train_model():
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
-    wandb.init(project='afhq_part2', entity='vit-vis', config=config)
+    wandb.init(project='afhq_cross_part2', entity='vit-vis', config=config)
     cfg = wandb.config
 
     # set seed
