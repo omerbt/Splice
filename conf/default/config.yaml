@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/afhq/dog2dog/17
+dataroot: ./datasets/afhq/dog2dog/18
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
