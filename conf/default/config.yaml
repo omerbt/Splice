@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/afhq/afhq_cross_class_pairs/30
+dataroot: ./datasets/afhq/afhq_cross_class_pairs/31
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
