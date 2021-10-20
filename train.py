@@ -7,7 +7,7 @@ import os
 from data.Dataset import SingleImageDataset
 from models.model import Model
 from util.losses import LossG
-from util.util import tensor2im, get_scheduler, get_optimizer
+from util.util import tensor2im, get_scheduler, get_optimizer, save_epoch
 import yaml
 from argparse import ArgumentParser
 
@@ -71,6 +71,7 @@ def train_model(dataroot):
             img_A = dataset.get_A().to(device)
             with torch.no_grad():
                 output = model.netG(img_A)
+            save_epoch(wandb.run.name, cfg['dataroot'], output)
             image_numpy_output = tensor2im(output)
             log_data["img_output"] = [wandb.Image(image_numpy_output)]
             if cfg['log_crops']:
