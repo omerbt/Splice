@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/afhq/afhq_cross_class_pairs/0
+dataroot: ./datasets/afhq/interclass/0
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
@@ -21,9 +21,9 @@ lambda_global_cls: 10.0
 lambda_local_cls: 0.0
 lambda_global_ssim: 1.0
 lambda_global_identity: 1.0
-entire_A_every: 20
-lambda_entire_ssim: 10.0
-lambda_entire_cls: 0
+entire_A_every: 75
+lambda_entire_ssim: 1.0
+lambda_entire_cls: 10
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
