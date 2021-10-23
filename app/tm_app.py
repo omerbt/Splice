@@ -34,7 +34,7 @@ def traverse_dataset(dataset_route):
     return data
 
 
-def set_ours(dataset_name, idx, result):
+def set_ours_afhq(dataset_name, idx, result):
     result_path = f"../datasets/afhq/{dataset_name}/{idx}/ours/{result}.png"
     target_path = f"../datasets/afhq/{dataset_name}/{idx}/ours/ours.png"
     if os.path.exists(target_path):
@@ -43,9 +43,16 @@ def set_ours(dataset_name, idx, result):
 
 
 @app.route("/cat2cat")
-def dataset_page():
+def cat2cat_dataset_page():
     dataset_name = "cat2cat"
     data_pairs = traverse_dataset(dataset_route="../datasets/afhq/cat2cat")
+    return render_template('editor.html', data_pairs=data_pairs, dataset_name=dataset_name)
+
+
+@app.route("/dog2dog")
+def dog2dog_dataset_page():
+    dataset_name = "dog2dog"
+    data_pairs = traverse_dataset(dataset_route="../datasets/afhq/dog2dog")
     return render_template('editor.html', data_pairs=data_pairs, dataset_name=dataset_name)
 
 
@@ -55,7 +62,13 @@ def dataset_view_page():
     return render_template('viewer.html', data_pairs=data_pairs)
 
 
+@app.route("/dog2dog/view")
+def dataset_view_page():
+    data_pairs = traverse_dataset(dataset_route="../datasets/afhq/dog2dog")
+    return render_template('viewer.html', data_pairs=data_pairs)
+
+
 @app.route("/update_ours/cat2cat/<idx>/<result>")
 def update_ours_cat2cat(idx, result):
-    set_ours('cat2cat', idx, result)
+    set_ours_afhq('cat2cat', idx, result)
     return "ok"
