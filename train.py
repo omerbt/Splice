@@ -69,8 +69,10 @@ def train_model(dataroot):
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
             img_A = dataset.get_A().to(device)
+            model.eval()
             with torch.no_grad():
                 output = model.netG(img_A)
+            model.train()
             save_epoch(wandb.run.name, cfg['dataroot'], output)
             image_numpy_output = tensor2im(output)
             log_data["img_output"] = [wandb.Image(image_numpy_output)]
