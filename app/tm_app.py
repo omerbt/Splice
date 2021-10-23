@@ -13,8 +13,9 @@ def traverse_dataset(dataset_route):
     for pair in pairs:
         pair = pair.replace("\\", "/")
         idx = pair.split("/")[-1]
-        A = glob.glob(f'{pair}/A/*')[0].replace("\\", "/")
-        B = glob.glob(f'{pair}/B/*')[0].replace("\\", "/")
+        A_src = glob.glob(f'{pair}/A/*')[0].replace("\\", "/")
+        B_src = glob.glob(f'{pair}/B/*')[0].replace("\\", "/")
+        ours_src = f'{pair}/ours/ours.png'
         ours_unprocessed = glob.glob(f'{pair}/ours/*')
         ours = []
         for our in ours_unprocessed:
@@ -24,9 +25,10 @@ def traverse_dataset(dataset_route):
 
         data.append({
             'idx': idx,
-            'A_src': A,
-            'B_src': B,
-            'ours': ours
+            'A_src': A_src,
+            'B_src': B_src,
+            'ours': ours,
+            'ours_src': ours_src
         })
 
     return data
@@ -45,6 +47,12 @@ def dataset_page():
     dataset_name = "cat2cat"
     data_pairs = traverse_dataset(dataset_route="../datasets/afhq/cat2cat")
     return render_template('editor.html', data_pairs=data_pairs, dataset_name=dataset_name)
+
+
+@app.route("/cat2cat/view")
+def dataset_view_page():
+    data_pairs = traverse_dataset(dataset_route="../datasets/afhq/cat2cat")
+    return render_template('viewer.html', data_pairs=data_pairs)
 
 
 @app.route("/update_ours/cat2cat/<idx>/<result>")

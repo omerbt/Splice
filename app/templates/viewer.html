@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TM App</title>
+</head>
+<body>
+
+<div>
+{% for data_pair in data_pairs %}
+    <h3>Pair {{ data_pair.idx }}</h3>
+    <img src="{{ data_pair.A_src }}" />
+    <img src="{{ data_pair.B_src }}" />
+    <img src="{{ data_pair.ours_src }}" />
+    <hr/>
+{% endfor %}
+</div>
+
+
+</body>
+</html>
