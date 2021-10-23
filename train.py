@@ -18,7 +18,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def train_model(dataroot):
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
-    wandb.init(project='afhq_cross_narek', entity='vit-vis', config=config)
+    wandb.init(project='afhq_dog2dog_narek', entity='vit-vis', config=config)
     cfg = wandb.config
     if dataroot is not None:
         cfg.update({"dataroot": dataroot}, allow_val_change=True)
