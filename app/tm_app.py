@@ -41,7 +41,7 @@ def set_ours(dataset_name, idx, result):
 
 
 @app.route("/cat2cat")
-def hello_world():
+def dataset_page():
     dataset_name = "cat2cat"
     data_pairs = traverse_dataset(dataset_route="../datasets/afhq/cat2cat")
     return render_template('editor.html', data_pairs=data_pairs, dataset_name=dataset_name)
