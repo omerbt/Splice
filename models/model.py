@@ -7,9 +7,9 @@ class Model(torch.nn.Module):
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.netG = torch.nn.Sequential(
-            torch.nn.Conv2d(3, 64, 3, padding=1),
+            torch.nn.Conv2d(3, 12, 3, padding=1),
             torch.nn.ReLU(),
-            torch.nn.Conv2d(64, 3, 3, padding=1),
+            torch.nn.Conv2d(12, 3, 3, padding=1),
             torch.nn.Sigmoid()
         ).to(device)
         # self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode']).to(device)
