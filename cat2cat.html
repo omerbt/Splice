@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<style>
+    ul {
+  list-style-type: none;
+}
+
+li {
+  display: inline-block;
+}
+
+input[type="checkbox"][id^="myCheckbox"] {
+  display: none;
+}
+
+label {
+  border: 1px solid #fff;
+  padding: 10px;
+  display: block;
+  position: relative;
+  margin: 10px;
+  cursor: pointer;
+}
+
+label:before {
+  background-color: white;
+  color: white;
+  content: " ";
+  display: block;
+  border-radius: 50%;
+  border: 1px solid grey;
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  line-height: 28px;
+  transition-duration: 0.4s;
+  transform: scale(0);
+}
+
+label img {
+  height: 100px;
+  width: 100px;
+  transition-duration: 0.2s;
+  transform-origin: 50% 50%;
+}
+
+:checked + label {
+  border-color: #ddd;
+}
+
+:checked + label:before {
+  content: "✓";
+  background-color: grey;
+  transform: scale(1);
+}
+
+:checked + label img {
+  transform: scale(0.9);
+  /* box-shadow: 0 0 5px #333; */
+  z-index: -1;
+}
+</style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>cat2cat results</title>
+</head>
+<body>
+<div id="root">
+</div>
+<script>
+    d = document.getElementById("root")
+    for (i = 1; i < 8; i++) {
+        A = `./datasets/afhq/cat2cat/${i}/Ours/img.png`
+        d.innerHTML += `<h3>Pair #${i}<h3/>`
+
+        d.innerHTML += `<input type="checkbox" id="myCheckbox${i}" /> <label for="myCheckbox${i}"><img src="${A}" /></label>`
+        d.innerHTML += `<hr/>`
+    }
+</script>
+
+<button onclick="Submit()">Submit</button>
+<br><br>
+
+</body>
+</html>
