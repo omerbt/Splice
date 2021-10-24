@@ -57,13 +57,13 @@ def dog2dog_dataset_page():
 
 
 @app.route("/cat2cat/view")
-def dataset_view_page():
+def cat2cat_dataset_view_page():
     data_pairs = traverse_dataset(dataset_route="../datasets/afhq/cat2cat")
     return render_template('viewer.html', data_pairs=data_pairs)
 
 
 @app.route("/dog2dog/view")
-def dataset_view_page():
+def dog2dog_dataset_view_page():
     data_pairs = traverse_dataset(dataset_route="../datasets/afhq/dog2dog")
     return render_template('viewer.html', data_pairs=data_pairs)
 
