@@ -42,6 +42,14 @@ def set_ours_afhq(dataset_name, idx, result):
     shutil.copyfile(result_path, target_path)
 
 
+def set_ours_landscape(idx, result):
+    result_path = f"../datasets/landscape/{idx}/ours/{result}.png"
+    target_path = f"../datasets/landscape/{idx}/ours/ours.png"
+    if os.path.exists(target_path):
+        os.remove(target_path)
+    shutil.copyfile(result_path, target_path)
+
+
 @app.route("/cat2cat")
 def cat2cat_dataset_page():
     dataset_name = "cat2cat"
@@ -56,6 +64,14 @@ def dog2dog_dataset_page():
     return render_template('editor.html', data_pairs=data_pairs, dataset_name=dataset_name)
 
 
+@app.route("/landscape")
+def landscape_dataset_page():
+    dataset_name = "landscape"
+    data_pairs = traverse_dataset(dataset_route="../datasets/landscape")
+    return render_template('editor.html', data_pairs=data_pairs, dataset_name=dataset_name)
+
+
+
 @app.route("/cat2cat/view")
 def cat2cat_dataset_view_page():
     data_pairs = traverse_dataset(dataset_route="../datasets/afhq/cat2cat")
@@ -68,7 +84,25 @@ def dog2dog_dataset_view_page():
     return render_template('viewer.html', data_pairs=data_pairs)
 
 
+@app.route("/landscape/view")
+def landscape_dataset_view_page():
+    data_pairs = traverse_dataset(dataset_route="../datasets/landscape")
+    return render_template('viewer.html', data_pairs=data_pairs)
+
+
 @app.route("/update_ours/cat2cat/<idx>/<result>")
 def update_ours_cat2cat(idx, result):
     set_ours_afhq('cat2cat', idx, result)
+    return "ok"
+
+
+@app.route("/update_ours/dog2dog/<idx>/<result>")
+def update_ours_dog2dog(idx, result):
+    set_ours_afhq('dog2dog', idx, result)
+    return "ok"
+
+
+@app.route("/update_ours/landscape/<idx>/<result>")
+def update_ours_landscape(idx, result):
+    set_ours_landscape(idx, result)
     return "ok"
