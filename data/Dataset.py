@@ -5,6 +5,7 @@ from torchvision import transforms
 import os
 import os.path
 import torch
+from torchvision.transforms import InterpolationMode
 
 from data.transforms import Global_crops, dino_structure_transforms, dino_texture_transforms
 
@@ -45,10 +46,10 @@ class SingleImageDataset(Dataset):
         self.B_img = Image.open(os.path.join(dir_B, B_path)).convert('RGB')
 
         if cfg['A_resize'] > 0:
-            self.A_img = transforms.Resize(cfg['A_resize'])(self.A_img)
+            self.A_img = transforms.Resize(cfg['A_resize'], interpolation=InterpolationMode('lanczos'))(self.A_img)
 
         if cfg['B_resize'] > 0:
-            self.B_img = transforms.Resize(cfg['B_resize'])(self.B_img)
+            self.B_img = transforms.Resize(cfg['B_resize'], interpolation=InterpolationMode('lanczos'))(self.B_img)
 
         if cfg['direction'] == 'BtoA':
             self.A_img, self.B_img = self.B_img, self.A_img
