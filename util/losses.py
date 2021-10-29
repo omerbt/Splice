@@ -26,7 +26,6 @@ class LossG(torch.nn.Module):
 
         self.lambdas = dict(
             lambda_global_cls=cfg['lambda_global_cls'],
-            lambda_local_cls=cfg['lambda_local_cls'],
             lambda_global_ssim=0,
             lambda_entire_ssim=0,
             lambda_entire_cls=0,
