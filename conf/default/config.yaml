@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/mountain_debug2
+dataroot: ./datasets/mountain_debug
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
