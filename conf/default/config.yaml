@@ -19,16 +19,16 @@ init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 lambda_global_cls: 10
 lambda_local_cls: 0.0
-lambda_global_ssim: 1.0
-lambda_global_identity: 1.0
+lambda_global_ssim: 0 #1.0
+lambda_global_identity: 0 #1.0
 entire_A_every: 75
-lambda_entire_ssim: 1.0
+lambda_entire_ssim: 0 #1.0
 lambda_entire_cls: 10.0
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 upsample_mode: bilinear # ['nearest', 'bilinear']
-downsample_mode: avg # [stride|avg|max|lanczos2]
+downsample_mode: stride # [stride|avg|max|lanczos2]
 
 cls_warmup: 1
 n_epochs: 10000

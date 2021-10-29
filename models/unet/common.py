@@ -101,7 +101,7 @@ def conv(in_f, out_f, kernel_size, stride=1, bias=True, pad='zero', downsample_m
     if stride != 1 and downsample_mode != 'stride':
 
         if downsample_mode == 'avg':
-            downsampler = nn.AvgPool2d(stride, 1)
+            downsampler = nn.AvgPool2d(stride, stride)
         elif downsample_mode == 'max':
             downsampler = nn.MaxPool2d(stride, stride)
         elif downsample_mode in ['lanczos2', 'lanczos3']:
