@@ -89,12 +89,13 @@ class LossG(torch.nn.Module):
         for a, b in zip(outputs, inputs):  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0).to(device)
             b = self.global_transform(b).unsqueeze(0).to(device)
-            # cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
-            # target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
-            cls_token = self.extractor.get_feature_from_input(a)
-            target_cls_token = self.extractor.get_feature_from_input(b)
-            for i in [-3, -2, -1]:
-                loss += F.mse_loss(cls_token[i][0, 0, :], target_cls_token[i][0, 0, :])
+            cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
+            target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
+            # cls_token = self.extractor.get_feature_from_input(a)
+            # target_cls_token = self.extractor.get_feature_from_input(b)
+            # for i in [-3, -2, -1]:
+            #     loss += F.mse_loss(cls_token[i][0, 0, :], target_cls_token[i][0, 0, :])
+            loss += F.mse_loss(cls_token, target_cls_token)
         return loss
 
     def calculate_global_id_loss(self, outputs, inputs):
