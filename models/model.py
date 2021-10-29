@@ -17,7 +17,8 @@ class Model(torch.nn.Module):
             outputs['x_global'] = self.netG(input['A_global'])
 
         # entire structure image
-        if self.cfg['lambda_entire_ssim'] > 0 and input['step'] % self.cfg['entire_A_every'] == 0:
+        if self.cfg['lambda_entire_ssim'] + self.cfg['lambda_entire_cls'] > 0 and input['step'] % self.cfg[
+            'entire_A_every'] == 0:
             outputs['x_entire'] = self.netG(input['A'])
 
         # global patches from texture image
