@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/landscape/parks2
+dataroot: ./datasets/mountain_debug
 direction: AtoB  # AtoB or BtoA
 A_resize: 512
 B_resize: 512
