@@ -1,9 +1,9 @@
 seed: -1
 
-dataroot: ./datasets/mountain_debug
+dataroot: ./datasets/mountain_debug2
 direction: AtoB  # AtoB or BtoA
-A_resize: 512
-B_resize: 512
+A_resize: -1
+B_resize: -1
 use_augmentations: True
 
 log_crops: False
