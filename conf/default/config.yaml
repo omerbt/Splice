@@ -1,7 +1,7 @@
 seed: -1
 
 dataroot: ./datasets/horse2zebra/1
-direction: AtoB  # AtoB or BtoA
+direction: BtoA  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
 use_augmentations: True
@@ -20,9 +20,9 @@ init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 lambda_global_cls: 10.0
 lambda_global_ssim: 1.0
 lambda_global_identity: 1.0
-entire_A_every: 20
-lambda_entire_ssim: 10.0
-lambda_entire_cls: 1.0
+entire_A_every: 75 #20
+lambda_entire_ssim: 1 #10.0
+lambda_entire_cls: 10 #1.0
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
