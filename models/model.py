@@ -9,7 +9,7 @@ class Model(torch.nn.Module):
         self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode'],
                                       cfg['downsample_mode']).to(device)
         self.cfg = cfg
-        self.register_buffer('noise', torch.tensor(0))
+        self.register_buffer('noise', torch.tensor(0).float())
 
     def forward(self, input):
         outputs = {}
