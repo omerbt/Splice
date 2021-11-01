@@ -42,6 +42,8 @@ def skip(
     model = nn.Sequential()
     # FIXME
     model.add(conv(num_input_channels, num_input_channels, 1, bias=need_bias))
+    model.add(bn(num_input_channels))
+    model.add(act(act_fun))
 
     model_tmp = model
 
