@@ -20,10 +20,10 @@ init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 lambda_global_cls: 10.0
-lambda_global_ssim: 0.0
-lambda_global_identity: 0.0
+lambda_global_ssim: 1.0
+lambda_global_identity: 1.0
 entire_A_every: 75
-lambda_entire_ssim: 0
+lambda_entire_ssim: 1
 lambda_entire_cls: 10
 
 dino_model_name: dino_vitb8
