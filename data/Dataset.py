@@ -59,6 +59,12 @@ class SingleImageDataset(Dataset):
     def get_A(self):
         return self.base_transform(self.A_img).unsqueeze(0)
 
+    def get_blurred_A(self):
+        return transforms.Compose([
+            transforms.GaussianBlur(kernel_size=3),
+            transforms.ToTensor(),
+        ])(self.A_img).unsqueeze(0)
+
     def __getitem__(self, index):
         self.step += 1
         sample = {'step': self.step}
