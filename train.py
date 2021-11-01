@@ -67,6 +67,7 @@ def train_model():
         if epoch % cfg['log_images_freq'] == 0:
             # img_A = dataset.get_A().to(device)
             img_A = dataset.get_blurred_A().to(device)
+            img_A += 0.1 * torch.rand_like(img_A).to(device)
 
             with torch.no_grad():
                 output = model.netG(img_A)
