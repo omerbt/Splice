@@ -34,7 +34,7 @@ dino_structure_transforms = transforms.Compose([
         [transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)],
         p=0.5
     ),
-    transforms.RandomApply([transforms.GaussianBlur(kernel_size=3)], p=1)#0.2)
+    transforms.RandomApply([transforms.GaussianBlur(kernel_size=3)], p=0.2)
 ])
 
 dino_texture_transforms = transforms.Compose([
