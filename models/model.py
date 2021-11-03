@@ -6,6 +6,7 @@ class Model(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode'],
                                       cfg['downsample_mode']).to(device)
         self.cfg = cfg
