@@ -1,10 +1,13 @@
 seed: -1
 
-dataroot: ./datasets/afhq/interclass/1
-direction: AtoB  # AtoB or BtoA
+dataroot: ./datasets/horse2zebra/1
+direction: BtoA  # AtoB or BtoA
+
 A_resize: -1
 B_resize: -1
 use_augmentations: True
+
+summary: 1x1 conv to the input
 
 log_crops: False
 
@@ -18,11 +21,11 @@ init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 lambda_global_cls: 10.0
-lambda_local_cls: 0.0
 lambda_global_ssim: 1.0
 lambda_global_identity: 1.0
 entire_A_every: 75
-lambda_entire_ssim: 1.0
+
+lambda_entire_ssim: 1
 lambda_entire_cls: 10
 
 dino_model_name: dino_vitb8
