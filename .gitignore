@@ -1,3 +1,5 @@
 /results/
 /wandb/
 .idea
+__pycache__
+thumbs.db

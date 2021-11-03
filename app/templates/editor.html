@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TM App</title>
+    <style>
+        img {
+            max-height:512px;
+            height:auto;
+            width:auto;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+{% for data_pair in data_pairs %}
+    <h3>Pair {{ data_pair.idx }}</h3>
+    <img src="{{ data_pair.A_src }}" />
+    <img src="{{ data_pair.B_src }}" />
+    {% for our_res in data_pair.ours %}
+        <img src="{{ our_res }}" onclick="update_ours('{{ dataset_name }}', '{{ data_pair.idx }}', '{{ our_res }}')" />
+    {% endfor %}
+    <hr/>
+{% endfor %}
+</div>
+
+<script>
+    function update_ours(dataset_name, idx, result) {
+        let result_name = result.split("/")[result.split("/").length - 1].split(".")[0]
+        fetch(`/update_ours/${dataset_name}/${idx}/${result_name}`)
+        .then(response => console.log(response))
+        .catch(err => console.error(err))
+    }
+</script>
+
+</body>
+</html>

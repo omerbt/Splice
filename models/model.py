@@ -6,23 +6,21 @@ class Model(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.netG = torch.nn.Sequential(
-            torch.nn.Conv2d(3, 12, 1, padding=0),
-            torch.nn.ReLU(),
-            torch.nn.Conv2d(12, 3, 1, padding=0),
-            torch.nn.Sigmoid()
-        ).to(device)
-        # self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode']).to(device)
+
+        self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode'],
+                                      cfg['downsample_mode']).to(device)
         self.cfg = cfg
+        self.register_buffer('noise', torch.tensor(0).float())
 
     def forward(self, input):
         outputs = {}
         # global patches from structure image
         if self.cfg['lambda_global_cls'] + self.cfg['lambda_global_ssim'] > 0:
-            outputs['x_global'] = self.netG(input['A_global'])
+            outputs['x_global'] = self.netG(
+                input['A_global'] + input['A_global'].clone().detach().normal_() * 10)
 
         # entire structure image
-        if self.cfg['lambda_entire_ssim'] > 0 and input['step'] % self.cfg['entire_A_every'] == 0:
+        if self.cfg['lambda_entire_ssim'] + self.cfg['lambda_entire_cls'] > 0 and input['step'] % self.cfg['entire_A_every'] == 0:
             outputs['x_entire'] = self.netG(input['A'])
 
         # global patches from texture image

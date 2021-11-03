@@ -18,7 +18,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 def train_model(dataroot):
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
-    wandb.init(project='afhq_intra_omer', entity='vit-vis', config=config)
+
+    wandb.init(project='horse2zebra', entity='vit-vis', config=config)
     cfg = wandb.config
     if dataroot is not None:
         cfg.update({"dataroot": dataroot}, allow_val_change=True)
@@ -69,6 +70,7 @@ def train_model(dataroot):
         # log current generated entire image to wandb
         if epoch % cfg['log_images_freq'] == 0:
             img_A = dataset.get_A().to(device)
+
             with torch.no_grad():
                 output = model.netG(img_A)
             save_epoch(wandb.run.name, cfg['dataroot'], output)
