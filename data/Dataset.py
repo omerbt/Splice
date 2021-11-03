@@ -5,6 +5,7 @@ from torchvision import transforms
 import os
 import os.path
 import torch
+from torchvision.transforms import InterpolationMode
 
 from data.transforms import Global_crops, dino_structure_transforms, dino_texture_transforms
 

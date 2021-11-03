@@ -1,1 +1,1 @@
-bsub -q waic-short -R rusage[mem=60000] -R affinity[thread*2] -gpu num=1:j_exclusive=yes:gmodel=QuadroRTX6000 "module load miniconda/4.7.12; . activate; conda activate /home/labs/waic/narekt/.conda/envs/narek-env; python3 train.py"
+bsub -q waic-short -R rusage[mem=60000] -R affinity[thread*2] -gpu num=1:j_exclusive=yes:gmodel=QuadroRTX6000 "module load miniconda/4.7.12; . activate; conda activate /home/labs/waic/narekt/.conda/envs/narek-env; python3 train.py --dataroot ./datasets/afhq/afhq_cross_class_pairs/1"
