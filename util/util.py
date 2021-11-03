@@ -1,6 +1,8 @@
 from torch.optim import lr_scheduler
 import numpy as np
 import torch
+import torchvision
+import os
 
 
 def get_scheduler(optimizer, lr_policy, n_epochs=None, n_epochs_decay=None, lr_decay_iters=None):
@@ -48,3 +50,11 @@ def tensor2im(input_image, imtype=np.uint8):
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     return image_numpy.astype(imtype)
+
+
+def save_epoch(run_name, dataroot, image):
+    out_dir = f'{dataroot}/ours'
+    if not os.path.exists(out_dir):
+        os.mkdir(out_dir)
+
+    torchvision.utils.save_image(image[0], f'{out_dir}/{run_name}_out.png')
