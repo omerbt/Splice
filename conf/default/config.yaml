@@ -1,5 +1,6 @@
 seed: -1
 
+
 dataroot: ./datasets/horse2zebra/1
 direction: BtoA  # AtoB or BtoA
 
@@ -7,7 +8,6 @@ A_resize: -1
 B_resize: -1
 use_augmentations: True
 
-summary: 1x1 conv to the input
 
 log_crops: False
 
@@ -20,6 +20,7 @@ global_B_crops_min_cover: 0.95
 init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
 init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
+
 lambda_global_cls: 10.0
 lambda_global_ssim: 1.0
 lambda_global_identity: 1.0
@@ -28,9 +29,11 @@ entire_A_every: 75
 lambda_entire_ssim: 1
 lambda_entire_cls: 10
 
+
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
 upsample_mode: bilinear # ['nearest', 'bilinear']
+downsample_mode: stride # [stride|avg|max|lanczos2]
 
 cls_warmup: 1
 n_epochs: 10000

@@ -6,14 +6,17 @@ class Model(torch.nn.Module):
     def __init__(self, cfg):
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode']).to(device)
+        self.netG = networks.define_G(cfg['init_type'], cfg['init_gain'], cfg['upsample_mode'],
+                                      cfg['downsample_mode']).to(device)
         self.cfg = cfg
+        self.register_buffer('noise', torch.tensor(0).float())
 
     def forward(self, input):
         outputs = {}
         # global patches from structure image
         if self.cfg['lambda_global_cls'] + self.cfg['lambda_global_ssim'] > 0:
-            outputs['x_global'] = self.netG(input['A_global'])
+            outputs['x_global'] = self.netG(
+                input['A_global'] + input['A_global'].clone().detach().normal_() * 10)
 
         # entire structure image
         if self.cfg['lambda_entire_ssim'] + self.cfg['lambda_entire_cls'] > 0 and input['step'] % self.cfg['entire_A_every'] == 0:
