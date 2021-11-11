@@ -54,7 +54,7 @@ class SingleImageDataset(Dataset):
             self.A_img, self.B_img = self.B_img, self.A_img
 
         print("Image sizes %s and %s" % (str(self.A_img.size), str(self.B_img.size)))
-        self.step = torch.zeros(1)
+        self.step = torch.zeros(1) - 1
 
     def get_A(self):
         return self.base_transform(self.A_img).unsqueeze(0)
