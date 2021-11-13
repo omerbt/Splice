@@ -9,16 +9,19 @@ from models.model import Model
 from util.losses import LossG
 from util.util import tensor2im, get_scheduler, get_optimizer
 import yaml
+from argparse import ArgumentParser
 
 log = logging.getLogger(__name__)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def train_model():
+def train_model(dataroot):
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
     wandb.init(project='afhq_cross_narek', entity='vit-vis', config=config)
     cfg = wandb.config
+    if dataroot is not None:
+        cfg.update({"dataroot": dataroot}, allow_val_change=True)
 
     # set seed
     seed = cfg['seed']
@@ -89,4 +92,9 @@ def train_model():
 
 
 if __name__ == '__main__':
-    train_model()
+    parser = ArgumentParser()
+    parser.add_argument("--dataroot", type=str)
+    args = parser.parse_args()
+    dataroot = args.dataroot
+
+    train_model(dataroot)
