@@ -1,5 +1,5 @@
 # Semantic Texture Transfer
 
-![plot](imgs/teaser.jpeg)
+![plot](imgs/teaser.png)
 
-![plot](imgs/swans.jpeg)
+![plot](imgs/results.png)
