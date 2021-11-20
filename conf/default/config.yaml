@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/interpolation/kiwi_1
+dataroot: ./datasets/interpolation/soccer_ball
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
