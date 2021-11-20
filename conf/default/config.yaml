@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/interpolation/cows
+dataroot: ./datasets/interpolation/kiwi_1
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
@@ -27,7 +27,7 @@ entire_A_every: 75
 lambda_entire_cls: 10
 lambda_entire_ssim: 1.0
 
-B2C_alpha: 0.5 # cls_B * B2C_alpha + cls_C * (1-B2C_alpha)
+B2C_alpha: 0.6 # cls_B * B2C_alpha + cls_C * (1-B2C_alpha)
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
