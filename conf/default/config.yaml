@@ -28,6 +28,7 @@ lambda_entire_cls: 10
 lambda_entire_ssim: 1.0
 
 B2C_alpha: 0.5 # cls_B * B2C_alpha + cls_C * (1-B2C_alpha)
+interpolate_in_dino: False
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224

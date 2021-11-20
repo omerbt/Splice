@@ -104,9 +104,13 @@ class LossG(torch.nn.Module):
             if c is not None:
                 c = self.global_transform(c).unsqueeze(0).to(device)
                 target_cls_token_2 = self.extractor.get_feature_from_input(c)[-1][0, 0, :]
-            target_cls_token = self.cfg['B2C_alpha'] * target_cls_token_1 + (
-                        1 - self.cfg['B2C_alpha']) * target_cls_token_2
-            loss += F.mse_loss(cls_token, target_cls_token)
+            if self.cfg['interpolate_in_dino']:
+                target_cls_token = self.cfg['B2C_alpha'] * target_cls_token_1 + (
+                            1 - self.cfg['B2C_alpha']) * target_cls_token_2
+                loss += F.mse_loss(cls_token, target_cls_token)
+            else:
+                loss += self.cfg['B2C_alpha'] * F.mse_loss(cls_token, target_cls_token_1)
+                loss += (1 - self.cfg['B2C_alpha']) * F.mse_loss(cls_token, target_cls_token_2)
         return loss
 
     def calculate_global_id_loss(self, outputs, inputs):
