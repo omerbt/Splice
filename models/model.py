@@ -21,5 +21,7 @@ class Model(torch.nn.Module):
 
         # global patches from texture image
         outputs['y_global'] = self.netG(input['B_global'])
+        if self.cfg['B2C_alpha'] < 1 or self.cfg['lambda_C_identity'] > 0:
+            outputs['y_global_2'] = self.netG(input['C_global'])
 
         return outputs
