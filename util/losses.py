@@ -58,16 +58,17 @@ class LossG(torch.nn.Module):
             loss_G += losses['loss_entire_ssim'] * self.lambdas['lambda_entire_ssim']
 
         if self.lambdas['lambda_entire_cls'] > 0:
-            losses['loss_entire_cls'] = self.calculate_crop_cls_loss(outputs['x_entire'], inputs['B_global'])
+            losses['loss_entire_cls'] = self.calculate_crop_cls_loss(outputs['x_entire'], inputs['B_global'], inputs['C_global'])
             loss_G += losses['loss_entire_cls'] * self.lambdas['lambda_entire_cls']
 
         if self.lambdas['lambda_global_cls'] > 0:
-            losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'], inputs['B_global'])
+            losses['loss_global_cls'] = self.calculate_crop_cls_loss(outputs['x_global'], inputs['B_global'], inputs['C_global'])
             loss_G += losses['loss_global_cls'] * self.lambdas['lambda_global_cls']
 
         if self.lambdas['lambda_global_identity'] > 0:
             losses['loss_global_id_B'] = self.calculate_global_id_loss(outputs['y_global'], inputs['B_global'])
-            loss_G += losses['loss_global_id_B'] * self.lambdas['lambda_global_identity']
+            losses['loss_global_id_C'] = self.calculate_global_id_loss(outputs['y_global'], inputs['C_global'])
+            loss_G += (losses['loss_global_id_B'] + losses['loss_global_id_C']) * self.lambdas['lambda_global_identity']
 
         losses['loss'] = loss_G
         return losses
@@ -83,13 +84,16 @@ class LossG(torch.nn.Module):
             loss += F.mse_loss(keys_ssim, target_keys_self_sim)
         return loss
 
-    def calculate_crop_cls_loss(self, outputs, inputs):
+    def calculate_crop_cls_loss(self, outputs, inputs, inputs_1):
         loss = 0.0
-        for a, b in zip(outputs, inputs):  # avoid memory limitations
+        for a, b, c in zip(outputs, inputs, inputs_1):  # avoid memory limitations
             a = self.global_transform(a).unsqueeze(0).to(device)
             b = self.global_transform(b).unsqueeze(0).to(device)
+            c = self.global_transform(c).unsqueeze(0).to(device)
             cls_token = self.extractor.get_feature_from_input(a)[-1][0, 0, :]
-            target_cls_token = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
+            target_cls_token_1 = self.extractor.get_feature_from_input(b)[-1][0, 0, :]
+            target_cls_token_2 = self.extractor.get_feature_from_input(c)[-1][0, 0, :]
+            target_cls_token = 0.5 * target_cls_token_1 + 0.5 * target_cls_token_2
             loss += F.mse_loss(cls_token, target_cls_token)
         return loss
 

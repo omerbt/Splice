@@ -39,16 +39,20 @@ class SingleImageDataset(Dataset):
         # open images
         dir_A = os.path.join(cfg['dataroot'], 'A')
         dir_B = os.path.join(cfg['dataroot'], 'B')
+        dir_C = os.path.join(cfg['dataroot'], 'C')
         A_path = os.listdir(dir_A)[0]
         B_path = os.listdir(dir_B)[0]
+        C_path = os.listdir(dir_C)[0]
         self.A_img = Image.open(os.path.join(dir_A, A_path)).convert('RGB')
         self.B_img = Image.open(os.path.join(dir_B, B_path)).convert('RGB')
+        self.C_img = Image.open(os.path.join(dir_C, C_path)).convert('RGB')
 
         if cfg['A_resize'] > 0:
             self.A_img = transforms.Resize(cfg['A_resize'])(self.A_img)
 
         if cfg['B_resize'] > 0:
             self.B_img = transforms.Resize(cfg['B_resize'])(self.B_img)
+            self.C_img = transforms.Resize(cfg['B_resize'])(self.C_img)
 
         if cfg['direction'] == 'BtoA':
             self.A_img, self.B_img = self.B_img, self.A_img
@@ -66,6 +70,7 @@ class SingleImageDataset(Dataset):
             sample['A'] = self.get_A()
         sample['A_global'] = self.global_A_patches(self.A_img)
         sample['B_global'] = self.global_B_patches(self.B_img)
+        sample['C_global'] = self.global_B_patches(self.C_img)
 
         return sample
 
