@@ -1,6 +1,6 @@
 seed: -1
 
-dataroot: ./datasets/interpolation/kiwi_1
+dataroot: ./datasets/interpolation/kiwi_merge
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
@@ -21,13 +21,13 @@ init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
 
 lambda_global_cls: 10.0
 lambda_global_ssim: 1.0
-lambda_B_identity: 0.5
-lambda_C_identity: 0.5
+lambda_B_identity: 1
+lambda_C_identity: 0
 entire_A_every: 75
 lambda_entire_cls: 10
 lambda_entire_ssim: 1.0
 
-B2C_alpha: 0.6 # cls_B * B2C_alpha + cls_C * (1-B2C_alpha)
+B2C_alpha: 1 # cls_B * B2C_alpha + cls_C * (1-B2C_alpha)
 
 dino_model_name: dino_vitb8
 dino_global_patch_size: 224
