@@ -53,7 +53,8 @@ def train_model(dataroot):
     for epoch in range(1, cfg['n_epochs'] + 1):
         inputs = dataset[0]
         for key in inputs:
-            inputs[key] = inputs[key].to(device)
+            if inputs[key] is not None:
+                inputs[key] = inputs[key].to(device)
         optimizer.zero_grad()
         outputs = model(inputs)
         losses = criterion(outputs, inputs)
