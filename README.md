@@ -1,4 +1,4 @@
-# Semantic Texture Transfer
+# Splicing ViT Features for Semantic Appearance Transfer
 
 ![plot](imgs/teaser.png)
 
