@@ -5,8 +5,9 @@ from torchvision import transforms
 import os
 import os.path
 import torch
+import numpy as np
 
-from data.transforms import Global_crops, dino_structure_transforms, dino_texture_transforms
+from data.transforms import Global_crops, dino_structure_transforms, dino_texture_transforms, apply_same_transform
 
 
 class SingleImageDataset(Dataset):
@@ -18,7 +19,7 @@ class SingleImageDataset(Dataset):
             transforms.ToTensor(),
         ])
 
-        self.global_A_patches = transforms.Compose(
+        self.global_A_patches_transform = transforms.Compose(
             [
                 self.structure_transforms,
                 Global_crops(n_crops=cfg['global_A_crops_n_crops'],
@@ -56,15 +57,23 @@ class SingleImageDataset(Dataset):
         print("Image sizes %s and %s" % (str(self.A_img.size), str(self.B_img.size)))
         self.step = torch.zeros(1) - 1
 
+        noisearray = np.random.rand(*self.A_img.size, 3)
+        self.noise_img = Image.fromarray(noisearray.astype('uint8'))
+        assert self.noise_img.size == self.A_img.size
+
     def get_A(self):
+        return self.base_transform(self.noise_img).unsqueeze(0)
+
+    def get_orig(self):
         return self.base_transform(self.A_img).unsqueeze(0)
 
     def __getitem__(self, index):
         self.step += 1
         sample = {'step': self.step}
         if self.step % self.cfg['entire_A_every'] == 0:
-            sample['A'] = self.get_A()
-        sample['A_global'] = self.global_A_patches(self.A_img)
+            sample['A'], sample['orig'] = self.get_A(), self.get_orig()
+        sample['A_global'], sample['orig_global'] = apply_same_transform(self.noise_img, self.A_img,
+                                                                         self.global_A_patches_transform)
         sample['B_global'] = self.global_B_patches(self.B_img)
 
         return sample

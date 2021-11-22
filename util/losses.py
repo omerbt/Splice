@@ -50,11 +50,11 @@ class LossG(torch.nn.Module):
         loss_G = 0
 
         if self.lambdas['lambda_global_ssim'] > 0:
-            losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['A_global'])
+            losses['loss_global_ssim'] = self.calculate_global_ssim_loss(outputs['x_global'], inputs['orig_global'])
             loss_G += losses['loss_global_ssim'] * self.lambdas['lambda_global_ssim']
 
         if self.lambdas['lambda_entire_ssim'] > 0:
-            losses['loss_entire_ssim'] = self.calculate_global_ssim_loss(outputs['x_entire'], inputs['A'])
+            losses['loss_entire_ssim'] = self.calculate_global_ssim_loss(outputs['x_entire'], inputs['orig'])
             loss_G += losses['loss_entire_ssim'] * self.lambdas['lambda_entire_ssim']
 
         if self.lambdas['lambda_entire_cls'] > 0:

@@ -3,6 +3,21 @@ import torchvision.transforms as transforms
 import torch.nn as nn
 import numpy as np
 import torch
+import random
+
+
+def apply_same_transform(x, y, transform):
+    def set_seed(s):
+        random.seed(s)
+        np.random.seed(s)
+        torch.manual_seed(s)
+
+    seed = random.randint(0, 2 ** 32 - 1)
+    set_seed(seed)
+    x = transform(x)
+    set_seed(seed)
+    y = transform(y)
+    return x, y
 
 
 class Global_crops(nn.Module):
@@ -40,3 +55,13 @@ dino_structure_transforms = transforms.Compose([
 dino_texture_transforms = transforms.Compose([
     transforms.RandomHorizontalFlip(p=0.5)
 ])
+
+
+def test_same_transform():
+    noisearray1 = np.random.rand(250, 250, 3)
+    x = Image.fromarray(noisearray1.astype('uint8'))
+    noisearray2 = np.random.rand(250, 250, 3)
+    y = Image.fromarray(noisearray2.astype('uint8'))
+    transform = dino_structure_transforms
+    x, y = apply_same_transform(x, y, transform)
+    assert list(x.getdata()) == list(y.getdata())
