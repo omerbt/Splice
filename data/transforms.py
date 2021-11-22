@@ -60,7 +60,7 @@ dino_texture_transforms = transforms.Compose([
 def test_same_transform():
     noisearray1 = np.random.rand(250, 250, 3)
     x = Image.fromarray(noisearray1.astype('uint8'))
-    noisearray2 = np.random.rand(250, 250, 3)
+    noisearray2 = np.copy(x)
     y = Image.fromarray(noisearray2.astype('uint8'))
     transform = dino_structure_transforms
     x, y = apply_same_transform(x, y, transform)
