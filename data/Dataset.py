@@ -57,8 +57,9 @@ class SingleImageDataset(Dataset):
         print("Image sizes %s and %s" % (str(self.A_img.size), str(self.B_img.size)))
         self.step = torch.zeros(1) - 1
 
-        noisearray = np.random.rand(self.A_img.size[1], self.A_img.size[0], 3)
-        self.noise_img = Image.fromarray(noisearray.astype('uint8'))
+        # noisearray = np.random.rand(self.A_img.size[1], self.A_img.size[0], 3)
+        # self.noise_img = Image.fromarray(noisearray.astype('uint8'))
+        self.noise_img = Image.open(os.path.join(dir_A, A_path)).convert('RGB')
         assert self.noise_img.size == self.A_img.size
 
     def get_A(self):
