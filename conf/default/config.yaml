@@ -1,0 +1,49 @@
+seed: -1
+
+dataroot: ./datasets/animals/cows
+direction: AtoB  # AtoB or BtoA
+A_resize: -1
+B_resize: -1
+use_augmentations: True
+
+log_crops: False
+
+global_A_crops_n_crops: 1
+global_A_crops_min_cover: 0.95
+
+global_B_crops_n_crops: 1
+global_B_crops_min_cover: 0.95
+
+init_type: xavier  # ['normal', 'xavier', 'kaiming', 'orthogonal']
+init_gain: 0.02  # scaling factor for normal, xavier and orthogonal
+
+lambda_global_cls: 10.0
+lambda_global_ssim: 1.0
+lambda_global_identity: 1.0
+entire_A_every: 75
+lambda_entire_cls: 10
+lambda_entire_ssim: 1.0
+
+dino_model_name: dino_vitb8
+dino_global_patch_size: 224
+upsample_mode: bilinear # ['nearest', 'bilinear']
+
+cls_warmup: 1
+n_epochs: 10000
+scheduler_policy: none  # [linear | step | plateau | cosine | none]
+scheduler_n_epochs_decay: 8
+scheduler_lr_decay_iters: 300
+
+optimizer: adam
+optimizer_beta1: 0.0
+optimizer_beta2: 0.99
+lr: 0.002
+
+checkpoints_dir: ./checkpoints
+log_images_freq: 10
+save_latest_freq: 20000
+save_epoch_freq: 1
+save_by_iter: True
+resume: False
+
+
