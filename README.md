@@ -6,7 +6,14 @@
 
 **Splice** is a method for semantic appearance transfer, as described in Splicing ViT Features for Semantic Appearance Transfer (link to paper).
 
-add a few words as in the abstract 
+
+>Given two input images—a source structure image and a target appearance image–our method generates a new image in which
+the structure of the source image is preserved, while the visual appearance of the target image is transferred in a semantically aware manner.
+That is, objects in the structure image are “painted” with the visual appearance of semantically related objects in the appearance image.
+Our method leverages a self-supervised, pre-trained ViT model as an external semantic prior. This allows us to train our generator only on
+a single input image pair, without any additional information (e.g., segmentation/correspondences), and without adversarial training. Thus,
+our framework can work across a variety of objects and scenes, and can generate high quality results in high resolution (e.g., HD).
+
 
 ## Getting Started
 ### Installation
