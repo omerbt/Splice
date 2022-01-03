@@ -48,7 +48,7 @@ placeholder for something
 
 ## Citation
 ```
-@article{text2mesh,
+@article{Splice2022,
     author = {Tumanyan, Narek
               and Bar-Tal, Omer
               and Bagon, Shai
@@ -56,6 +56,6 @@ placeholder for something
               },
     title = {Splicing ViT Features for Semantic Appearance Transfer}, 
     journal = {arXiv preprint arXiv:TBD},
-    year  = {2021}
+    year  = {2022}
 }
 ```
