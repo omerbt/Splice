@@ -29,7 +29,6 @@ pip install -r requirements.txt
 Run the following command to start training
 ```bash
 python train.py --dataroot datasets/cows
-# ...
 ```
 The result will be saved to `<dataroot>/output.png`
 
