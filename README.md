@@ -5,7 +5,7 @@
 ![teaser](imgs/teaser.png)
 
 
-**Splice** is a method for semantic appearance transfer, as described in Splicing ViT Features for Semantic Appearance Transfer (link to paper).
+**Splice** is a method for semantic appearance transfer, as described in Splicing ViT Features for Semantic Appearance Transfer.
 
 
 >Given two input images—a source structure image and a target appearance image–our method generates a new image in which
