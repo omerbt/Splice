@@ -1,4 +1,4 @@
-# Splicing ViT Features for Semantic Appearance Transfer [[Project Page](splice-vit.github.io)]
+# Splicing ViT Features for Semantic Appearance Transfer [[Project Page](https://splice-vit.github.io)]
 [![arXiv](https://img.shields.io/badge/arXiv-Splice-b31b1b.svg)](https://arxiv.org/abs/TBD)
 ![Pytorch](https://img.shields.io/badge/PyTorch->=1.9.0-Red?logo=pytorch)
 ![teaser](imgs/teaser.png)
