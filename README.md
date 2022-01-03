@@ -19,28 +19,19 @@ our framework can work across a variety of objects and scenes, and can generate 
 ## Getting Started
 ### Installation
 
-**Note:** The below installation will fail if run on something other than a CUDA GPU machine.
 ```
-conda env create --file placeholder.yml
-conda activate placeholder
+git clone https://github.com/omerbt/Splice.git
+pip install -r requirements.txt
 ```
-
-System requirements
-### System Requirements
-- the following are a placeholder
-- Python 3.7
-- CUDA 10.2
-- GPU w/ minimum 8 GB ram
 
 
 ### Run examples
-Call the below shell scripts to generate example results.
+Run the following command to start training
 ```bash
-# cow cow cow
-./placeholder.sh
+python train.py --dataroot datasets/cows
 # ...
 ```
-The outputs will be saved to `results/demo`, TBD.
+The result will be saved to `<dataroot>/output.png`
 
 ## Sample Results
 ![plot](imgs/results.png)
