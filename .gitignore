@@ -1,3 +1,4 @@
 /results/
 /wandb/
 .idea
+__pycache__

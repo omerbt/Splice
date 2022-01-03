@@ -1,4 +1,3 @@
-from PIL import Image
 import torchvision.transforms as transforms
 import torch.nn as nn
 import numpy as np

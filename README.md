@@ -49,7 +49,7 @@ placeholder for something
 ## Citation
 ```
 @article{text2mesh,
-    author = {Tumanayam, Narek
+    author = {Tumanyan, Narek
               and Bar-Tal, Omer
               and Bagon, Shai
               and Dekel, Tali
