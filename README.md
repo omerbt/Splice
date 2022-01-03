@@ -40,11 +40,9 @@ Call the below shell scripts to generate example results.
 # ...
 ```
 The outputs will be saved to `results/demo`, TBD.
-#### Outputs
-![plot](imgs/results.png)
 
-## Placeholder
-placeholder for something
+## Sample Results
+![plot](imgs/results.png)
 
 ## Citation
 ```
