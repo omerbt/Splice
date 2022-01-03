@@ -1,6 +1,8 @@
+from pathlib import Path
 from torch.optim import lr_scheduler
 import numpy as np
 import torch
+from torchvision.transforms import ToPILImage
 
 
 def get_scheduler(optimizer, lr_policy, n_epochs=None, n_epochs_decay=None, lr_decay_iters=None):
@@ -48,3 +50,10 @@ def tensor2im(input_image, imtype=np.uint8):
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     return image_numpy.astype(imtype)
+
+
+def save_result(image_t, dataroot):
+    image = ToPILImage()(image_t)
+    path = Path(f"{dataroot}/out")
+    path.mkdir(exist_ok=True, parents=True)
+    image.save(f"{path}/output.png")
