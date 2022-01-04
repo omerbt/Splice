@@ -25,7 +25,7 @@ def train_model(dataroot):
     # set seed
     seed = cfg['seed']
     if seed == -1:
-        seed = np.random.randint(2 ** 32)
+        seed = np.random.randint(2 ** 32 - 1)
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
