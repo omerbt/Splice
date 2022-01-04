@@ -1,11 +1,11 @@
 # Splicing ViT Features for Semantic Appearance Transfer [<a href="https://splice-vit.github.io" target="_blank">Project Page</a>]
 
-[comment]: <> ([![arXiv]&#40;https://img.shields.io/badge/arXiv-Splice-b31b1b.svg&#41;]&#40;https://arxiv.org/abs/TBD&#41;)
+[![arXiv](https://img.shields.io/badge/arXiv-Splice-b31b1b.svg)](http://arxiv.org/abs/2201.00424)
 ![Pytorch](https://img.shields.io/badge/PyTorch->=1.9.0-Red?logo=pytorch)
 ![teaser](imgs/teaser.png)
 
 
-**Splice** is a method for semantic appearance transfer, as described in Splicing ViT Features for Semantic Appearance Transfer.
+**Splice** is a method for semantic appearance transfer, as described in Splicing ViT Features for Semantic Appearance Transfer (<a href="http://arxiv.org/abs/2201.00424" target="_blank">link to paper</a>).
 
 
 >Given two input images—a source structure image and a target appearance image–our method generates a new image in which
@@ -44,7 +44,7 @@ The result will be saved to `<dataroot>/output.png`
               and Dekel, Tali
               },
     title = {Splicing ViT Features for Semantic Appearance Transfer}, 
-    journal = {arXiv preprint arXiv:TBD},
+    journal = {arXiv preprint arXiv:2201.00424},
     year  = {2022}
 }
 ```
