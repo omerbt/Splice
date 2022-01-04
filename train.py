@@ -1,4 +1,3 @@
-import logging
 import torch
 import numpy as np
 import random
@@ -8,8 +7,8 @@ from util.losses import LossG
 from util.util import get_scheduler, get_optimizer, save_result
 import yaml
 from argparse import ArgumentParser
+from tqdm import tqdm
 
-log = logging.getLogger(__name__)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -25,7 +24,7 @@ def train_model(dataroot):
     # set seed
     seed = cfg['seed']
     if seed == -1:
-        seed = np.random.randint(2 ** 32 - 1)
+        seed = np.random.randint(2 ** 32 - 1, dtype=np.int64)
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
@@ -49,34 +48,34 @@ def train_model(dataroot):
                               n_epochs_decay=cfg['scheduler_n_epochs_decay'],
                               lr_decay_iters=cfg['scheduler_lr_decay_iters'])
 
-    for epoch in range(1, cfg['n_epochs'] + 1):
-        inputs = dataset[0]
-        for key in inputs:
-            inputs[key] = inputs[key].to(device)
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        losses = criterion(outputs, inputs)
-        loss_G = losses['loss']
-        log_data = losses
-        log_data['epoch'] = epoch
+    with tqdm(range(1, cfg['n_epochs'] + 1)) as tepoch:
+        for epoch in tepoch:
+            inputs = dataset[0]
+            for key in inputs:
+                inputs[key] = inputs[key].to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            losses = criterion(outputs, inputs)
+            loss_G = losses['loss']
+            log_data = losses
+            log_data['epoch'] = epoch
 
-        # update learning rate
-        lr = optimizer.param_groups[0]['lr']
-        log.info(f'epoch = {log_data["epoch"]}')
-        log.info(f'loss = {log_data["loss"]}')
-        log.info('learning rate = %.7f' % lr)
-        log_data["lr"] = lr
+            # update learning rate
+            lr = optimizer.param_groups[0]['lr']
+            log_data["lr"] = lr
+            tepoch.set_description(f"Epoch {log_data['epoch']}")
+            tepoch.set_postfix(loss=log_data["loss"].item(), lr=log_data["lr"])
 
-        # log current generated entire image
-        if epoch % cfg['log_images_freq'] == 0:
-            img_A = dataset.get_A().to(device)
-            with torch.no_grad():
-                output = model.netG(img_A)
-            save_result(output[0], cfg['dataroot'])
+            # log current generated entire image
+            if epoch % cfg['log_images_freq'] == 0:
+                img_A = dataset.get_A().to(device)
+                with torch.no_grad():
+                    output = model.netG(img_A)
+                save_result(output[0], cfg['dataroot'])
 
-        loss_G.backward()
-        optimizer.step()
-        scheduler.step()
+            loss_G.backward()
+            optimizer.step()
+            scheduler.step()
 
 
 if __name__ == '__main__':
