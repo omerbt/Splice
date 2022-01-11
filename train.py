@@ -37,7 +37,7 @@ def train_model(dataroot):
     model = Model(cfg)
 
     # define loss function
-    criterion = LossG(dataset.B_img, cfg)
+    criterion = LossG(cfg)
 
     # define optimizer, scheduler
     optimizer = get_optimizer(cfg, model.netG.parameters())

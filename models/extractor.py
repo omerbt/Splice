@@ -22,7 +22,6 @@ class VitExtractor:
         self.model = torch.hub.load('facebookresearch/dino:main', model_name).to(device)
         self.model.eval()
         self.model_name = model_name
-        # TODO self.stride, wrap model with patch model
         self.hook_handlers = []
         self.layers_dict = {}
         self.outputs_dict = {}
