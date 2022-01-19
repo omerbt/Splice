@@ -12,7 +12,7 @@ from tqdm import tqdm
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def train_model(dataroot):
+def train_model(dataroot, callback=None):
     with open("conf/default/config.yaml", "r") as f:
         config = yaml.safe_load(f)
 
@@ -72,6 +72,8 @@ def train_model(dataroot):
                 with torch.no_grad():
                     output = model.netG(img_A)
                 save_result(output[0], cfg['dataroot'])
+                if callback is not None:
+                    callback(output[0])
 
             loss_G.backward()
             optimizer.step()
