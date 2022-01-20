@@ -2,6 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-Splice-b31b1b.svg)](http://arxiv.org/abs/2201.00424)
 ![Pytorch](https://img.shields.io/badge/PyTorch->=1.9.0-Red?logo=pytorch)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/omerbt/Splice/blob/master/Splice.ipynb)
 ![teaser](imgs/teaser.png)
 
 
@@ -25,7 +26,9 @@ pip install -r requirements.txt
 ```
 
 
-### Run examples
+### Run examples [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/omerbt/Splice/blob/master/Splice.ipynb)
+
+
 Run the following command to start training
 ```bash
 python train.py --dataroot datasets/cows
