@@ -53,6 +53,7 @@ class VitExtractor:
     def _clear_hooks(self):
         for handler in self.hook_handlers:
             handler.remove()
+        self.hook_handlers = []
 
     def _get_block_hook(self):
         def _get_block_output(model, input, output):
