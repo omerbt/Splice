@@ -36,7 +36,13 @@ python train.py --dataroot datasets/cows
 Intermediate results will be saved to `<dataroot>/out/output.png` during optimization. The frequency of saving intermediate results is indicated in the `save_epoch_freq` flag of the configuration.
 
 ## Sample Results
+
+### In-The-Wild Results
 ![plot](imgs/results.png)
+
+### Structure-Appearance Mixing
+![plot](imgs/mixing_dogs.png)
+![plot](imgs/mixing_mountains.png)
 
 ## Citation
 ```
