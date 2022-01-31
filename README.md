@@ -41,8 +41,8 @@ Intermediate results will be saved to `<dataroot>/out/output.png` during optimiz
 ![plot](imgs/results.png)
 
 ### Structure-Appearance Mixing
-![plot](imgs/mixing_dogs.png)
 ![plot](imgs/mixing_mountains.png)
+![plot](imgs/mixing_dogs.png)
 
 ## Citation
 ```
