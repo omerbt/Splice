@@ -37,10 +37,10 @@ Intermediate results will be saved to `<dataroot>/out/output.png` during optimiz
 
 ## Sample Results
 
-### In-The-Wild Results
+### Wild-Pairs
 ![plot](imgs/results.png)
 
-### Structure-Appearance Mixing
+### Additional Results
 ![plot](imgs/mixing_mountains.png)
 ![plot](imgs/mixing_dogs.png)
 
