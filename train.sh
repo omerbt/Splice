@@ -1,1 +1,0 @@
-bsub -q waic-short -R rusage[mem=60000] -R affinity[thread*2] -gpu num=1:j_exclusive=yes:gmodel=TeslaV100_SXM2_32GB "module load miniconda/4.7.12; . activate; conda activate /home/labs/waic/narekt/.conda/envs/segm; kernprof -l train.py"
