@@ -1,13 +1,11 @@
 import torch
 
 
-def attn_cosine_sim(x, y, eps=1e-08):
+def attn_cosine_sim(x, eps=1e-08):
     x = x[0]  # TEMP: getting rid of redundant dimension, TBF
-    y = y[0]  # TEMP: getting rid of redundant dimension, TBF
     norm1 = x.norm(dim=2, keepdim=True)
-    norm2 = y.norm(dim=2, keepdim=True)
-    factor = torch.clamp(norm1 @ norm2.permute(0, 2, 1), min=eps)
-    sim_matrix = (x @ y.permute(0, 2, 1)) / factor
+    factor = torch.clamp(norm1 @ norm1.permute(0, 2, 1), min=eps)
+    sim_matrix = (x @ x.permute(0, 2, 1)) / factor
     return sim_matrix
 
 
@@ -161,5 +159,5 @@ class VitExtractor:
         keys = self.get_keys_from_input(input_img, layer_num=layer_num)
         h, t, d = keys.shape
         concatenated_keys = keys.transpose(0, 1).reshape(t, h * d)
-        ssim_map = attn_cosine_sim(concatenated_keys[None, None, ...], concatenated_keys[None, None, ...])
+        ssim_map = attn_cosine_sim(concatenated_keys[None, None, ...])
         return ssim_map
