@@ -163,12 +163,3 @@ class VitExtractor:
         concatenated_keys = keys.transpose(0, 1).reshape(t, h * d)
         ssim_map = attn_cosine_sim(concatenated_keys[None, None, ...], concatenated_keys[None, None, ...])
         return ssim_map
-
-    def get_cls_attn_signal(self, input_img):
-        assert self.model_name == 'dino_vits8'
-        head_idx = [0, 2, 4, 5]  # relevant for dino_vits8
-        attn_map = self.get_attn_feature_from_input(input_img)
-        cls_attn_map = attn_map[-1][:, head_idx, 0, 1:].mean(dim=1)  # [b, t, t]
-        temp_min, temp_max = cls_attn_map.min(), cls_attn_map.max()
-        cls_attn_map = (cls_attn_map - temp_min) / (temp_max - temp_min)
-        return cls_attn_map
