@@ -41,10 +41,6 @@ Intermediate results will be saved to `<dataroot>/out/output.png` during optimiz
 ### Wild-Pairs
 ![plot](imgs/results.png)
 
-### Additional Results
-![plot](imgs/mixing_mountains.png)
-![plot](imgs/mixing_dogs.png)
-
 ## Citation
 ```
 @article{Splice2022,
