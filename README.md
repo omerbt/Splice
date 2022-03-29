@@ -1,4 +1,4 @@
-# Splicing ViT Features for Semantic Appearance Transfer (CVPR 2022)
+# Splicing ViT Features for Semantic Appearance Transfer (CVPR 2022 - Oral)
 ## [<a href="https://splice-vit.github.io" target="_blank">Project Page</a>]
 
 [![arXiv](https://img.shields.io/badge/arXiv-Splice-b31b1b.svg)](http://arxiv.org/abs/2201.00424)
