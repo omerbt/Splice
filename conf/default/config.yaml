@@ -1,12 +1,10 @@
 seed: -1
 
-dataroot: ./datasets/cows
+dataroot: ./datasets/splicing/cows
 direction: AtoB  # AtoB or BtoA
 A_resize: -1
 B_resize: -1
 use_augmentations: True
-
-log_crops: False
 
 global_A_crops_n_crops: 1
 global_A_crops_min_cover: 0.95
@@ -26,7 +24,6 @@ lambda_entire_ssim: 1.0
 
 dino_model_name: dino_vitb8 # ['dino_vitb8', 'dino_vits8', 'dino_vitb16', 'dino_vits16']
 dino_global_patch_size: 224
-upsample_mode: bilinear # ['nearest', 'bilinear']
 
 cls_warmup: 1
 n_epochs: 10000
@@ -39,11 +36,5 @@ optimizer_beta1: 0.0
 optimizer_beta2: 0.99
 lr: 0.002
 
-checkpoints_dir: ./checkpoints
 log_images_freq: 10
-save_latest_freq: 20000
-save_epoch_freq: 1
-save_by_iter: True
-resume: False
-
 
