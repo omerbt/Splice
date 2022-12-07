@@ -41,14 +41,11 @@ Intermediate results will be saved to `<dataroot>/out/output.png` during optimiz
 
 ## Citation
 ```
-@article{Splice2022,
-    author = {Tumanyan, Narek
-              and Bar-Tal, Omer
-              and Bagon, Shai
-              and Dekel, Tali
-              },
-    title = {Splicing ViT Features for Semantic Appearance Transfer}, 
-    journal = {arXiv preprint arXiv:2201.00424},
-    year  = {2022}
+@inproceedings{tumanyan2022splicing,
+  title={Splicing ViT Features for Semantic Appearance Transfer},
+  author={Tumanyan, Narek and Bar-Tal, Omer and Bagon, Shai and Dekel, Tali},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={10748--10757},
+  year={2022}
 }
 ```
