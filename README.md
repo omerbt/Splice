@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 Run the following command to start training
 ```bash
-python train.py --dataroot datasets/cows
+python train.py --dataroot datasets/splicing/cows
 ```
 Intermediate results will be saved to `<dataroot>/out/output.png` during optimization. The frequency of saving intermediate results is indicated in the `save_epoch_freq` flag of the configuration.
 
