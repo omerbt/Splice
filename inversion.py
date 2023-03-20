@@ -22,7 +22,7 @@ def invert(args):
                num_channels_up=[16, 32, 64, 128, 128, 128],
                num_channels_skip=[4, 4, 4, 4, 4, 4],
                filter_size_down=[7, 7, 5, 5, 3, 3], filter_size_up=[7, 7, 5, 5, 3, 3],
-               downsample_mode='avg', pad='reflection').to(device)
+               downsample_mode='stride', pad='reflection').to(device)
     net_input_saved = torch.randn((1, args.input_depth, input_img.shape[-2], input_img.shape[-1])).to(device)
 
     # define the extractor
@@ -51,6 +51,7 @@ def invert(args):
 
     # inversion loop
     for i in tqdm(range(args.n_iter)):
+        net_input = net_input_saved
         if args.feature == 'cls':
             # we're adding noise to the input at each step as a regularization
             if i < args.reduce_noise_stage_1_iter:
