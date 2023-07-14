@@ -25,9 +25,9 @@ def train_model(dataroot, callback=None):
     seed = cfg['seed']
     if seed == -1:
         seed = np.random.randint(2 ** 32 - 1, dtype=np.int64)
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
     print(f'running with seed: {seed}.')
 
     # create dataset, loader
