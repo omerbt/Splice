@@ -29,14 +29,15 @@ def visualize(args):
         keys_self_sim = vit_extractor.get_keys_self_sim_from_input(dino_preprocess(input_img), args.layer)
 
     pca = PCA(n_components=3)
-    pca.fit(keys_self_sim[0].cpu().numpy())
-    components = pca.components_[None, ...]
+    keys_self_sim_cpu = keys_self_sim[0].cpu().numpy()
+    pca.fit(keys_self_sim_cpu)
+    reduced = pca.transform(keys_self_sim_cpu)[None, ...]
 
     # reshape the reduced keys to the image shape
     patch_size = vit_extractor.get_patch_size()
     patch_h_num = vit_extractor.get_height_patch_num(input_img.shape)
     patch_w_num = vit_extractor.get_width_patch_num(input_img.shape)
-    pca_image = components[:, :, 1:].reshape(3, patch_h_num, patch_w_num).transpose(1, 2, 0)
+    pca_image = reduced[:, 1:].reshape(patch_h_num, patch_w_num, 3)
     pca_image = (pca_image - pca_image.min()) / (pca_image.max() - pca_image.min())
     h, w, _ = pca_image.shape
     pca_image = Image.fromarray(np.uint8(pca_image * 255))
